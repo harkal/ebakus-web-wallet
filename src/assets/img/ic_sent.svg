@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="11px" viewBox="0 0 16 11" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.6 (67491) - http://www.bohemiancoding.com/sketch -->
+    <title>ic_sent</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <polyline id="path-1" points="0 4.25553339 2.55005803 7 9 0"></polyline>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="Artboard" transform="translate(-148.000000, -597.000000)">
+            <g id="ic_sent" transform="translate(150.000000, 599.000000)">
+                <polyline id="Path-5" stroke="#06F395" stroke-width="2" points="4 4.25553339 6.55005803 7 13 0"></polyline>
+                <g id="Path-5">
+                    <use stroke="#100E26" stroke-width="4" xlink:href="#path-1"></use>
+                    <use stroke="#06F395" stroke-width="2" xlink:href="#path-1"></use>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
