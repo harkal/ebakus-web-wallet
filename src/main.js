@@ -4,12 +4,11 @@ import VueClipboard from 'vue-clipboard2'
 
 import App from './App.vue'
 import router from './router'
+import MutationTypes from './store/mutation-types'
 import store from './store'
 import { init as initWeb3 } from './actions/web3ebakus'
 
 import './assets/css/main.scss'
-
-import MutationTypes from './store/mutation-types'
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
 

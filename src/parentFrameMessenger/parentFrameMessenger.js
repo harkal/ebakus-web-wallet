@@ -1,6 +1,6 @@
-import { SpinnerState } from '../constants'
+import { SpinnerState } from '@/constants'
+import store from '@/store'
 
-import store from '../store'
 import {
   externalFrameHandler,
   externalPassiveFrameHandler,

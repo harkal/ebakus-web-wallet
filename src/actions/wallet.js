@@ -1,9 +1,13 @@
 import { generateMnemonic, mnemonicToSeed } from 'bip39'
 import hdkey from 'hdkey'
 
-import { SpinnerState, StorageNames } from './constants'
-import MutationTypes from '../store/mutation-types'
-import store from './store'
+import { SpinnerState, StorageNames } from '@/constants'
+import MutationTypes from '@/store/mutation-types'
+import store from '@/store'
+import {
+  loadedInIframe,
+  frameEventBalanceUpdated,
+} from '@/parentFrameMessenger/parentFrameMessenger'
 
 import { decodeDataUsingAbi, getValueForParam } from './abi'
 import { setProvider } from './providers'
@@ -15,11 +19,6 @@ import {
 } from './tokens'
 import { loadTxsInfoFromExplorer } from './transactions'
 import { web3 } from './web3ebakus'
-
-import {
-  loadedInIframe,
-  frameEventBalanceUpdated,
-} from './parentFrameMessenger/parentFrameMessenger'
 
 const getBalanceCatchUpdateNetworkTimeouts = []
 

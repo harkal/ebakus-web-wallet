@@ -1,5 +1,5 @@
-import { Networks } from '../constants'
-import store from '../store/index'
+import { Networks } from '@/constants'
+import store from '@/store/index'
 
 import { web3 } from './web3ebakus'
 

@@ -1,13 +1,13 @@
-import { SpinnerState, DefaultDappWhitelistTimer } from '../constants'
-import MutationTypes from '../store/mutation-types'
-import store from '../store'
+import { SpinnerState, DefaultDappWhitelistTimer } from '@/constants'
+import MutationTypes from '@/store/mutation-types'
+import store from '@/store'
 
 import {
   getTargetOrigin,
   loadedInIframe,
   shrinkFrameInParentWindow,
-} from '../parentFrameMessenger/parentFrameMessenger'
-import { activateDrawerIfClosed } from '../parentFrameMessenger/handler'
+} from '@/parentFrameMessenger/parentFrameMessenger'
+import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
 import { calcWorkAndSendTx } from './transactions'
 import { loadConfirmTxMsg } from './wallet'

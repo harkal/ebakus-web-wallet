@@ -1,6 +1,6 @@
 import { version } from '../../package.json'
 
-import { DefaultToken, SpinnerState, StorageNames } from '../constants'
+import { DefaultToken, SpinnerState, StorageNames } from '@/constants'
 
 import defaultState from './state'
 import MutationTypes from './mutation-types'

@@ -1,11 +1,12 @@
-import { addPendingTx } from '../actions/transactions'
-import { getCurrentProviderEndpoint } from '../actions/providers'
-import { getBalance as getBalanceFromWallet } from '../actions/wallet'
-import { web3 } from '../actions/web3ebakus'
-import { performWhitelistedAction } from '../actions/whitelist'
+import { addPendingTx } from '@/actions/transactions'
+import { getCurrentProviderEndpoint } from '@/actions/providers'
+import { getBalance as getBalanceFromWallet } from '@/actions/wallet'
+import { web3 } from '@/actions/web3ebakus'
+import { performWhitelistedAction } from '@/actions/whitelist'
 
-import MutationTypes from '../store/mutation-types'
-import store from '../store'
+import MutationTypes from '@/store/mutation-types'
+import store from '@/store'
+
 import {
   replyToParentWindow,
   expandFrameInParentWindow,

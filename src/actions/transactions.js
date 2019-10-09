@@ -1,15 +1,17 @@
 import Vue from 'vue'
-import { decodeDataUsingAbi, getValueForParam } from './abi'
-import { getTokenInfoForContractAddress, decodeData } from './tokens'
-import { SpinnerState } from '../constants'
-import { exitPopUP } from '../components/UI/Dialogue.vue'
+
+import { SpinnerState } from '@/constants'
+import { exitPopUP } from '@/components/UI/Dialogue.vue'
 import {
   loadedInIframe,
   replyToParentWindow,
   shrinkFrameInParentWindow,
-} from '../parentFrameMessenger/parentFrameMessenger'
-import MutationTypes from '../store/mutation-types'
-import store from '../store'
+} from '@/parentFrameMessenger/parentFrameMessenger'
+import MutationTypes from '@/store/mutation-types'
+import store from '@/store'
+
+import { decodeDataUsingAbi, getValueForParam } from './abi'
+import { getTokenInfoForContractAddress, decodeData } from './tokens'
 import { web3 } from './web3ebakus'
 
 const addPendingTx = async tx => {

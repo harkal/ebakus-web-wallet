@@ -1,5 +1,6 @@
 import abiDecoder from 'abi-decoder'
-import store from '../store'
+
+import store from '@/store'
 import { web3 } from './web3ebakus'
 
 const erc20Abi = JSON.parse(

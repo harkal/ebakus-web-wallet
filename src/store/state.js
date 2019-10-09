@@ -1,6 +1,6 @@
 import { version } from '../../package.json'
 
-import { DefaultToken } from '../constants'
+import { DefaultToken } from '@/constants'
 
 export default {
   version,
