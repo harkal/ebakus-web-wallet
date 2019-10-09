@@ -11,7 +11,10 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "abi-decoder": "https://github.com/ziogaschr/abi-decoder#feature/multiple-instances",
+    "bip39": "^3.0.2",
     "core-js": "^2.6.5",
+    "hdkey": "^1.1.1",
     "lodash": "^4.17.15",
     "vue": "^2.6.10",
     "vue-clipboard2": "^0.3.1",

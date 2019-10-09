@@ -5,6 +5,7 @@ import VueClipboard from 'vue-clipboard2'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import { init as initWeb3 } from './actions/web3ebakus'
 
 import './assets/css/main.scss'
 
@@ -20,6 +21,9 @@ new Vue({
   store,
   beforeCreate() {
     this.$store.commit(MutationTypes.INITIALISE_STORE)
+
+    // init web3 ebakus instance
+    initWeb3(this.$store.getters.network)
   },
   render: h => h(App),
 }).$mount('#app')

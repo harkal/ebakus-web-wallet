@@ -65,4 +65,15 @@ if (process.env.NODE_ENV === 'development') {
   }
 }
 
-export { DefaultToken, DefaultDappWhitelistTimer, SpinnerState, Networks }
+const StorageNames = {
+  WEB3_WALLET: 'web3js_wallet',
+  WEB3_OLD_WALLET_BACKUP: 'web3DataBackup',
+}
+
+export {
+  DefaultToken,
+  DefaultDappWhitelistTimer,
+  SpinnerState,
+  Networks,
+  StorageNames,
+}
