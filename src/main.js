@@ -8,7 +8,7 @@ import store from './store'
 
 import './assets/css/main.scss'
 
-import { INITIALISE_STORE } from './store/mutation-types'
+import MutationTypes from './store/mutation-types'
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
 
@@ -19,7 +19,7 @@ new Vue({
   router,
   store,
   beforeCreate() {
-    this.$store.commit(INITIALISE_STORE)
+    this.$store.commit(MutationTypes.INITIALISE_STORE)
   },
   render: h => h(App),
 }).$mount('#app')

@@ -1,13 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {
-  SET_NETWORK,
-  SET_DAPP_WHITELIST,
-  SET_DAPP_WHITELIST_TIMER,
-  ADD_CONTRACT_TO_DAPP_WHITELIST,
-  REMOVE_DAPP_FROM_WHITELIST,
-} from './mutation-types'
+import MutationTypes from './mutation-types'
 
 import state from './state'
 import getters from './getters'
@@ -27,11 +21,11 @@ const store = new Vuex.Store({
 store.subscribe(({ type }, state) => {
   if (
     ![
-      SET_NETWORK,
-      SET_DAPP_WHITELIST,
-      SET_DAPP_WHITELIST_TIMER,
-      ADD_CONTRACT_TO_DAPP_WHITELIST,
-      REMOVE_DAPP_FROM_WHITELIST,
+      MutationTypes.SET_NETWORK,
+      MutationTypes.SET_DAPP_WHITELIST,
+      MutationTypes.SET_DAPP_WHITELIST_TIMER,
+      MutationTypes.ADD_CONTRACT_TO_DAPP_WHITELIST,
+      MutationTypes.REMOVE_DAPP_FROM_WHITELIST,
     ].includes(type)
   ) {
     return

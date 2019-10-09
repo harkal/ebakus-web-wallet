@@ -8,6 +8,7 @@ export default {
   // current operating transaction at wallet
   tx: {
     object: {},
+    jobId: null, // parentFrame handler id
   },
 
   // netwrok preferences
@@ -36,9 +37,9 @@ export default {
 
   // wallet global state
   wallet: {
-    address: null,
-    balance: '0',
-    token: DefaultToken,
+    address: null, // TODO: add getter that gives the checksumAddress
+    balance: '0', // TODO: add getters for getting balanceInEther, etc
+    token: DefaultToken, // FIXME: rename to tokenSymbol
   },
 
   // transaction history

@@ -1,31 +1,12 @@
 import { version } from '../../package.json'
 
-import { DefaultToken, SpinnerState } from '../constants'
+import { DefaultToken, SpinnerState, StorageNames } from '../constants'
 
 import defaultState from './state'
-
-import {
-  INITIALISE_STORE,
-  ACTIVATE_DRAWER,
-  DEACTIVATE_DRAWER,
-  SET_SPINNER_STATE,
-  SET_WALLET_ADDRESS,
-  SET_WALLET_BALANCE,
-  SET_ACTIVE_TOKEN,
-  SET_TOKENS,
-  SET_LOGS,
-  ADD_LOCAL_LOG,
-  SET_NETWORK,
-  SET_TX_OBJECT,
-  CLEAR_TX,
-  SET_DAPP_WHITELIST,
-  SET_DAPP_WHITELIST_TIMER,
-  ADD_CONTRACT_TO_DAPP_WHITELIST,
-  REMOVE_DAPP_FROM_WHITELIST,
-} from './mutation-types'
+import MutationTypes from './mutation-types'
 
 export default {
-  [INITIALISE_STORE](state) {
+  [MutationTypes.INITIALISE_STORE](state) {
     let newState = { ...state }
 
     // preload store from localStorage
@@ -50,8 +31,10 @@ export default {
       }
     }
 
-    if (localStorage.getItem('web3js_wallet')) {
-      const web3data = JSON.parse(localStorage.getItem('web3js_wallet'))
+    if (localStorage.getItem(StorageNames.WEB3_WALLET)) {
+      const web3data = JSON.parse(
+        localStorage.getItem(StorageNames.WEB3_WALLET)
+      )
       console.log('web3data: ', web3data)
       newState = {
         ...newState,
@@ -62,57 +45,62 @@ export default {
     this.replaceState(newState)
   },
 
-  [ACTIVATE_DRAWER](state, userAction) {
+  [MutationTypes.ACTIVATE_DRAWER](state, userAction) {
     state.ui.isDrawerActive = true
     state.ui.isDrawerActiveByUser = userAction === false ? false : true // default: true
   },
-  [DEACTIVATE_DRAWER](state) {
+  [MutationTypes.DEACTIVATE_DRAWER](state) {
     state.ui.isDrawerActive = false
   },
 
-  [SET_SPINNER_STATE](state, spinnerState) {
+  [MutationTypes.SET_SPINNER_STATE](state, spinnerState) {
     state.ui.currentSpinnerState = spinnerState
     state.ui.isSpinnerActive = !!(spinnerState & SpinnerState.SPINNER_RUNNING)
   },
 
-  [SET_WALLET_ADDRESS](state, address) {
+  [MutationTypes.SET_WALLET_ADDRESS](state, address) {
     state.wallet.address = address
   },
-  [SET_WALLET_BALANCE](state, balance) {
+  [MutationTypes.SET_WALLET_BALANCE](state, balance) {
     state.wallet.balance = balance
   },
-  [SET_ACTIVE_TOKEN](state, token = DefaultToken) {
+  [MutationTypes.SET_ACTIVE_TOKEN](state, token = DefaultToken) {
     state.wallet.token = token
   },
 
-  [SET_TOKENS](state, tokens) {
+  [MutationTypes.SET_TOKENS](state, tokens) {
     state.tokens = tokens
   },
 
-  [SET_LOGS](state, data) {
+  [MutationTypes.SET_LOGS](state, data) {
     state.history = data
   },
-  [ADD_LOCAL_LOG](state, data) {
+  [MutationTypes.ADD_LOCAL_LOG](state, data) {
+    if (!data.timestamp) {
+      const now = new Date()
+      const timestamp = Math.round(now.getTime() / 1000)
+      data.timestamp = timestamp
+    }
+
     state.history.unshift(data)
 
     let logs = []
     if (localStorage.getItem('logs')) {
       logs = JSON.parse(localStorage.getItem('logs'))
     }
-
-    // TODO: add timestamp if missing
+    logs.unshift(data)
 
     localStorage.setItem('logs', JSON.stringify(logs))
   },
 
-  [SET_TX_OBJECT](state, tx) {
+  [MutationTypes.SET_TX_OBJECT](state, tx) {
     state.tx.object = tx
   },
-  [CLEAR_TX](state) {
+  [MutationTypes.CLEAR_TX](state) {
     state.tx = defaultState.tx
   },
 
-  [SET_NETWORK](state, data) {
+  [MutationTypes.SET_NETWORK](state, data) {
     const { networkId, nodeAddress } = data
     state.network = {
       network_id: networkId,
@@ -128,7 +116,10 @@ export default {
   },
 
   /* -- Whitelisting mutations -- */
-  [SET_DAPP_WHITELIST](state, { origin, contractAddress, timer }) {
+  [MutationTypes.SET_DAPP_WHITELIST](
+    state,
+    { origin, contractAddress, timer }
+  ) {
     const curOrigin = {
       all: {
         timer: null,
@@ -153,7 +144,7 @@ export default {
       },
     }
   },
-  [SET_DAPP_WHITELIST_TIMER](state, { origin, timer }) {
+  [MutationTypes.SET_DAPP_WHITELIST_TIMER](state, { origin, timer }) {
     const curOrigin = {
       all: {
         timer: null,
@@ -171,7 +162,10 @@ export default {
       },
     }
   },
-  [ADD_CONTRACT_TO_DAPP_WHITELIST](state, { origin, contractAddress }) {
+  [MutationTypes.ADD_CONTRACT_TO_DAPP_WHITELIST](
+    state,
+    { origin, contractAddress }
+  ) {
     const curOrigin = {
       ...state.whitelist[origin],
     }
@@ -189,7 +183,7 @@ export default {
       },
     }
   },
-  [REMOVE_DAPP_FROM_WHITELIST](state, origin) {
+  [MutationTypes.REMOVE_DAPP_FROM_WHITELIST](state, origin) {
     delete state.whitelist[origin]
     state.whitelist = { ...state.whitelist }
   },
