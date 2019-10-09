@@ -12,16 +12,16 @@ module.exports = {
       disableHostCheck: !!process.env.DISABLE_HOST_CHECK,
     },
     plugins: [
-      new webpack.optimize.LimitChunkCountPlugin({
-        maxChunks: 1,
-      }),
+      // new webpack.optimize.LimitChunkCountPlugin({
+      //   maxChunks: 1,
+      // }),
       new webpack.DefinePlugin({
         'process.env': env,
       }),
     ],
   },
   chainWebpack: config => {
-    config.optimization.delete('splitChunks')
+    // config.optimization.delete('splitChunks')
     config.output.globalObject('this')
 
     // this is not a good practice,
