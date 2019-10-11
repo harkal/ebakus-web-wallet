@@ -58,6 +58,12 @@ a {
   display: none;
 }
 
+.text-error {
+  color: red;
+  font-size: 14px;
+  font-weight: 400;
+}
+
 #ebk-wallet {
   position: fixed;
   right: 0;
@@ -142,6 +148,30 @@ a {
 
   .opened & {
     transform: translateX(0%);
+  }
+}
+
+.overlay {
+  display: none;
+  transition: all 0.5s ease-out;
+
+  &.red,
+  &.black {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.8;
+    z-index: 0;
+    animation: 0.3s showOpacity80 ease-out;
+  }
+  &.red {
+    background: #fd315f;
+  }
+  &.black {
+    background: #000;
   }
 }
 
@@ -481,12 +511,12 @@ button {
   }
 
   &.col {
-    &:first-child {
-      margin-right: 25px;
-    }
-
     &.secondary {
       margin-right: 30px;
+    }
+
+    &:first-child {
+      margin-right: 25px;
     }
   }
 
@@ -766,5 +796,19 @@ div.bubble.local:hover {
   }
   100% {
     opacity: 1;
+  }
+}
+
+@keyframes showOpacity80 {
+  0% {
+    opacity: 0;
+    display: none;
+  }
+  1% {
+    display: block;
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.8;
   }
 }

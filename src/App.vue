@@ -225,37 +225,6 @@ export default {
 </script>
 
 <style lang="scss">
-span.ebk-wallet.error {
-  color: red;
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.overlay {
-  display: none;
-  // opacity: 0;
-  transition: all 0.5s ease-out;
-
-  &.red,
-  &.black {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    opacity: 0.8;
-    z-index: 1000;
-    animation: 0.3s show ease-out;
-  }
-  &.red {
-    background: #fd315f;
-  }
-  &.black {
-    background: #000;
-  }
-}
-
 .status-bar .balance {
   font-weight: 700;
   text-align: center;
@@ -263,18 +232,5 @@ span.ebk-wallet.error {
 #receive > div > div > img {
   width: 240px;
   padding: 10px 0px;
-}
-@keyframes show {
-  0% {
-    opacity: 0;
-    display: none;
-  }
-  1% {
-    display: block;
-    opacity: 0;
-  }
-  100% {
-    opacity: 0.8;
-  }
 }
 </style>
