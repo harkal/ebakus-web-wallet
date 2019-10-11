@@ -177,7 +177,9 @@ const generateWallet = () => {
       `0x${addrNode._privateKey.toString('hex')}`
     )
     web3.eth.accounts.wallet.add(newAcc)
+
     store.dispatch(MutationTypes.SET_WALLET_ADDRESS, newAcc.address)
+
     // Add to log
     const newAccLog = {
       title: 'Account created',
@@ -255,6 +257,7 @@ const importWallet = _seed => {
     }
 
     store.dispatch(MutationTypes.SET_WALLET_ADDRESS, newAcc.address)
+
     // Add to log
     const newAcc_log = {
       title: 'Account Imported',
@@ -265,9 +268,9 @@ const importWallet = _seed => {
     store.dispatch(MutationTypes.ADD_LOCAL_LOG, newAcc_log)
 
     if (newAcc) {
-      resolve(newAcc)
+      resolve(newAcc.address)
     } else {
-      reject(new Error('failed'))
+      reject(new Error('Failed to import wallet'))
     }
   })
 }
@@ -292,7 +295,7 @@ const unlockWallet = pass => {
     const wallet = web3.eth.accounts.wallet.load(pass)
 
     if (wallet) {
-      console.log('wallet unlocked', wallet)
+      console.log('wallet unlocked', wallet.address)
 
       if (
         typeof wallet[0] !== 'undefined' &&
@@ -303,9 +306,9 @@ const unlockWallet = pass => {
         )
       }
 
-      resolve(wallet)
+      resolve(wallet.address)
     } else {
-      reject(new Error('failed'))
+      reject(new Error('Failed to unlock existing wallet'))
     }
   })
 }

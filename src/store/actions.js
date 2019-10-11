@@ -25,4 +25,8 @@ export default {
   [MutationTypes.ADD_LOCAL_LOG](context, data) {
     context.commit(MutationTypes.ADD_LOCAL_LOG, data)
   },
+
+  [MutationTypes.SHOW_DIALOG](context, data) {
+    context.commit(MutationTypes.SHOW_DIALOG, data)
+  },
 }

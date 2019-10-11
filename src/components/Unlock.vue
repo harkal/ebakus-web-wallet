@@ -9,7 +9,7 @@
       placeholder
       @keyup.enter="unlockWallet"
     />
-    <span class="ebk-wallet error">{{ error }}</span>
+    <span class="text-error">{{ error }}</span>
     <button class="full" @click="unlockWallet">Unlock</button>
   </div>
 </template>
@@ -34,10 +34,7 @@ export default {
   },
   computed: {
     visible() {
-      if (this.$store.state.isDrawerActive) {
-        return true
-      }
-      return false
+      return this.$store.state.isDrawerActive
     },
   },
   watch: {

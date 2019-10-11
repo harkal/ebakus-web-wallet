@@ -121,6 +121,9 @@ export default {
   [MutationTypes.SET_OVERLAY_COLOR](state, color) {
     state.ui.overlayColor = color
   },
+  [MutationTypes.UNSET_OVERLAY_COLOR](state) {
+    state.ui.overlayColor = defaultState.ui.overlayColor
+  },
 
   [MutationTypes.SHOW_DIALOG](state, data) {
     state.ui.dialog = { ...defaultState.ui.dialog, ...data, active: true }

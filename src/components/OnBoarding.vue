@@ -16,9 +16,9 @@
 
           <h3>
             Already have an account? <br />
-            <a @click="importKey">
+            <router-link :to="{ name: RouteNames.IMPORT }">
               Click here to import it
-            </a>
+            </router-link>
           </h3>
         </div>
       </div>
@@ -77,6 +77,8 @@ import {
   showWhitelistNewDappView,
 } from '@/actions/whitelist'
 
+import { SpinnerState } from '@/constants'
+
 import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger'
 
 import MutationTypes from '@/store/mutation-types'
@@ -108,6 +110,7 @@ export default {
       isLocked: state => state.wallet.locked,
       publicAddress: state => state.wallet.address,
     }),
+    RouteNames: () => RouteNames,
     visible() {
       return this.isDrawerActive && this.$route.name == RouteNames.NEW
     },
@@ -139,22 +142,28 @@ export default {
     this.$store.commit(MutationTypes.CLEAR_DIALOG)
   },
   methods: {
-    importKey: function() {
-      // const popUP = {
-      //   type: 'importKeyOnboarding',
-      //   title: 'Import Wallet',
-      //   bg: 'black',
-      // }
-      // store.commit('activatePopUP', popUP)
-      this.$router.push({ name: RouteNames.IMPORT })
-    },
-
     requestNewPassword: function() {
       this.activePane = Panes.SECURE
     },
 
     secureWallet: async function() {
-      await secureWalletFunc(this.pass)
+      this.$store.dispatch(
+        MutationTypes.SET_SPINNER_STATE,
+        SpinnerState.WALLET_ENCRYPT
+      )
+      try {
+        await secureWalletFunc(this.pass)
+        this.$store.dispatch(
+          MutationTypes.SET_SPINNER_STATE,
+          SpinnerState.SUCCESS
+        )
+      } catch (err) {
+        console.error('Secure imported wallet failed with err: ', err)
+        // TODO: show error state to user
+
+        this.$store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
+      }
+
       this.activePane = Panes.BACKUP
     },
 
