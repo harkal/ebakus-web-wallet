@@ -37,12 +37,13 @@ export default {
 
   // wallet global state
   wallet: {
+    locked: true,
     address: null, // TODO: add getter that gives the checksumAddress
     balance: '0', // TODO: add getters for getting balanceInEther, etc
     token: DefaultToken, // FIXME: rename to tokenSymbol
   },
 
-  // transaction history
+  // transaction history, each entry will have a timestamp (sort)
   history: [
     /* ...receipts */
   ],
@@ -55,20 +56,22 @@ export default {
     isSpinnerActive: false,
     currentSpinnerState: 0,
 
-    // isPopUpActive: false,
+    overlayColor: null,
 
-    // popUpContent: {
-    //   type: '',
-    //   title: '',
-    //   subtitle: '',
-    //   content: '',
-    //   data: null,
-    //   actions: [
-    //     {
-    //       button: 'full',
-    //       label: '',
-    //     },
-    //   ],
-    // },
+    dialog: {
+      active: false,
+      component: '',
+      type: '',
+      title: '',
+      // subtitle: '',
+      // content: '',
+      // data: null,
+      // actions: [
+      //   /* {
+      //     button: 'full',
+      //     label: '',
+      //   }, */
+      // ],
+    },
   },
 }

@@ -10,11 +10,11 @@ const erc20Abi = JSON.parse(
 abiDecoder.addABI(erc20Abi)
 
 const getTokenInfoForContractAddress = address => {
-  return store.getters.tokens.find(token => token.contractAddress === address)
+  return store.state.tokens.find(token => token.contractAddress === address)
 }
 
 const getTokenInfoForSymbol = symbol => {
-  return store.getters.tokens.find(
+  return store.state.tokens.find(
     token => token.symbol.toLowerCase() === symbol.toLowerCase()
   )
 }
@@ -48,7 +48,7 @@ const getBalanceOfAddressForToken = token => {
     return
   }
 
-  const addr = web3.utils.toChecksumAddress(store.getters.wallet.address)
+  const addr = web3.utils.toChecksumAddress(store.state.wallet.address)
 
   const contract = new web3.eth.Contract(erc20Abi, contractAddress)
 

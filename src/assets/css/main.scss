@@ -1,4 +1,5 @@
 * {
+  box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -13,138 +14,206 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-.hide {
-  display: none;
-}
-
-h1.ebk-wallet {
-  font-size: 30px;
+h1 {
   color: black;
+  font-size: 30px;
   font-weight: 300;
   line-height: 30px;
-
-  &.balance {
-    margin-top: 48px;
-    font-family: sans-serif;
-    font-size: 34px;
-    line-height: 34px;
-    color: white;
-    font-weight: 600;
-    margin-bottom: 0px;
-  }
 }
 
-h2.ebk-wallet {
-  font-size: 21px;
+h2 {
   color: black;
+  font-size: 21px;
   font-weight: 300;
   margin-bottom: 16px;
   line-height: 30px;
 }
-h3.ebk-wallet {
-  font-size: 16px;
+h3 {
   color: black;
+  font-size: 16px;
   font-weight: 300;
   line-height: 24px;
 }
 h4.ebk-wallet {
-  font-size: 15px;
   color: #787878;
+  font-size: 15px;
   font-weight: 300;
   line-height: 22px;
 }
 h5.ebk-wallet {
-  font-size: 10px;
   color: #000;
+  font-size: 10px;
   font-weight: 500;
   font-family: sans-serif;
 }
-a.ebk-wallet {
+
+a {
   text-decoration: underline;
   color: black;
   font-weight: 400;
-}
-p.ebk-wallet.balance {
-  font-family: sans-serif;
-  font-size: 13px;
-  line-height: 13px;
-  color: white;
-  font-weight: 400;
-  margin: 0px;
-}
-.balance {
-  text-align: center;
-}
-
-/* Status bar ______________________________________________________*/
-.status-bar {
-  position: fixed;
-  top: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding-left: 56px;
-  max-width: 320px;
-  // max-height: 320px;
-
-  background-color: rgba(10, 17, 31, 1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-width: 0;
-  border-right-width: 0;
-  border-bottom-left-radius: 5px;
-  z-index: 9999;
   cursor: pointer;
 }
 
-.status-bar:not(.whitelisted) {
-  height: 44px;
-}
-.status-bar:hover {
-  // background-color: rgba(10, 17, 31, 0.95);
+.hide {
+  display: none;
 }
 
-.status-bar > span {
-  color: #fff;
-  font-family: 'Arial';
-  font-size: 17px;
-  font-weight: 500;
-  white-space: nowrap;
+#ebk-wallet {
+  position: fixed;
+  right: 0;
+  overflow: hidden;
+  z-index: 1;
+
+  height: auto;
+
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  align-content: center;
+
+  & > * {
+    flex: 0 0 auto;
+
+    width: 100%;
+    margin: 0px;
+  }
+
+  &:not(.opened) {
+    max-width: 320px;
+
+    background-color: rgba(10, 17, 31, 1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-left-radius: 5px;
+    cursor: pointer;
+  }
+
+  &.opened {
+    width: 320px;
+    height: 100vh;
+
+    background: #ffffff;
+    box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
+  }
 }
 
-.status-bar .balance {
-  font-weight: 700;
+.status-bar {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  align-content: center;
+
+  min-height: 44px;
+
+  background-color: rgb(10, 17, 31);
+  transition: all 0.15s ease-out;
+
+  & > * {
+    flex: 1 1 auto;
+    margin: 0 8px;
+  }
+
+  .opened & {
+    flex-direction: column;
+    justify-content: flex-start;
+
+    padding: 16px;
+
+    & > * {
+      flex: 0 0 auto;
+
+      width: 100%;
+      margin: 8px 0;
+    }
+  }
 }
 
-.status-bar > :not(.widget) {
-  padding-right: 14px;
+.main {
+  width: 100%;
+  // height: 100vh;
+  // padding: 16px;
+
+  transform: translateX(110%);
+
+  .opened & {
+    transform: translateX(0%);
+  }
 }
 
-.status-bar.opened {
-  background-color: rgba(83, 88, 97, 0);
-  border: 0;
-  pointer-events: none;
-}
+/* Status bar ______________________________________________________*/
 
-.status-bar.opened > :not(.widget) {
-  opacity: 0 !important;
-  animation: none !important;
-}
+// .status-bar {
+//   position: fixed;
+//   top: 0;
+//   right: 0;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
 
-.status-bar.whitelisted {
-  max-width: 320px;
-  min-height: 74px;
-  margin-right: 0;
-  padding: 12px 16px;
-}
+//   padding-left: 56px;
+//   max-width: 320px;
+//   // max-height: 320px;
+
+//   background-color: rgba(10, 17, 31, 1);
+//   border: 2px solid rgba(255, 255, 255, 0.3);
+//   border-top-width: 0;
+//   border-right-width: 0;
+//   border-bottom-left-radius: 5px;
+//   z-index: 9999;
+//   cursor: pointer;
+// }
+
+// .status-bar:not(.whitelisted) {
+//   height: 44px;
+// }
+// .status-bar:hover {
+//   // background-color: rgba(10, 17, 31, 0.95);
+// }
+
+// .status-bar > span {
+//   color: #fff;
+//   font-family: 'Arial';
+//   font-size: 17px;
+//   font-weight: 500;
+//   white-space: nowrap;
+// }
+
+// .status-bar > :not(.widget) {
+//   padding-right: 14px;
+// }
+
+// .status-bar.opened {
+//   background-color: rgba(83, 88, 97, 0);
+//   border: 0;
+//   pointer-events: none;
+// }
+
+// .status-bar.opened > :not(.widget) {
+//   opacity: 0 !important;
+//   animation: none !important;
+// }
+
+// .status-bar.whitelisted {
+//   max-width: 320px;
+//   min-height: 74px;
+//   margin-right: 0;
+//   padding: 12px 16px;
+// }
 
 /* Widget ______________________________________________________*/
 .widget {
-  position: absolute;
-  top: 6px;
-  right: 70%;
-  right: calc(100% - 43px);
+  position: relative;
+
+  flex-grow: 0;
+
+  // top: 6px;
+  // right: 70%;
+  // right: calc(100% - 43px);
   width: 29px;
   height: 29px;
   background: transparent;
@@ -178,8 +247,9 @@ p.ebk-wallet.balance {
 }
 
 .opened .widget {
-  top: 39px;
-  right: 130px;
+  // top: 39px;
+  // right: 130px;
+  margin-top: 32px;
   width: 60px;
   height: 60px;
   background-color: #121212;
@@ -192,7 +262,7 @@ p.ebk-wallet.balance {
 .opened .widget::before {
   width: 64px;
   height: 64px;
-  margin: -5px;
+  margin: -7px;
 }
 
 /* loading */
@@ -212,8 +282,8 @@ p.ebk-wallet.balance {
 }
 
 .opened .identicon > div {
-  top: 5px;
-  left: 5px;
+  top: 3px;
+  left: 3px;
   transform: scale(1);
 }
 
@@ -230,18 +300,18 @@ p.ebk-wallet.balance {
 }
 
 /* transitions ______________________________________________________*/
-.status-bar:not(.whitelisted),
-.status-bar > span {
-  transition: all 0.2s ease-in 0.15s; /* close transition */
-}
+// .status-bar:not(.whitelisted),
+// .status-bar > span {
+//   transition: all 0.2s ease-in 0.15s; /* close transition */
+// }
 
-.status-bar.opened {
-  transition: all 0.15s ease-out; /* open transition */
-}
+// .status-bar.opened {
+//   transition: all 0.15s ease-out; /* open transition */
+// }
 
-.status-bar.opened > :not(.widget) {
-  transition: opacity 0.05s ease-out; /* open transition */
-}
+// .status-bar.opened > :not(.widget) {
+//   transition: opacity 0.05s ease-out; /* open transition */
+// }
 
 .widget,
 .widget::before,
@@ -292,30 +362,29 @@ p.ebk-wallet.balance {
 
 /* circular button ______________________________________________________*/
 
-button.circle {
+.btn-circle {
   width: 34px;
   height: 34px;
   border: 1px solid #333333;
   background-repeat: no-repeat;
   border-radius: 100%;
   margin: 18px;
+  background-position: center;
+
+  &.exit {
+    background-image: url(../img/ic_exit.png);
+    background-size: 11px;
+  }
+  &.close {
+    background-image: url(../img/ic_close.png);
+    background-size: 6px 11px;
+  }
+  &.settings {
+    background-image: url(../img/ic_settings.png);
+    background-size: 18px;
+  }
 }
 
-button.circle.exit {
-  background-image: url(../img/ic_exit.png);
-  background-size: 11px;
-  background-position: center;
-}
-button.circle.close {
-  background-image: url(../img/ic_close.png);
-  background-size: 6px 11px;
-  background-position: center;
-}
-button.circle.settings {
-  background-image: url(../img/ic_settings.png);
-  background-size: 18px;
-  background-position: center;
-}
 /* tabbar______________________________________________________*/
 
 ul.tabbar {
@@ -366,43 +435,6 @@ ul.tabbar li.notification:after {
   border: 1px solid #fd315f;
 }
 
-/* progress indicator____________________________________________*/
-
-ul.onboarding_progress {
-  list-style: none;
-  width: 320px;
-  background: #fff;
-
-  color: #969696;
-  padding: 20px 12px 20px 12px;
-  border-bottom: 1px solid #eaeaea;
-  box-sizing: border-box;
-}
-ul.onboarding_progress li {
-  font-size: 17px;
-  position: relative;
-  display: inline-block;
-  margin: 0px 9px;
-  padding: 0px;
-  text-align: center;
-  font-weight: 300;
-}
-ul.onboarding_progress li.active {
-  color: #000000;
-  font-weight: 400;
-}
-ul.onboarding_progress li.active:before {
-  position: absolute;
-  top: -26px;
-  left: 50%;
-  content: '';
-  display: block;
-  width: 12px;
-  height: 12px;
-  background: #161d2a;
-  transform: rotate(45deg) translateX(-50%);
-}
-
 /* buttons ____________________________________________________*/
 button {
   display: inline-block;
@@ -417,51 +449,59 @@ button {
   padding: 8px 0px;
   width: 106px;
   border: 1px solid transparent;
-  box-sizing: border-box;
-}
-button.col:first-child {
-  margin-right: 25px;
-}
-button.full {
-  display: block;
-  width: 242px;
-}
-button.secondary {
-  color: black;
-  background: white;
-  border: 1px black solid;
-}
-button:disabled,
-button[disabled],
-button:disabled:hover,
-button[disabled]:hover {
-  cursor: not-allowed;
-  background-color: rgb(229, 229, 229);
-}
 
-button.loading {
-  background-color: rgba(0, 0, 0, 0.75);
-}
-button.success {
-  background-color: #28d8b3;
-}
-button.error {
-  background: #d92929;
-}
-button.cta {
-  background: #fd315f;
-}
-.secondary.col {
-  margin-right: 30px;
-}
-button:hover {
-  background-color: rgba(253, 49, 95, 0.9);
-  border: 1px solid transparent;
-  background-repeat: no-repeat;
-  color: #fff;
-}
-button:focus {
-  outline: none;
+  &:hover {
+    background-color: rgba(253, 49, 95, 0.9);
+    background-repeat: no-repeat;
+    border: 1px solid transparent;
+    color: #fff;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:disabled,
+  &[disabled] {
+    &:hover {
+      cursor: not-allowed;
+      background-color: rgb(229, 229, 229);
+    }
+  }
+
+  &.secondary {
+    color: black;
+    background: white;
+    border: 1px black solid;
+  }
+
+  &.full {
+    display: block;
+    width: 100%;
+  }
+
+  &.col {
+    &:first-child {
+      margin-right: 25px;
+    }
+
+    &.secondary {
+      margin-right: 30px;
+    }
+  }
+
+  &.loading {
+    background-color: rgba(0, 0, 0, 0.75);
+  }
+  &.success {
+    background-color: #28d8b3;
+  }
+  &.error {
+    background: #d92929;
+  }
+  &.cta {
+    background: #fd315f;
+  }
 }
 /* slider ____________________________________________________*/
 .slider {
@@ -672,38 +712,6 @@ div.bubble.local:hover {
   background-color: darken(#fd315f, 5%);
 }
 
-/* seed phrase ____________________________________________________*/
-ol.seed {
-  width: 100%;
-  border: 1px solid #e9e9e9;
-  padding-top: 25px;
-  padding-bottom: 15px;
-  margin: 20px 0px;
-
-  column-count: 2;
-  column-gap: 10px;
-
-  box-sizing: border-box;
-  font-size: 14px;
-
-  border-radius: 10px;
-  list-style: none;
-  padding-left: 20px;
-  counter-reset: item;
-}
-
-ol.seed li {
-  margin: 10px 0px;
-  color: #fd315f;
-}
-ol.seed li:first-child {
-  margin: 0px 0px;
-}
-ol.seed li:before {
-  content: counter(item) '. ';
-  counter-increment: item;
-  color: black;
-}
 /* animations ____________________________________________________*/
 @keyframes rotation {
   from {

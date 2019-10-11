@@ -102,15 +102,13 @@ const postMessage = (
   target = _target,
   targetOrigin = _targetOrigin
 ) => {
-  console.groupCollapsed('Wallet send message to parent -', payload.cmd)
-
   if (!loadedInIframe()) {
     return
   }
 
   const currentJob = jobQueue.current()
   if (currentJob && currentJob.data.id === payload.id) {
-    console.log('job.id: ', payload.id)
+    console.log('Parent job.id: ', payload.id)
 
     const {
       data,
@@ -126,14 +124,18 @@ const postMessage = (
     jobQueue.next()
   }
 
-  console.log('payload: ', payload)
+  console.log(
+    'Wallet send message to parent -',
+    payload.cmd,
+    'payload: ',
+    payload
+  )
 
   try {
     target.postMessage(JSON.stringify(payload), targetOrigin)
   } catch (err) {
-    console.error('err: ', err)
+    console.error('Wallet send message to parent err: ', err)
   }
-  console.groupEnd()
 }
 
 /* helper functions */

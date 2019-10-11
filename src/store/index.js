@@ -3,14 +3,19 @@ import Vuex from 'vuex'
 
 import MutationTypes from './mutation-types'
 
-import state from './state'
+import defaultState from './state'
 import getters from './getters'
 import mutations from './mutations'
 import actions from './actions'
 
 Vue.use(Vuex)
 
+// deep copy the state so as it is not mutated
+// and we always have a ref to default state
+const state = JSON.parse(JSON.stringify(defaultState))
+
 const store = new Vuex.Store({
+  strict: process.env.NODE_ENV !== 'production',
   state,
   getters,
   mutations,

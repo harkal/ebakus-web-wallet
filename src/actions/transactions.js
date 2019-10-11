@@ -1,7 +1,6 @@
 import Vue from 'vue'
 
 import { SpinnerState } from '@/constants'
-import { exitPopUP } from '@/components/UI/Dialogue.vue'
 import {
   loadedInIframe,
   replyToParentWindow,
@@ -13,6 +12,7 @@ import store from '@/store'
 import { decodeDataUsingAbi, getValueForParam } from './abi'
 import { getTokenInfoForContractAddress, decodeData } from './tokens'
 import { web3 } from './web3ebakus'
+import { exitPopUP } from './wallet'
 
 const addPendingTx = async tx => {
   const from = web3.utils.toChecksumAddress(
@@ -93,13 +93,10 @@ const calcWorkAndSendTx = tx => {
 }
 
 const confirmPendingTx = () => {
-  console.groupCollapsed('Wallet executes tx')
-
   const tx = store.state.tx.object
   calcWorkAndSendTx(tx)
 
   console.log('Transaction Confirmed by user')
-  console.groupEnd()
 
   store.commit('setActiveTab', 'ebk-tab_history')
   exitPopUP()

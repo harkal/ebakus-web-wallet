@@ -7,6 +7,8 @@ import store from '@/store'
 import {
   loadedInIframe,
   frameEventBalanceUpdated,
+  replyToParentWindow,
+  shrinkFrameInParentWindow,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 
 import { decodeDataUsingAbi, getValueForParam } from './abi'
@@ -94,10 +96,14 @@ const loadConfirmTxMsg = async tx => {
 }
 
 const getBalance = () => {
-  const addr = web3.utils.toChecksumAddress(store.state.wallet.address)
+  const { address, token: symbol } = store.state.wallet
+  if (!address) {
+    return Promise.reject('No wallet created')
+  }
+
+  const addr = web3.utils.toChecksumAddress(address)
 
   let promise
-  const symbol = store.state.wallet.token
   const tokenInfo = getTokenInfoForSymbol(symbol)
   if (tokenInfo) {
     promise = getBalanceOfAddressForToken(tokenInfo)
@@ -164,8 +170,6 @@ const generateWallet = () => {
   const promise = new Promise(async (resolve, reject) => {
     // generate mnemonic and private key
     const mnemonic = generateMnemonic() // generates string
-    // console.log('mnemonic: ', mnemonic)
-    store.dispatch('setMnemonic', mnemonic)
     const seed = await mnemonicToSeed(mnemonic) // creates seed buffer
     const root = hdkey.fromMasterSeed(seed)
     const addrNode = root.derive("m/44'/60'/0'/0/0") // line 1
@@ -173,7 +177,7 @@ const generateWallet = () => {
       `0x${addrNode._privateKey.toString('hex')}`
     )
     web3.eth.accounts.wallet.add(newAcc)
-    store.dispatch('setWalletPublicKey', newAcc.address)
+    store.dispatch(MutationTypes.SET_WALLET_ADDRESS, newAcc.address)
     // Add to log
     const newAccLog = {
       title: 'Account created',
@@ -181,12 +185,11 @@ const generateWallet = () => {
       local: true,
     }
     store.dispatch(MutationTypes.ADD_LOCAL_LOG, newAccLog)
-    // localStorage.setItem('logs', JSON.stringify(store.getters.transactions))
 
     if (newAcc) {
-      resolve(newAcc)
+      resolve(mnemonic)
     } else {
-      reject(new Error('failed'))
+      reject(new Error('Failed to generate wallet'))
     }
   })
   return promise
@@ -206,7 +209,7 @@ const secureWallet = pass => {
     store.dispatch(MutationTypes.ADD_LOCAL_LOG, newAccLog)
     // localStorage.setItem('logs', JSON.stringify(store.getters.transactions))
 
-    store.dispatch('setPass', pass)
+    store.dispatch(MutationTypes.UNLOCK_WALLET)
 
     if (newAcc) {
       resolve(newAcc)
@@ -251,7 +254,7 @@ const importWallet = _seed => {
       newAcc = web3.eth.accounts.wallet.add(acc)
     }
 
-    store.dispatch('setWalletPublicKey', newAcc.address)
+    store.dispatch(MutationTypes.SET_WALLET_ADDRESS, newAcc.address)
     // Add to log
     const newAcc_log = {
       title: 'Account Imported',
@@ -307,6 +310,27 @@ const unlockWallet = pass => {
   })
 }
 
+const exitPopUP = () => {
+  const popUPContent = store.getters.popUPContent
+  if (
+    popUPContent.type == 'onboarding' ||
+    popUPContent.dialogue_type == 'no_funds'
+  ) {
+    store.commit(MutationTypes.DEACTIVATE_DRAWER)
+    store.commit('deactivatePopUP')
+
+    if (loadedInIframe()) {
+      if (popUPContent.dialogue_type == 'no_funds') {
+        replyToParentWindow(null, 'no_funds')
+      }
+
+      shrinkFrameInParentWindow()
+    }
+  } else {
+    store.commit('deactivatePopUP')
+  }
+}
+
 export {
   loadConfirmTxMsg,
   getBalance,
@@ -316,4 +340,5 @@ export {
   importWallet,
   deleteWallet,
   unlockWallet,
+  exitPopUP,
 }

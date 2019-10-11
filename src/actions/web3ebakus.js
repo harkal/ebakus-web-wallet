@@ -1,5 +1,6 @@
 import Web3 from 'web3'
 import ebakus from 'web3-ebakus'
+
 import { getProvider } from './providers'
 
 let web3

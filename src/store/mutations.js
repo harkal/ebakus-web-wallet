@@ -58,6 +58,9 @@ export default {
     state.ui.isSpinnerActive = !!(spinnerState & SpinnerState.SPINNER_RUNNING)
   },
 
+  [MutationTypes.UNLOCK_WALLET](state) {
+    state.wallet.locked = false
+  },
   [MutationTypes.SET_WALLET_ADDRESS](state, address) {
     state.wallet.address = address
   },
@@ -97,7 +100,7 @@ export default {
     state.tx.object = tx
   },
   [MutationTypes.CLEAR_TX](state) {
-    state.tx = defaultState.tx
+    state.tx = { ...defaultState.tx }
   },
 
   [MutationTypes.SET_NETWORK](state, data) {
@@ -113,6 +116,17 @@ export default {
         nodeAddress,
       })
     )
+  },
+
+  [MutationTypes.SET_OVERLAY_COLOR](state, color) {
+    state.ui.overlayColor = color
+  },
+
+  [MutationTypes.SHOW_DIALOG](state, data) {
+    state.ui.dialog = { ...defaultState.ui.dialog, ...data, active: true }
+  },
+  [MutationTypes.CLEAR_DIALOG](state) {
+    state.ui.dialog = { ...defaultState.ui.dialog }
   },
 
   /* -- Whitelisting mutations -- */

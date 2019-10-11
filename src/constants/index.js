@@ -43,12 +43,7 @@ const Networks = {
   0: {
     name: 'Ebakus Testnet',
     testnet: true,
-    provider: () =>
-      new Web3.providers.WebsocketProvider(process.env.NODE_URL, {
-        headers: {
-          origin: 'webwallet',
-        },
-      }),
+    provider: () => new Web3.providers.WebsocketProvider(process.env.NODE_URL),
   },
 }
 
@@ -56,13 +51,20 @@ if (process.env.NODE_ENV === 'development') {
   Networks[1] = {
     name: 'Ebakus Local node',
     testnet: true,
-    provider: () =>
-      new Web3.providers.WebsocketProvider('ws://127.0.0.1:8546', {
-        headers: {
-          origin: 'webwallet',
-        },
-      }),
+    provider: () => new Web3.providers.WebsocketProvider('ws://127.0.0.1:8546'),
   }
+}
+
+const DialogComponents = {
+  ONBOARDING: 'ONBOARDING',
+  DIALOGUE: 'DIALOGUE',
+}
+
+const DialogType = {
+  UNLOCK_WALLET: 'UNLOCK_WALLET',
+  IMPORT_KEY_ONBOARDING: 'IMPORT_KEY_ONBOARDING',
+  SEND_TX: 'SEND_TX',
+  WHITELIST_DAPP: 'WHITELIST_DAPP',
 }
 
 const StorageNames = {
@@ -75,5 +77,7 @@ export {
   DefaultDappWhitelistTimer,
   SpinnerState,
   Networks,
+  DialogComponents,
+  DialogType,
   StorageNames,
 }

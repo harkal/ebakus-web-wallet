@@ -117,8 +117,6 @@ const showAddContractToWhitelistedDappView = () => {
 }
 
 const whitelistNewDapp = () => {
-  console.groupCollapsed('Whitelist dApp')
-
   const origin = getTargetOrigin()
   if (origin) {
     const { to } = store.state.tx.object
@@ -135,12 +133,9 @@ const whitelistNewDapp = () => {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
     shrinkFrameInParentWindow()
   }
-  console.groupEnd()
 }
 
 const whitelistDappAddNewContract = () => {
-  console.groupCollapsed('Whitelist dApp: add new contract')
-
   const origin = getTargetOrigin()
   if (origin) {
     const { to } = store.state.tx.object
@@ -156,7 +151,6 @@ const whitelistDappAddNewContract = () => {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
     shrinkFrameInParentWindow()
   }
-  console.groupEnd()
 }
 
 const cancelWhitelistDapp = () => {
