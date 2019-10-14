@@ -1,8 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-import Home from '@/views/Home.vue'
-
+import History from '@/components/History.vue'
 import ImportWallet from '@/components/ImportWallet.vue'
 import OnBoarding from '@/components/OnBoarding.vue'
 import Unlock from '@/components/Unlock.vue'
@@ -18,6 +17,8 @@ const RouteNames = {
   IMPORT: 'import',
   UNLOCK: 'unlock',
 
+  SEND: 'send',
+
   SETTINGS: 'settings',
 }
 
@@ -28,7 +29,7 @@ const router = new Router({
     {
       path: '/',
       name: RouteNames.HOME,
-      component: Home,
+      component: History,
     },
     {
       path: '/new',
@@ -55,8 +56,9 @@ router.beforeEach((to, from, next) => {
     store.state.wallet.locked
   ) {
     // TODO: handle redirect back after unlock
+    const redirectTo = from.name
 
-    next({ name: RouteNames.UNLOCK })
+    next({ name: RouteNames.UNLOCK, query: { redirectTo } })
   } else {
     next()
   }

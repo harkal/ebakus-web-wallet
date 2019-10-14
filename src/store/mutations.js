@@ -35,7 +35,6 @@ export default {
       const web3data = JSON.parse(
         localStorage.getItem(StorageNames.WEB3_WALLET)
       )
-      console.log('web3data: ', web3data)
       newState = {
         ...newState,
         wallet: { ...newState.wallet, address: web3data[0].address },

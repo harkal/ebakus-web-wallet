@@ -106,6 +106,8 @@ a {
   }
 }
 
+$status-bar-padding: 16px;
+
 .status-bar {
   display: flex;
   flex-wrap: nowrap;
@@ -128,13 +130,20 @@ a {
     flex-direction: column;
     justify-content: flex-start;
 
-    padding: 16px;
+    padding: $status-bar-padding;
 
     & > * {
       flex: 0 0 auto;
 
       width: 100%;
       margin: 8px 0;
+    }
+
+    .navigation {
+      margin-right: -$status-bar-padding;
+      margin-bottom: -$status-bar-padding;
+      margin-left: -$status-bar-padding;
+      width: auto;
     }
   }
 }
@@ -415,56 +424,6 @@ a {
   }
 }
 
-/* tabbar______________________________________________________*/
-
-ul.tabbar {
-  list-style: none;
-  width: 320px;
-  background: #161d2a;
-  color: #bababa;
-  padding: 5px 9px;
-}
-ul.tabbar li {
-  position: relative;
-  display: inline-block;
-  width: 74px;
-  border: 1px solid #8a8a8a;
-  text-align: center;
-  padding: 6px 0px;
-  margin: 13px;
-  border-radius: 20px;
-  font-size: 14px;
-  cursor: pointer;
-  font-weight: 500;
-  user-select: none;
-}
-ul.tabbar li:hover {
-  color: white;
-  background: rgb(253, 49, 95);
-  border: 1px solid #fd315f;
-}
-ul.tabbar li.active {
-  color: white;
-  background: rgba(253, 49, 95, 0.8);
-  border: 1px solid #fd315f;
-}
-
-ul.tabbar li.notification:after {
-  position: absolute;
-  height: 14px;
-  top: -5px;
-  right: -5px;
-  padding: 0px 4px;
-  border-radius: 100%;
-
-  content: '1';
-
-  font-size: 10px;
-  color: white;
-  background: #fd315f;
-  border: 1px solid #fd315f;
-}
-
 /* buttons ____________________________________________________*/
 button {
   display: inline-block;
@@ -694,52 +653,6 @@ label {
   font-size: 12px;
   color: #000;
   margin-top: 12px;
-}
-
-/* log entries ____________________________________________________*/
-
-div.bubble {
-  background: #e6e6e6;
-  color: #112f42;
-  width: 265px;
-  border-radius: 14px;
-  padding: 10px 10px;
-  margin: 15px 0px;
-  box-sizing: border-box;
-  margin-left: 18px;
-  margin-right: auto;
-  cursor: pointer;
-}
-div.bubble:hover {
-  background-color: darken(#e6e6e6, 10%);
-}
-div.bubble span {
-  display: block;
-  font-family: sans-serif;
-  line-height: 20px;
-}
-div.bubble span:first-child {
-  font-size: 12px;
-  font-weight: 600;
-}
-div.bubble span:last-child {
-  font-size: 10px;
-  opacity: 0.7;
-  font-weight: 600;
-}
-div.bubble:hover span:last-child {
-  opacity: 0.9;
-}
-
-div.bubble.local {
-  background: #fd315f;
-  color: #fff;
-  text-align: right;
-  margin-left: auto;
-  margin-right: 18px;
-}
-div.bubble.local:hover {
-  background-color: darken(#fd315f, 5%);
 }
 
 /* animations ____________________________________________________*/

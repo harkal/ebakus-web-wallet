@@ -27,7 +27,7 @@
 import debounce from 'lodash/debounce'
 import { mapState } from 'vuex'
 import { isContractCall, isContractCallWhitelisted } from '@/actions/whitelist'
-import { SpinnerState, DialogComponents, DialogType } from '@/constants'
+import { SpinnerState, DialogComponents } from '@/constants'
 import Status from '@/views/Status'
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
@@ -61,12 +61,10 @@ export default {
     }),
     SpinnerState: () => SpinnerState,
     showWhitelistingTimer: function() {
-      const { component, type } = this.dialog
       return (
         isContractCall() &&
         isContractCallWhitelisted() &&
-        (component !== DialogComponents.DIALOGUE &&
-          type !== DialogType.UNLOCK_WALLET)
+        this.$route.name !== RouteNames.UNLOCK
       )
     },
   },

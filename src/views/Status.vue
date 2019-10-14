@@ -126,7 +126,9 @@
     </p>
     <!-- <p class="title">{{ dialog.title }}Test title</p> -->
 
-    <div v-if="isDrawerActive" key="buttons">
+    <Navigation v-if="isDrawerActive && !isDialog && !isLocked" />
+
+    <div v-if="isDrawerActive" key="buttons" class="buttons">
       <template v-if="buttonState === ButtonStates.EXIT">
         <button class="btn-circle exit" @click.stop="exitPopUP" />
       </template>
@@ -160,6 +162,7 @@ import {
 
 import Identicon from '@/components/Identicon'
 // import WhitelistedStatusBar from './components/UI/WhitelistedStatusBar'
+import Navigation from '@/components/Navigation'
 
 import { RouteNames } from '@/router'
 
@@ -171,7 +174,7 @@ const ButtonStates = {
 }
 
 export default {
-  components: { Identicon },
+  components: { Identicon, Navigation },
   data() {
     return {
       resizeFrameTimer: null,
@@ -184,6 +187,7 @@ export default {
       spinnerState: state => state.ui.currentSpinnerState,
       isDialog: state => state.ui.dialog.active,
       dialog: state => state.ui.dialog,
+      isLocked: state => state.wallet.locked,
       publicAddress: state => state.wallet.address,
       balance: state => state.wallet.balance,
       tokenSymbol: state => state.wallet.token,
@@ -200,22 +204,20 @@ export default {
           )
         ) {
           return ButtonStates.NONE
-        } else if (this.dialog.type !== DialogType.UNLOCK_WALLET) {
+        } else {
           return ButtonStates.EXIT
-        } else if (this.dialog.type == DialogType.UNLOCK_WALLET) {
-          return ButtonStates.UNLOCK
         }
+      } else if (this.$route.name == RouteNames.UNLOCK) {
+        return ButtonStates.UNLOCK
       }
       return ButtonStates.MAIN
     },
 
     showWhitelistingTimer: function() {
-      const { component, type } = this.dialog
       return (
         isContractCall() &&
         isContractCallWhitelisted() &&
-        (component !== DialogComponents.DIALOGUE &&
-          type !== DialogType.UNLOCK_WALLET)
+        this.$route.name !== RouteNames.UNLOCK
       )
     },
   },
@@ -402,6 +404,10 @@ export default {
   img {
     margin: 2px 6px;
   }
+}
+
+.buttons {
+  position: absolute;
 }
 
 .btn-circle {

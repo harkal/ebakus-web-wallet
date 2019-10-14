@@ -22,6 +22,8 @@ import {
 import { loadTxsInfoFromExplorer } from './transactions'
 import { web3 } from './web3ebakus'
 
+import router, { RouteNames } from '@/router'
+
 const getBalanceCatchUpdateNetworkTimeouts = []
 
 const loadConfirmTxMsg = async tx => {
@@ -294,19 +296,17 @@ const unlockWallet = pass => {
   return new Promise((resolve, reject) => {
     const wallet = web3.eth.accounts.wallet.load(pass)
 
-    if (wallet) {
-      console.log('wallet unlocked', wallet.address)
+    if (
+      wallet &&
+      typeof wallet[0] !== 'undefined' &&
+      typeof wallet[0].address !== 'undefined'
+    ) {
+      const address = wallet[0].address
+      console.log('wallet unlocked', wallet[0].address)
+      web3.eth.defaultAccount = web3.utils.toChecksumAddress(address)
 
-      if (
-        typeof wallet[0] !== 'undefined' &&
-        typeof wallet[0].address !== 'undefined'
-      ) {
-        web3.eth.defaultAccount = web3.utils.toChecksumAddress(
-          wallet[0].address
-        )
-      }
-
-      resolve(wallet.address)
+      store.dispatch(MutationTypes.UNLOCK_WALLET)
+      resolve(address)
     } else {
       reject(new Error('Failed to unlock existing wallet'))
     }
@@ -314,23 +314,21 @@ const unlockWallet = pass => {
 }
 
 const exitPopUP = () => {
-  const popUPContent = store.getters.popUPContent
-  if (
-    popUPContent.type == 'onboarding' ||
-    popUPContent.dialogue_type == 'no_funds'
-  ) {
+  const routeName = router.app.$route.name
+  const { component } = store.state.ui.dialog
+  if (routeName === RouteNames.NEW || component == 'no_funds') {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
-    store.commit('deactivatePopUP')
+    store.commit(MutationTypes.CLEAR_DIALOG)
 
     if (loadedInIframe()) {
-      if (popUPContent.dialogue_type == 'no_funds') {
+      if (component == 'no_funds') {
         replyToParentWindow(null, 'no_funds')
       }
 
       shrinkFrameInParentWindow()
     }
   } else {
-    store.commit('deactivatePopUP')
+    store.commit(MutationTypes.CLEAR_DIALOG)
   }
 }
 

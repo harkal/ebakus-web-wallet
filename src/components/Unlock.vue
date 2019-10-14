@@ -15,11 +15,16 @@
 </template>
 
 <script>
+import { unlockWallet as unlockWalletFunc, exitPopUP } from '@/actions/wallet'
 import { performWhitelistedAction } from '@/actions/whitelist'
+
 import { SpinnerState } from '@/constants'
+
+import { RouteNames } from '@/router'
+
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
-import { unlockWallet as unlockWalletFunc, exitPopUP } from '@/actions/wallet'
+
 import {
   loadedInIframe,
   shrinkFrameInParentWindow,
@@ -64,7 +69,9 @@ export default {
             exitPopUP()
             performWhitelistedAction()
           } else {
-            exitPopUP()
+            const redirectTo = this.$route.query.redirectTo || RouteNames.HOME
+            this.$router.push({ name: redirectTo })
+            // exitPopUP()
 
             if (loadedInIframe() && !store.getters.isDrawerActiveByUser) {
               store.dispatch(MutationTypes.DEACTIVATE_DRAWER)
