@@ -1,7 +1,7 @@
 import { generateMnemonic, mnemonicToSeed } from 'bip39'
 import hdkey from 'hdkey'
 
-import { SpinnerState, StorageNames } from '@/constants'
+import { SpinnerState, StorageNames, DialogComponents } from '@/constants'
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
 import {
@@ -11,14 +11,8 @@ import {
   shrinkFrameInParentWindow,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 
-import { decodeDataUsingAbi, getValueForParam } from './abi'
 import { setProvider } from './providers'
-import {
-  getTokenInfoForContractAddress,
-  getTokenInfoForSymbol,
-  decodeData,
-  getBalanceOfAddressForToken,
-} from './tokens'
+import { getTokenInfoForSymbol, getBalanceOfAddressForToken } from './tokens'
 import { loadTxsInfoFromExplorer } from './transactions'
 import { web3 } from './web3ebakus'
 
@@ -26,83 +20,13 @@ import router, { RouteNames } from '@/router'
 
 const getBalanceCatchUpdateNetworkTimeouts = []
 
-const loadConfirmTxMsg = async tx => {
-  const balance = parseFloat(web3.utils.fromWei(store.state.wallet.balance))
-  const value = tx.value ? web3.utils.fromWei(tx.value) : '0'
-  let data = tx.data || tx.input
-
-  let content, decodedData
-
-  const isContractCreation = !tx.to || /^0x0+$/.test(tx.to)
-  if (isContractCreation) {
-    content = 'You are about to deploy a new contract. Are you sure?'
-  } else {
-    const token = getTokenInfoForContractAddress(tx.to)
-    if (token && data) {
-      decodedData = decodeData(data)
-    } else if (data) {
-      decodedData = await decodeDataUsingAbi(tx.to, data)
-    }
-
-    if (decodedData) {
-      const { name, params } = decodedData
-      data = params
-
-      if (name === 'transfer') {
-        const to = getValueForParam('_to', params)
-        const value = getValueForParam('_value', params) || 0
-
-        content = `You are about to transfer "${web3.utils.fromWei(
-          String(value)
-        )} ${token.symbol}" to ${to}. Are you sure?`
-      } else if (name === 'getWei') {
-        content = `You are about to request 1 EBK from faucet. Are you sure?`
-      } else {
-        content = `You are about to call method "${name}" at contract address ${tx.to}. Are you sure?`
-      }
-    }
-  }
-
-  let popUP
-  if (parseFloat(value) >= 0 && parseFloat(value) <= balance) {
-    popUP = {
-      type: 'dialogue',
-      dialogue_type: 'sendTX',
-      title: 'Send Confirmation',
-      content: content || `You are about to send ${value} ebk to ${tx.to}.`,
-      data: data,
-      bg: 'black',
-    }
-  } else if (parseFloat(value) >= balance) {
-    popUP = {
-      type: 'dialogue',
-      dialogue_type: 'no_funds',
-      title: 'Attention',
-      subtitle: 'Not enough funds…',
-      content: 'Please fund your account with more ebakus and try again.',
-      bg: 'red',
-    }
-  } else {
-    popUP = {
-      type: 'dialogue',
-      dialogue_type: 'no_funds',
-      title: 'Attention',
-      subtitle: 'Invalid input',
-      content: 'Please enter a valid amount to send.',
-      bg: 'red',
-    }
-  }
-  if (popUP) {
-    store.dispatch('activatePopUP', popUP)
-  }
-}
+const loadConfirmTxMsg = async () => {}
 
 const getBalance = () => {
   const { address, token: symbol } = store.state.wallet
   if (!address) {
     return Promise.reject('No wallet created')
   }
-
   const addr = web3.utils.toChecksumAddress(address)
 
   let promise
@@ -313,23 +237,23 @@ const unlockWallet = pass => {
   })
 }
 
-const exitPopUP = () => {
+const exitDialog = () => {
   const routeName = router.app.$route.name
   const { component } = store.state.ui.dialog
-  if (routeName === RouteNames.NEW || component == 'no_funds') {
+
+  if (routeName === RouteNames.NEW || component == DialogComponents.NO_FUNDS) {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
-    store.commit(MutationTypes.CLEAR_DIALOG)
 
     if (loadedInIframe()) {
-      if (component == 'no_funds') {
+      if (component == DialogComponents.NO_FUNDS) {
         replyToParentWindow(null, 'no_funds')
       }
 
       shrinkFrameInParentWindow()
     }
-  } else {
-    store.commit(MutationTypes.CLEAR_DIALOG)
   }
+
+  store.commit(MutationTypes.CLEAR_DIALOG)
 }
 
 export {
@@ -341,5 +265,5 @@ export {
   importWallet,
   deleteWallet,
   unlockWallet,
-  exitPopUP,
+  exitDialog,
 }

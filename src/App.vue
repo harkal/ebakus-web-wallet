@@ -9,7 +9,8 @@
     >
       <Status ref="status" />
       <div v-show="isDrawerActive" class="main">
-        <router-view />
+        <component :is="dialog.component" v-if="isDialog" />
+        <router-view v-if="!isDialog" />
       </div>
     </div>
 
@@ -43,10 +44,11 @@ import { RouteNames } from '@/router'
 
 import MutationTypes from '@/store/mutation-types'
 
+import SendTx from '@/components/dialogs/SendTx.vue'
 import Status from '@/views/Status'
 
 export default {
-  components: { Status },
+  components: { Status, SendTx },
   data() {
     return {
       isWalletActive: false,

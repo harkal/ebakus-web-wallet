@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import axios from 'axios'
 
 import { SpinnerState } from '@/constants'
 import {
@@ -12,7 +12,8 @@ import store from '@/store'
 import { decodeDataUsingAbi, getValueForParam } from './abi'
 import { getTokenInfoForContractAddress, decodeData } from './tokens'
 import { web3 } from './web3ebakus'
-import { exitPopUP } from './wallet'
+import { exitDialog } from './wallet'
+import { DialogComponents } from '../constants'
 
 const addPendingTx = async tx => {
   const from = web3.utils.toChecksumAddress(
@@ -92,16 +93,6 @@ const calcWorkAndSendTx = tx => {
     })
 }
 
-const confirmPendingTx = () => {
-  const tx = store.state.tx.object
-  calcWorkAndSendTx(tx)
-
-  console.log('Transaction Confirmed by user')
-
-  store.commit('setActiveTab', 'ebk-tab_history')
-  exitPopUP()
-}
-
 const cancelPendingTx = () => {
   console.log('Transaction Cancelled by user')
 
@@ -117,7 +108,7 @@ const cancelPendingTx = () => {
   }
 
   store.commit(MutationTypes.CLEAR_TX)
-  exitPopUP()
+  exitDialog()
 }
 
 const getTxLogInfo = async receipt => {
@@ -131,6 +122,7 @@ const getTxLogInfo = async receipt => {
     data: txData,
     input,
     hash,
+    timestamp,
   } = receipt
 
   let logTitle, logAddress, decodedData
@@ -185,7 +177,94 @@ const getTxLogInfo = async receipt => {
     address: logAddress,
     txhash: hash,
     local: isLocal,
+    timestamp,
   }
+}
+
+const checkIfEnoughBalance = tx => {
+  const balance = parseFloat(web3.utils.fromWei(store.state.wallet.balance))
+  const value = tx.value ? web3.utils.fromWei(tx.value) : '0'
+
+  if (parseFloat(value) > balance) {
+    store.commit(MutationTypes.SHOW_DIALOG, {
+      component: DialogComponents.NO_FUNDS,
+      title: 'Attention',
+      subtitle: 'Not enough funds…',
+      content: 'Please fund your account with more ebakus and try again.',
+    })
+  } else if (parseFloat(value) < 0) {
+    store.commit(MutationTypes.SHOW_DIALOG, {
+      component: DialogComponents.NO_FUNDS,
+      title: 'Attention',
+      subtitle: 'Invalid input',
+      content: 'Please enter a valid amount to send.',
+    })
+  }
+}
+
+const getTransactionMessage = async tx => {
+  let preTitle = '',
+    amountTitle = '',
+    emTitle = '',
+    postTitle = '',
+    to = ''
+
+  to = tx.to
+
+  const value = tx.value ? web3.utils.fromWei(tx.value) : '0'
+  let data = tx.data || tx.input
+
+  let decodedData
+
+  preTitle = 'You are about'
+
+  if (value > 0) {
+    amountTitle = `to spend ${value} EBK`
+  }
+
+  const isContractCreation = !tx.to || /^0x0+$/.test(tx.to)
+  if (isContractCreation) {
+    emTitle = 'to deploy'
+    postTitle = 'a new contract. Are you sure?'
+  } else {
+    const token = getTokenInfoForContractAddress(tx.to)
+    if (token && data) {
+      decodedData = decodeData(data)
+    } else if (data) {
+      decodedData = await decodeDataUsingAbi(tx.to, data)
+    }
+
+    if (decodedData) {
+      const { name, params } = decodedData
+      data = params
+
+      if (name === 'transfer') {
+        to = getValueForParam('_to', params)
+        const value = getValueForParam('_value', params) || 0
+
+        emTitle = `to transfer ${web3.utils.fromWei(String(value))} ${
+          token.symbol
+        }`
+        postTitle = `to "${to}". Are you sure?`
+      } else if (name === 'getWei') {
+        emTitle = 'to request 1 EBK'
+        postTitle = 'from faucet. Are you sure?'
+      } else {
+        emTitle = `to call ${name}`
+        postTitle = `at contract address "${to}". Are you sure?`
+      }
+    } else {
+      emTitle = `to send ${value} EBK`
+      postTitle = `to "${to}". Are you sure?`
+    }
+  }
+
+  if (amountTitle != '' && emTitle != '') {
+    postTitle = `and ${emTitle} ${postTitle}`
+    emTitle = ''
+  }
+
+  return { preTitle, amountTitle, emTitle, postTitle, to, data }
 }
 
 const loadTxsInfoFromExplorer = () => {
@@ -193,7 +272,7 @@ const loadTxsInfoFromExplorer = () => {
   if (!localAddr) {
     return
   }
-  Vue.http
+  axios
     .get(
       `${process.env.API_ENDPOINT}/transaction/all/${localAddr}?offset=0&limit=20&order=desc`
     )
@@ -202,7 +281,7 @@ const loadTxsInfoFromExplorer = () => {
         const txs = response.data
         if (txs.length > 0) {
           Promise.all(txs.map(getTxLogInfo)).then(logs =>
-            store.dispatch(MutationTypes.SET_LOGS, logs)
+            store.dispatch(MutationTypes.PUSH_LOGS, logs)
           )
         }
       },
@@ -215,7 +294,8 @@ const loadTxsInfoFromExplorer = () => {
 export {
   addPendingTx,
   calcWorkAndSendTx,
-  confirmPendingTx,
   cancelPendingTx,
+  checkIfEnoughBalance,
+  getTransactionMessage,
   loadTxsInfoFromExplorer,
 }
