@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
+import { StorageNames } from '@/constants'
+
 import MutationTypes from './mutation-types'
 
 import defaultState from './state'
@@ -42,7 +44,7 @@ store.subscribe(({ type }, state) => {
     whitelist: state.whitelist,
   }
 
-  localStorage.setItem('wallet_store', JSON.stringify(store))
+  localStorage.setItem(StorageNames.WALLET_STORE, JSON.stringify(store))
 })
 
 // accept actions and mutations as hot modules

@@ -1,5 +1,5 @@
 <template>
-  <div class="send">
+  <div class="send scroll-wrapper">
     <div class="wrapper">
       <label for="amount"> Amount </label>
       <input
@@ -64,10 +64,9 @@ import QR from '@/assets/vendor/qr_lib/qr_packed'
 
 import { addPendingTx as addPendingTxToStore } from '@/actions/transactions'
 import { getTokenInfoForSymbol, getTransferTxForToken } from '@/actions/tokens'
-import { loadConfirmTxMsg } from '@/actions/wallet'
 import { web3 } from '@/actions/web3ebakus'
 
-import { DefaultToken } from '@/constants'
+import { DefaultToken, DialogComponents } from '@/constants'
 
 import MutationTypes from '@/store/mutation-types'
 
@@ -166,7 +165,6 @@ export default {
       if (this.validateSendForm()) {
         const { amount, token } = this.inputs
         const receiver = this.receiver
-        // store.commit('setActiveTab', 'ebk-tab_send')
 
         let tx
         const tokenInfo = getTokenInfoForSymbol(token)
@@ -180,8 +178,12 @@ export default {
           }
         }
 
-        const pendingTx = await addPendingTxToStore(tx)
-        await loadConfirmTxMsg(pendingTx)
+        await addPendingTxToStore(tx)
+
+        this.$store.dispatch(MutationTypes.SHOW_DIALOG, {
+          component: DialogComponents.SEND_TX,
+          title: 'Send Confirmation',
+        })
       }
     },
     onTokenChange() {
@@ -190,7 +192,7 @@ export default {
       this.$store.commit(MutationTypes.SET_ACTIVE_TOKEN, token)
     },
     revertToDefaultToken() {
-      if (this.walletData.token !== DefaultToken) {
+      if (this.tokenSymbol !== DefaultToken) {
         this.$set(this.inputs, 'token', DefaultToken)
         this.$store.commit(MutationTypes.SET_WALLET_BALANCE, '0')
         this.$store.commit(MutationTypes.SET_ACTIVE_TOKEN, DefaultToken)

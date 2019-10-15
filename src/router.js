@@ -58,14 +58,12 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
+  // handle NavigationDuplicated: don't move to next page if it's the same one
   if (
     ![RouteNames.NEW, RouteNames.IMPORT, RouteNames.UNLOCK].includes(to.name) &&
     store.state.wallet.locked
   ) {
-    // TODO: handle redirect back after unlock
-    const redirectTo = from.name
-
-    next({ name: RouteNames.UNLOCK, query: { redirectTo } })
+    next({ name: RouteNames.UNLOCK, query: { redirectFrom: to.name } })
   } else {
     next()
   }

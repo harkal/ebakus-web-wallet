@@ -7,7 +7,7 @@
       <li :class="{ active: activePane == Panes.FINISH }">Finish</li>
     </ul>
 
-    <div class="scroll_wrapper">
+    <div class="scroll-wrapper">
       <div class="pane create" :class="{ display: activePane == Panes.CREATE }">
         <div class="wrapper">
           <h1>Hello!</h1>
@@ -237,10 +237,7 @@ export default {
   }
 }
 
-.scroll_wrapper {
-  top: 64px;
-  height: calc(var(--vh, 1vh) * 100 - 64px); /* --vh is set at App.vue */
-
+.scroll-wrapper {
   > div {
     padding-top: 20px;
   }

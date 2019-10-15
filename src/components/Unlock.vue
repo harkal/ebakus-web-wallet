@@ -69,8 +69,9 @@ export default {
             exitPopUP()
             performWhitelistedAction()
           } else {
-            const redirectTo = this.$route.query.redirectTo || RouteNames.HOME
-            this.$router.push({ name: redirectTo })
+            const redirectFrom =
+              this.$route.query.redirectFrom || RouteNames.HOME
+            this.$router.push({ name: redirectFrom }, () => {})
             // exitPopUP()
 
             if (loadedInIframe() && !store.getters.isDrawerActiveByUser) {

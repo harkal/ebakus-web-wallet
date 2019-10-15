@@ -56,17 +56,18 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const DialogComponents = {
-  ONBOARDING: 'ONBOARDING',
+  SEND_TX: 'SendTx',
+  NO_FUNDS: 'NoFunds',
   DIALOGUE: 'DIALOGUE',
 }
 
 const DialogType = {
-  IMPORT_KEY_ONBOARDING: 'IMPORT_KEY_ONBOARDING',
-  SEND_TX: 'SEND_TX',
   WHITELIST_DAPP: 'WHITELIST_DAPP',
 }
 
 const StorageNames = {
+  WALLET_STORE: 'wallet_store',
+  LOGS: 'logs',
   WEB3_WALLET: 'web3js_wallet',
   WEB3_OLD_WALLET_BACKUP: 'web3DataBackup',
 }

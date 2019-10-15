@@ -367,23 +367,18 @@ $status-bar-padding: 16px;
 }
 
 /* content area ______________________________________________________*/
-.scroll_wrapper {
+.scroll-wrapper {
   position: absolute;
-  top: 255px;
   width: 100%;
-  height: calc(var(--vh, 1vh) * 100 - 255px); /* --vh is set at App.vue */
+  height: calc((var(--vh, 1vh) * 100) - (var(--status-bar-vh, 1vh) * 100)); /* --vh is set at App.vue and --status-bar-vh at Status.vue */
   opacity: 1;
   animation: contentGrowAnimation 0.3s ease-out;
   overflow-y: auto;
 }
 
-.scroll_wrapper.narrow {
-  top: 142px;
-  height: calc(var(--vh, 1vh) * 100 - 142px); /* --vh is set at App.vue */
-}
 
 @media only screen and (max-width: 600px) {
-  .scroll_wrapper {
+  .scroll-wrapper {
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
   }

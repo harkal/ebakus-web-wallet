@@ -212,7 +212,7 @@ export default {
           SpinnerState.SUCCESS
         )
 
-        this.$router.push({ name: RouteNames.HOME })
+        this.$router.push({ name: RouteNames.HOME }, () => {})
       } catch (err) {
         console.error('Secure imported wallet failed with err: ', err)
 

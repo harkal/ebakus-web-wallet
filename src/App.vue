@@ -7,7 +7,7 @@
         whitelisted: showWhitelistingTimer,
       }"
     >
-      <Status />
+      <Status ref="status" />
       <div v-show="isDrawerActive" class="main">
         <router-view />
       </div>
@@ -26,19 +26,24 @@
 <script>
 import debounce from 'lodash/debounce'
 import { mapState } from 'vuex'
-import { isContractCall, isContractCallWhitelisted } from '@/actions/whitelist'
-import { SpinnerState, DialogComponents } from '@/constants'
-import Status from '@/views/Status'
-import MutationTypes from '@/store/mutation-types'
-import store from '@/store'
+
 import { getBalance } from '@/actions/wallet'
 import { web3 } from '@/actions/web3ebakus'
+import { isContractCall, isContractCallWhitelisted } from '@/actions/whitelist'
+
+import { SpinnerState } from '@/constants'
+
 import {
   loadedInIframe,
   expandOverlayFrameInParentWindow,
   shrinkOverlayFrameInParentWindow,
 } from '@/parentFrameMessenger/parentFrameMessenger'
+
 import { RouteNames } from '@/router'
+
+import MutationTypes from '@/store/mutation-types'
+
+import Status from '@/views/Status'
 
 export default {
   components: { Status },
@@ -57,6 +62,7 @@ export default {
       publicAddress: state => state.wallet.address,
       balance: state => state.wallet.balance,
       overlayColor: state => state.ui.overlayColor,
+      isDialog: state => state.ui.dialog.active,
       dialog: state => state.ui.dialog,
     }),
     SpinnerState: () => SpinnerState,
@@ -115,10 +121,7 @@ export default {
     isDrawerActive: function(val, oldVal) {
       if (val !== oldVal) {
         if (val) {
-          if (
-            this.isDrawerActive &&
-            this.dialog.component != DialogComponents.ONBOARDING
-          ) {
+          if (this.isDrawerActive && this.$route.name != RouteNames.NEW) {
             this.loadWalletState()
           }
           // } else {
@@ -163,26 +166,22 @@ export default {
     this.loadWalletState()
   },
   methods: {
-    // showWallet: function() {
-    //   if (loadedInIframe()) {
-    //     expandFrameInParentWindow()
-    //   }
-
-    //   store.commit(MutationTypes.ACTIVATE_DRAWER)
-    // },
     checkNodeConnectivity: function() {
-      store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.NODE_CONNECT)
+      this.$store.commit(
+        MutationTypes.SET_SPINNER_STATE,
+        SpinnerState.NODE_CONNECT
+      )
 
       web3.eth.net
         .getId()
         .then(() => {
-          store.dispatch(
+          this.$store.dispatch(
             MutationTypes.SET_SPINNER_STATE,
             SpinnerState.NODE_CONNECTED
           )
         })
         .catch(err => {
-          store.dispatch(
+          this.$store.dispatch(
             MutationTypes.SET_SPINNER_STATE,
             SpinnerState.NODE_DISCONNECTED
           )
@@ -195,21 +194,9 @@ export default {
         console.log('Wallet Loaded')
         // console.log('Wallet Locked')
       } else if (this.publicAddress !== null && this.isLocked) {
-        // store.commit(MutationTypes.SHOW_DIALOG, {
-        //   component: DialogComponents.DIALOGUE,
-        //   type: DialogType.UNLOCK_WALLET,
-        // })
-        // TODO
-        if (this.$route.name != RouteNames.UNLOCK) {
-          this.$router.push({ name: RouteNames.UNLOCK })
-        }
+        this.$router.push({ name: RouteNames.UNLOCK }, () => {})
       } else {
-        // store.commit(MutationTypes.SHOW_DIALOG, {
-        //   component: DialogComponents.ONBOARDING,
-        // })
-        if (this.$route.name != RouteNames.NEW) {
-          this.$router.push({ name: RouteNames.NEW })
-        }
+        this.$router.push({ name: RouteNames.NEW }, () => {})
       }
     },
     getViewportInnerHeight: function() {
@@ -223,10 +210,6 @@ export default {
 </script>
 
 <style lang="scss">
-.status-bar .balance {
-  font-weight: 700;
-  text-align: center;
-}
 #receive > div > div > img {
   width: 240px;
   padding: 10px 0px;

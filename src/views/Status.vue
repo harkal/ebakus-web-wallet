@@ -146,7 +146,7 @@
 <script>
 import { mapState } from 'vuex'
 
-import { SpinnerState, DialogComponents, DialogType } from '@/constants'
+import { SpinnerState, DialogType } from '@/constants'
 
 import { isContractCall, isContractCallWhitelisted } from '@/actions/whitelist'
 
@@ -278,6 +278,16 @@ export default {
       }
     },
   },
+  mounted() {
+    this.$nextTick(() => {
+      this.updateInnerHeight()
+    })
+  },
+  updated() {
+    this.$nextTick(() => {
+      this.updateInnerHeight()
+    })
+  },
   methods: {
     showWallet: function() {
       if (loadedInIframe()) {
@@ -296,22 +306,29 @@ export default {
     },
     exitPopUP: function() {
       console.log('TCL: this.dialog', JSON.stringify(this.dialog))
-      if (this.dialog.component == DialogComponents.ONBOARDING) {
+      if (this.$route.name == RouteNames.NEW) {
         store.commit(MutationTypes.DEACTIVATE_DRAWER)
 
         if (loadedInIframe()) {
           shrinkFrameInParentWindow()
         }
-      } else if (this.dialog.type == DialogType.IMPORT_KEY_ONBOARDING) {
-        store.commit(MutationTypes.SHOW_DIALOG, {
-          component: DialogComponents.ONBOARDING,
-        })
-      } else {
+      } else if (this.$route.name == RouteNames.IMPORT) {
+        this.$router.push({ name: RouteNames.NEW }, () => {})
+      } else if (this.isDialog) {
         store.commit(MutationTypes.CLEAR_DIALOG)
       }
     },
     showSettings: function() {
-      this.$router.push({ name: RouteNames.SETTINGS })
+      this.$router.push({ name: RouteNames.SETTINGS }, () => {})
+    },
+    updateInnerHeight: function() {
+      // handle "iOS viewport scroll bug", https://css-tricks.com/the-trick-to-viewport-units-on-mobile/
+      // set the value in the --vh custom property to the root of the document
+      const height = this.$refs.statusBar.clientHeight * 0.01
+      document.documentElement.style.setProperty(
+        '--status-bar-vh',
+        `${height}px`
+      )
     },
   },
 }
@@ -381,6 +398,7 @@ export default {
 
     span {
       flex-basis: 100%;
+      font-weight: 400;
     }
   }
 

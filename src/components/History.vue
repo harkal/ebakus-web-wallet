@@ -1,16 +1,14 @@
 <template>
-  <div class="history">
-    <div class>
-      <div
-        v-for="(transaction, index) in getSortedLogs"
-        :key="index"
-        :class="{ local: transaction.local }"
-        class="bubble"
-        @click="openInNewTab(transaction.txhash || transaction.address)"
-      >
-        <span>{{ transaction.title }}</span>
-        <span> {{ transaction.address }} </span>
-      </div>
+  <div class="history scroll-wrapper">
+    <div
+      v-for="(transaction, index) in getSortedLogs"
+      :key="index"
+      :class="{ local: transaction.local }"
+      class="bubble"
+      @click="openInNewTab(transaction.txhash || transaction.address)"
+    >
+      <span>{{ transaction.title }}</span>
+      <span> {{ transaction.address }} </span>
     </div>
   </div>
 </template>
@@ -61,7 +59,7 @@ export default {
 .bubble {
   background: #e6e6e6;
   color: #112f42;
-  width: 265px;
+  width: 82%;
   border-radius: 14px;
   padding: 10px 10px;
   margin: 15px 0px;

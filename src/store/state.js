@@ -61,17 +61,7 @@ export default {
     dialog: {
       active: false,
       component: '',
-      type: '',
       title: '',
-      // subtitle: '',
-      // content: '',
-      // data: null,
-      // actions: [
-      //   /* {
-      //     button: 'full',
-      //     label: '',
-      //   }, */
-      // ],
     },
   },
 }
