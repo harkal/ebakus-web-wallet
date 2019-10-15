@@ -266,7 +266,7 @@ const importWallet = _seed => {
       address: newAcc.address,
       local: true,
     }
-    store.dispatch(MutationTypes.SET_LOGS, [])
+    store.dispatch(MutationTypes.RESET_LOGS)
     store.dispatch(MutationTypes.ADD_LOCAL_LOG, newAcc_log)
 
     if (newAcc) {
@@ -280,7 +280,7 @@ const importWallet = _seed => {
 const deleteWallet = () => {
   web3.eth.accounts.wallet.clear()
   localStorage.removeItem(StorageNames.WEB3_WALLET)
-  store.commit(MutationTypes.SET_LOGS, [])
+  store.commit(MutationTypes.RESET_LOGS)
 
   return this.generateWallet()
     .then(() => {

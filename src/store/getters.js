@@ -9,7 +9,8 @@ export default {
   },
 
   getSortedLogs(state) {
-    return orderBy(state.history, ['timestamp'])
+    const logs = [...state.history.local, ...state.history.remote]
+    return orderBy(logs, ['timestamp'], ['desc'])
   },
 
   getDAppWhitelist(state) {

@@ -19,11 +19,18 @@ export default {
     context.commit(MutationTypes.SET_WALLET_BALANCE, balance)
   },
 
-  [MutationTypes.SET_LOGS](context, data) {
-    context.commit(MutationTypes.SET_LOGS, data)
+  [MutationTypes.PUSH_LOGS](context, data) {
+    context.commit(MutationTypes.PUSH_LOGS, data)
   },
   [MutationTypes.ADD_LOCAL_LOG](context, data) {
     context.commit(MutationTypes.ADD_LOCAL_LOG, data)
+  },
+  [MutationTypes.RESET_LOGS](context) {
+    context.commit(MutationTypes.RESET_LOGS)
+  },
+
+  [MutationTypes.SET_TX_OBJECT](context, tx) {
+    context.commit(MutationTypes.SET_TX_OBJECT, tx)
   },
 
   [MutationTypes.SHOW_DIALOG](context, data) {

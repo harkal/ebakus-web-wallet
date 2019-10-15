@@ -10,8 +10,8 @@ export default {
     let newState = { ...state }
 
     // preload store from localStorage
-    if (localStorage.getItem('wallet_store')) {
-      let store = JSON.parse(localStorage.getItem('wallet_store'))
+    if (localStorage.getItem(StorageNames.WALLET_STORE)) {
+      let store = JSON.parse(localStorage.getItem(StorageNames.WALLET_STORE))
 
       // check the version stored against current
       // If different, don't load the cached version
@@ -23,11 +23,14 @@ export default {
       }
     }
 
-    if (localStorage.getItem('logs')) {
-      const logs = JSON.parse(localStorage.getItem('logs'))
+    if (localStorage.getItem(StorageNames.LOGS)) {
+      const logs = JSON.parse(localStorage.getItem(StorageNames.LOGS))
       newState = {
         ...newState,
-        history: [...newState.history, ...logs],
+        history: {
+          ...newState.history,
+          local: [...newState.history.local, ...logs],
+        },
       }
     }
 
@@ -74,8 +77,8 @@ export default {
     state.tokens = tokens
   },
 
-  [MutationTypes.SET_LOGS](state, data) {
-    state.history = data
+  [MutationTypes.PUSH_LOGS](state, data) {
+    state.history.remote = data
   },
   [MutationTypes.ADD_LOCAL_LOG](state, data) {
     if (!data.timestamp) {
@@ -84,15 +87,19 @@ export default {
       data.timestamp = timestamp
     }
 
-    state.history.unshift(data)
+    state.history.local.unshift(data)
 
     let logs = []
-    if (localStorage.getItem('logs')) {
-      logs = JSON.parse(localStorage.getItem('logs'))
+    if (localStorage.getItem(StorageNames.LOGS)) {
+      logs = JSON.parse(localStorage.getItem(StorageNames.LOGS))
     }
     logs.unshift(data)
 
-    localStorage.setItem('logs', JSON.stringify(logs))
+    localStorage.setItem(StorageNames.LOGS, JSON.stringify(logs))
+  },
+  [MutationTypes.RESET_LOGS](state) {
+    state.history = { ...defaultState.history }
+    localStorage.removeItem(StorageNames.LOGS)
   },
 
   [MutationTypes.SET_TX_OBJECT](state, tx) {

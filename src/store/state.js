@@ -44,9 +44,14 @@ export default {
   },
 
   // transaction history, each entry will have a timestamp (sort)
-  history: [
-    /* ...receipts */
-  ],
+  history: {
+    local: [
+      /* ...receipts */
+    ],
+    remote: [
+      /* ...receipts */
+    ],
+  },
 
   // UI global state
   ui: {
