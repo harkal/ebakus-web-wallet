@@ -3,7 +3,7 @@ import VueClipboard from 'vue-clipboard2'
 import floor from 'lodash/floor'
 
 import App from './App.vue'
-import router, { RouteNames } from './router'
+import router from './router'
 import MutationTypes from './store/mutation-types'
 import store from './store'
 import { init as initWeb3, web3 } from './actions/web3ebakus'
@@ -34,10 +34,10 @@ new Vue({
   router,
   store,
   beforeCreate() {
-    this.$store.commit(MutationTypes.INITIALISE_STORE)
-
     // init web3 ebakus instance
     initWeb3(this.$store.getters.network)
+
+    this.$store.commit(MutationTypes.INITIALISE_STORE)
   },
   render: h => h(App),
 }).$mount('#app')

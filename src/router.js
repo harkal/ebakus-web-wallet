@@ -5,6 +5,7 @@ import History from '@/components/History.vue'
 import ImportWallet from '@/components/ImportWallet.vue'
 import OnBoarding from '@/components/OnBoarding.vue'
 import Send from '@/components/Send.vue'
+import Receive from '@/components/Receive.vue'
 import Unlock from '@/components/Unlock.vue'
 
 import store from '@/store'
@@ -19,6 +20,7 @@ const RouteNames = {
   UNLOCK: 'unlock',
 
   SEND: 'send',
+  RECEIVE: 'receive',
 
   SETTINGS: 'settings',
 }
@@ -53,6 +55,11 @@ const router = new Router({
       path: '/send',
       name: RouteNames.SEND,
       component: Send,
+    },
+    {
+      path: '/receive',
+      name: RouteNames.RECEIVE,
+      component: Receive,
     },
   ],
 })

@@ -1,5 +1,6 @@
 import { version } from '../../package.json'
 
+import { web3 } from '@/actions/web3ebakus'
 import { DefaultToken, SpinnerState, StorageNames } from '@/constants'
 
 import defaultState from './state'
@@ -38,9 +39,10 @@ export default {
       const web3data = JSON.parse(
         localStorage.getItem(StorageNames.WEB3_WALLET)
       )
+      const address = web3.utils.toChecksumAddress(web3data[0].address)
       newState = {
         ...newState,
-        wallet: { ...newState.wallet, address: web3data[0].address },
+        wallet: { ...newState.wallet, address: address },
       }
     }
 
@@ -64,7 +66,7 @@ export default {
     state.wallet.locked = false
   },
   [MutationTypes.SET_WALLET_ADDRESS](state, address) {
-    state.wallet.address = address
+    state.wallet.address = web3.utils.toChecksumAddress(address)
   },
   [MutationTypes.SET_WALLET_BALANCE](state, balance) {
     state.wallet.balance = balance

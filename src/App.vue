@@ -211,10 +211,3 @@ export default {
   },
 }
 </script>
-
-<style lang="scss">
-#receive > div > div > img {
-  width: 240px;
-  padding: 10px 0px;
-}
-</style>
