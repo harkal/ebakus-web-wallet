@@ -253,6 +253,7 @@ const exitDialog = () => {
     }
   }
 
+  store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
   store.commit(MutationTypes.CLEAR_DIALOG)
 }
 

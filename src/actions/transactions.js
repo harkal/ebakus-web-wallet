@@ -182,24 +182,23 @@ const getTxLogInfo = async receipt => {
 }
 
 const checkIfEnoughBalance = tx => {
+  if (!tx) {
+    tx = store.state.tx.object
+  }
+
   const balance = parseFloat(web3.utils.fromWei(store.state.wallet.balance))
   const value = tx.value ? web3.utils.fromWei(tx.value) : '0'
 
-  if (parseFloat(value) > balance) {
+  if (parseFloat(value) < 0 || parseFloat(value) > balance) {
     store.commit(MutationTypes.SHOW_DIALOG, {
       component: DialogComponents.NO_FUNDS,
       title: 'Attention',
-      subtitle: 'Not enough funds…',
-      content: 'Please fund your account with more ebakus and try again.',
     })
-  } else if (parseFloat(value) < 0) {
-    store.commit(MutationTypes.SHOW_DIALOG, {
-      component: DialogComponents.NO_FUNDS,
-      title: 'Attention',
-      subtitle: 'Invalid input',
-      content: 'Please enter a valid amount to send.',
-    })
+
+    return false
   }
+
+  return true
 }
 
 const getTransactionMessage = async tx => {
@@ -219,7 +218,7 @@ const getTransactionMessage = async tx => {
   preTitle = 'You are about'
 
   if (value > 0) {
-    amountTitle = `to spend ${value} EBK`
+    amountTitle = `to send ${value} EBK`
   }
 
   const isContractCreation = !tx.to || /^0x0+$/.test(tx.to)
@@ -254,7 +253,6 @@ const getTransactionMessage = async tx => {
         postTitle = `at contract address "${to}". Are you sure?`
       }
     } else {
-      emTitle = `to send ${value} EBK`
       postTitle = `to "${to}". Are you sure?`
     }
   }

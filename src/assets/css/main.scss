@@ -370,12 +370,13 @@ $status-bar-padding: 16px;
 .scroll-wrapper {
   position: absolute;
   width: 100%;
-  height: calc((var(--vh, 1vh) * 100) - (var(--status-bar-vh, 1vh) * 100)); /* --vh is set at App.vue and --status-bar-vh at Status.vue */
+  height: calc(
+    (var(--vh, 1vh) * 100) - (var(--status-bar-vh, 1vh) * 100)
+  ); /* --vh is set at App.vue and --status-bar-vh at Status.vue */
   opacity: 1;
   animation: contentGrowAnimation 0.3s ease-out;
   overflow-y: auto;
 }
-
 
 @media only screen and (max-width: 600px) {
   .scroll-wrapper {
@@ -392,6 +393,10 @@ $status-bar-padding: 16px;
 
 .popup .wrapper {
   padding-top: 25px;
+}
+
+.dialog {
+  overflow-x: hidden;
 }
 
 /* circular button ______________________________________________________*/

@@ -45,10 +45,11 @@ import { RouteNames } from '@/router'
 import MutationTypes from '@/store/mutation-types'
 
 import SendTx from '@/components/dialogs/SendTx.vue'
+import NoFunds from '@/components/dialogs/NoFunds.vue'
 import Status from '@/views/Status'
 
 export default {
-  components: { Status, SendTx },
+  components: { Status, SendTx, NoFunds },
   data() {
     return {
       isWalletActive: false,

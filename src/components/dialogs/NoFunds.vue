@@ -1,0 +1,59 @@
+<template>
+  <div class="no-funds dialog scroll-wrapper">
+    <div class="wrapper">
+      <h2>
+        {{ title }}
+      </h2>
+      <h3>
+        {{ content }}
+      </h3>
+
+      <button class="full" @click="exit">OK</button>
+      <GetFaucet @click="exit" />
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapState } from 'vuex'
+
+import { exitDialog } from '@/actions/wallet'
+import { web3 } from '@/actions/web3ebakus'
+
+import MutationTypes from '@/store/mutation-types'
+
+import GetFaucet from '@/components/GetFaucet.vue'
+
+export default {
+  components: { GetFaucet },
+  data() {
+    return {
+      title: '',
+      content: '',
+    }
+  },
+  computed: {
+    ...mapState({
+      balance: state => state.wallet.balance,
+      tx: state => state.tx.object,
+    }),
+  },
+  mounted: async function() {
+    this.$store.commit(MutationTypes.SET_OVERLAY_COLOR, 'red')
+
+    const balance = parseFloat(web3.utils.fromWei(this.balance))
+    const value = this.tx.value ? web3.utils.fromWei(this.tx.value) : '0'
+
+    if (parseFloat(value) > balance) {
+      this.title = 'Not enough funds…'
+      this.content = 'Please fund your account with more ebakus and try again.'
+    } else if (parseFloat(value) < 0) {
+      this.title = 'Invalid input'
+      this.content = 'Please enter a valid amount to send.'
+    }
+  },
+  methods: {
+    exit: () => exitDialog(),
+  },
+}
+</script>

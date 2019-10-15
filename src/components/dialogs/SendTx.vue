@@ -1,5 +1,5 @@
 <template>
-  <div class="dialog scroll-wrapper">
+  <div class="send-tx dialog scroll-wrapper">
     <div class="wrapper">
       <!--  <h2>
           {{ popUPContent.subtitle }}
@@ -91,7 +91,11 @@ export default {
     isContractCall: () => isContractCall(),
   },
   mounted: async function() {
-    checkIfEnoughBalance(this.tx)
+    if (!checkIfEnoughBalance()) {
+      return
+    }
+
+    this.$store.commit(MutationTypes.SET_OVERLAY_COLOR, 'black')
 
     const {
       preTitle,
@@ -108,12 +112,6 @@ export default {
     this.postTitle = postTitle
     this.to = to
     this.data = data
-
-    this.$store.commit(MutationTypes.SET_OVERLAY_COLOR, 'black')
-  },
-  beforeDestroy() {
-    this.$store.commit(MutationTypes.CLEAR_DIALOG)
-    this.$store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
   },
   methods: {
     confirmPendingTx: function() {
@@ -134,10 +132,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.dialog {
-  overflow-x: hidden;
-}
-
 .wrapper {
   word-break: break-word;
 }

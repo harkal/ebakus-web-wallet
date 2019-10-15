@@ -424,6 +424,10 @@ export default {
   }
 }
 
+.closed-state {
+  color: white;
+}
+
 .buttons {
   position: absolute;
 }
