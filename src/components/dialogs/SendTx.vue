@@ -57,12 +57,14 @@ import { mapState } from 'vuex'
 import {
   checkIfEnoughBalance,
   getTransactionMessage,
-  whitelistNewDapp as whitelistNewDappFunc,
   calcWorkAndSendTx,
   cancelPendingTx as cancelPendingTxFunc,
 } from '@/actions/transactions'
 import { exitDialog } from '@/actions/wallet'
-import { isContractCall } from '@/actions/whitelist'
+import {
+  isContractCall,
+  whitelistNewDapp as whitelistNewDappFunc,
+} from '@/actions/whitelist'
 
 import MutationTypes from '@/store/mutation-types'
 

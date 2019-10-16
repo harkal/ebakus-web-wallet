@@ -63,7 +63,6 @@ export default {
   border-radius: 14px;
   padding: 10px 10px;
   margin: 15px 0px;
-  box-sizing: border-box;
   margin-left: 18px;
   margin-right: auto;
   cursor: pointer;

@@ -1,11 +1,12 @@
 import { addPendingTx } from '@/actions/transactions'
 import { getCurrentProviderEndpoint } from '@/actions/providers'
 import { getBalance as getBalanceFromWallet } from '@/actions/wallet'
-import { web3 } from '@/actions/web3ebakus'
 import { performWhitelistedAction } from '@/actions/whitelist'
 
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
+
+import router, { RouteNames } from '@/router'
 
 import {
   replyToParentWindow,
@@ -13,11 +14,9 @@ import {
 } from './parentFrameMessenger'
 
 const unlockWallet = () => {
-  const { type, dialogue_type } = store.getters.popUPContent
-  if (
-    type === 'onboarding' ||
-    (type === 'dialogue' && dialogue_type === 'unlockWallet')
-  ) {
+  const routeName = router.app.$route.name
+
+  if ([RouteNames.NEW, RouteNames.UNLOCK].includes(routeName)) {
     activateDrawerIfClosed()
   }
 }
@@ -28,7 +27,7 @@ const currentProviderEndpoint = payload => {
 }
 
 const defaultAddress = payload => {
-  const localAddr = web3.utils.toChecksumAddress(store.state.wallet.address)
+  const localAddr = store.state.wallet.address
 
   if (localAddr) {
     replyToParentWindow(localAddr, null, payload)
@@ -56,12 +55,9 @@ const sendTransaction = async payload => {
 
   /* const pendingTx = */ await addPendingTx(req)
 
-  const { type, dialogue_type } = store.getters.popUPContent
+  const routeName = router.app.$route.name
 
-  if (
-    type !== 'onboarding' &&
-    (type !== 'dialogue' && dialogue_type !== 'unlockWallet')
-  ) {
+  if (![RouteNames.NEW, RouteNames.UNLOCK].includes(routeName)) {
     performWhitelistedAction()
     return
   }
@@ -103,9 +99,9 @@ const requiresUserAction = cmd => {
 }
 
 const activateDrawerIfClosed = () => {
-  if (!store.getters.isDrawerActive) {
+  if (!store.state.ui.isDrawerActive) {
     expandFrameInParentWindow()
-    store.commit('activateDrawer', false)
+    store.commit(MutationTypes.ACTIVATE_DRAWER, false)
   }
 }
 

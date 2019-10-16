@@ -1,5 +1,4 @@
 <template>
-  <!-- <div class="navigation"> -->
   <ul class="navigation">
     <router-link :to="{ name: RouteNames.HOME }" tag="li">
       History
@@ -11,78 +10,20 @@
       Receive
     </router-link>
   </ul>
-  <!-- </div> -->
 </template>
 
 <script>
-// import { mapGetters } from 'vuex'
 import { RouteNames } from '@/router'
 
 export default {
   computed: {
-    // ...mapGetters(['isDrawerActive', 'txPending']),
     RouteNames: () => RouteNames,
   },
-  // methods: {
-  //   changeTab(event) {
-  //     this._activeTab = event.target.id
-  //     store.commit('setActiveTab', event.target.id)
-  //     if (this._activeTab != 'ebk-tab_send') {
-  //       store.commit('clearTxPending')
-  //     }
-  //   },
-  // },
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-/* #mainWallet.active .tabbar {
-  transform: translateY(0);
-  top: 187px;
-  opacity: 1;
-  animation: grow 0.2s ease-out;
-  z-index: 9998;
-  margin: 0px;
-}
-@keyframes grow {
-  0% {
-    display: none;
-  }
-  1% {
-    display: block;
-    opacity: 0.5;
-    transform: translateY(-120%);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0%);
-  }
-}
-ul.tabbar li {
-  opacity: 0;
-}
-#mainWallet.active > ul.tabbar > li {
-  opacity: 1;
-  animation: grow_ 0.2s ease-out;
-}
-@keyframes grow_ {
-  0% {
-    opacity: 0;
-  }
-  1% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-} */
-
 .navigation {
-  // position: absolute;
-
   list-style: none;
   width: 320px;
   background: #161d2a;

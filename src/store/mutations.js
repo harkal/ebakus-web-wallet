@@ -1,3 +1,5 @@
+import Web3 from 'web3'
+
 import { version } from '../../package.json'
 
 import { web3 } from '@/actions/web3ebakus'
@@ -39,7 +41,8 @@ export default {
       const web3data = JSON.parse(
         localStorage.getItem(StorageNames.WEB3_WALLET)
       )
-      const address = web3.utils.toChecksumAddress(web3data[0].address)
+      const tempWeb3 = new Web3()
+      const address = tempWeb3.utils.toChecksumAddress(web3data[0].address)
       newState = {
         ...newState,
         wallet: { ...newState.wallet, address: address },

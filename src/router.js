@@ -6,6 +6,8 @@ import ImportWallet from '@/components/ImportWallet.vue'
 import OnBoarding from '@/components/OnBoarding.vue'
 import Send from '@/components/Send.vue'
 import Receive from '@/components/Receive.vue'
+import DappWhitelist from '@/components/DappWhitelist.vue'
+import DappWhitelistAddContract from '@/components/DappWhitelistAddContract.vue'
 import Unlock from '@/components/Unlock.vue'
 import Settings from '@/components/Settings.vue'
 
@@ -22,6 +24,9 @@ const RouteNames = {
 
   SEND: 'send',
   RECEIVE: 'receive',
+
+  WHITELIST_DAPP: 'whitelist_dapp',
+  WHITELIST_CONTRACT_FOR_DAPP: 'whitelist_CONTRACT_FOR_dapp',
 
   SETTINGS: 'settings',
 }
@@ -61,6 +66,17 @@ const router = new Router({
       path: '/receive',
       name: RouteNames.RECEIVE,
       component: Receive,
+    },
+
+    {
+      path: '/whitelist/dapp',
+      name: RouteNames.WHITELIST_DAPP,
+      component: DappWhitelist,
+    },
+    {
+      path: '/whitelist/dapp/contract',
+      name: RouteNames.WHITELIST_CONTRACT_FOR_DAPP,
+      component: DappWhitelistAddContract,
     },
 
     {

@@ -48,7 +48,7 @@ const getBalanceOfAddressForToken = token => {
     return
   }
 
-  const addr = web3.utils.toChecksumAddress(store.state.wallet.address)
+  const addr = store.state.wallet.address
 
   const contract = new web3.eth.Contract(erc20Abi, contractAddress)
 

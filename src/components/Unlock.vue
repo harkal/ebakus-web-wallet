@@ -15,7 +15,9 @@
 </template>
 
 <script>
-import { unlockWallet as unlockWalletFunc, exitPopUP } from '@/actions/wallet'
+import { mapState } from 'vuex'
+
+import { unlockWallet as unlockWalletFunc } from '@/actions/wallet'
 import { performWhitelistedAction } from '@/actions/whitelist'
 
 import { SpinnerState } from '@/constants'
@@ -23,7 +25,6 @@ import { SpinnerState } from '@/constants'
 import { RouteNames } from '@/router'
 
 import MutationTypes from '@/store/mutation-types'
-import store from '@/store'
 
 import {
   loadedInIframe,
@@ -38,8 +39,13 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      isDrawerActive: state => state.ui.isDrawerActive,
+      isDrawerActiveByUser: state => state.ui.isDrawerActiveByUser,
+      tx: state => state.tx.object,
+    }),
     visible() {
-      return this.$store.state.isDrawerActive
+      return this.isDrawerActive
     },
   },
   watch: {
@@ -60,28 +66,28 @@ export default {
       const self = this
       const pass = this.pass
 
-      store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.WALLET_UNLOCK)
+      this.$store.commit(
+        MutationTypes.SET_SPINNER_STATE,
+        SpinnerState.WALLET_UNLOCK
+      )
 
       unlockWalletFunc(pass)
         .then(() => {
           // store.commit('setPass', pass)
-          store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.SUCCESS)
+          self.$store.dispatch(
+            MutationTypes.SET_SPINNER_STATE,
+            SpinnerState.SUCCESS
+          )
 
-          const pendingTx = self.$store.state.tx.object
-          if (
-            loadedInIframe() &&
-            (pendingTx.to || pendingTx.value || pendingTx.data)
-          ) {
-            exitPopUP()
-            performWhitelistedAction()
-          } else {
-            const redirectFrom =
-              this.$route.query.redirectFrom || RouteNames.HOME
-            this.$router.push({ name: redirectFrom }, () => {})
-            // exitPopUP()
+          const redirectFrom = this.$route.query.redirectFrom || RouteNames.HOME
+          this.$router.push({ name: redirectFrom }, () => {})
 
-            if (loadedInIframe() && !store.getters.isDrawerActiveByUser) {
-              store.dispatch(MutationTypes.DEACTIVATE_DRAWER)
+          if (loadedInIframe()) {
+            const { to, value, data } = self.tx
+            if (to || value || data) {
+              performWhitelistedAction()
+            } else if (!self.isDrawerActiveByUser) {
+              self.$store.dispatch(MutationTypes.DEACTIVATE_DRAWER)
               shrinkFrameInParentWindow()
             }
           }
@@ -89,7 +95,10 @@ export default {
         .catch(function(err) {
           console.log('unlockWallet err: ', err)
 
-          store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
+          self.$store.dispatch(
+            MutationTypes.SET_SPINNER_STATE,
+            SpinnerState.FAIL
+          )
 
           self.error = 'Wrong Password, please try again.'
           if (self.$refs.passField) {

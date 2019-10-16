@@ -113,7 +113,7 @@ const cancelPendingTx = () => {
 }
 
 const getTxLogInfo = async receipt => {
-  const localAddr = web3.utils.toChecksumAddress(store.state.wallet.address)
+  const localAddr = store.state.wallet.address
 
   const {
     to,
@@ -270,7 +270,7 @@ const getTransactionMessage = async tx => {
 }
 
 const loadTxsInfoFromExplorer = () => {
-  const localAddr = web3.utils.toChecksumAddress(store.state.wallet.address)
+  const localAddr = store.state.wallet.address
   if (!localAddr) {
     return
   }

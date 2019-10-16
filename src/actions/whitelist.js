@@ -1,4 +1,9 @@
-import { SpinnerState, DefaultDappWhitelistTimer } from '@/constants'
+import {
+  SpinnerState,
+  DefaultDappWhitelistTimer,
+  DialogComponents,
+} from '@/constants'
+
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
 
@@ -8,6 +13,8 @@ import {
   shrinkFrameInParentWindow,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
+
+import router, { RouteNames } from '@/router'
 
 import { calcWorkAndSendTx } from './transactions'
 import { loadConfirmTxMsg } from './wallet'
@@ -76,7 +83,10 @@ const removeDappFromWhitelist = () => {
 
 const showWhitelistNewDappView = () => {
   if (userOptedOutOnceForSession) {
-    loadConfirmTxMsg(store.state.tx.object)
+    store.commit(MutationTypes.SHOW_DIALOG, {
+      component: DialogComponents.SEND_TX,
+      title: 'Send Confirmation',
+    })
     return
   }
 
@@ -85,19 +95,15 @@ const showWhitelistNewDappView = () => {
     SpinnerState.TRANSACTION_WHITELISTING
   )
 
-  var popUP = {
-    type: 'dialogue',
-    dialogue_type: 'whitelistDApp',
-    title: 'Important',
-    data: '',
-    bg: 'black',
-  }
-  store.commit('activatePopUP', popUP)
+  router.push({ name: RouteNames.WHITELIST_DAPP })
 }
 
 const showAddContractToWhitelistedDappView = () => {
   if (userOptedOutOnceForSession) {
-    loadConfirmTxMsg(store.state.tx.object)
+    store.commit(MutationTypes.SHOW_DIALOG, {
+      component: DialogComponents.SEND_TX,
+      title: 'Send Confirmation',
+    })
     return
   }
 
@@ -106,14 +112,7 @@ const showAddContractToWhitelistedDappView = () => {
     SpinnerState.TRANSACTION_WHITELISTING
   )
 
-  var popUP = {
-    type: 'dialogue',
-    dialogue_type: 'whitelistDAppAddContract',
-    title: 'Important',
-    data: '',
-    bg: 'black',
-  }
-  store.commit('activatePopUP', popUP)
+  router.push({ name: RouteNames.WHITELIST_CONTRACT_FOR_DAPP })
 }
 
 const whitelistNewDapp = () => {
@@ -127,11 +126,6 @@ const whitelistNewDapp = () => {
       contractAddress: to,
       timer: DefaultDappWhitelistTimer,
     })
-  }
-
-  if (loadedInIframe() && !store.state.ui.isDrawerActiveByUser) {
-    store.commit(MutationTypes.DEACTIVATE_DRAWER)
-    shrinkFrameInParentWindow()
   }
 }
 
@@ -158,7 +152,10 @@ const cancelWhitelistDapp = () => {
 
   userOptedOutOnceForSession = true
 
-  loadConfirmTxMsg(store.state.tx.object)
+  store.commit(MutationTypes.SHOW_DIALOG, {
+    component: DialogComponents.SEND_TX,
+    title: 'Send Confirmation',
+  })
 }
 
 const performWhitelistedAction = () => {

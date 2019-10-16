@@ -10,31 +10,6 @@
       :class="{ loading: isSpinnerActive }"
     />
 
-    <!-- <template v-if="!isDrawerActive && showWhitelistingTimer">
-      <WhitelistedStatusBar />
-    </template> -->
-
-    <!-- <div key="header" class="header" :class="{ dialog: isDialog }"> -->
-    <!-- <div v-if="buttonState === ButtonStates.EXIT" key="exit">
-        <button class="btn-circle exit" @click="exit" />
-      </div>
-      <div v-else-if="buttonState === ButtonStates.UNLOCK" key="unlock">
-        <button class="btn-circle close" @click="hideWallet" />
-      </div>
-      <div v-else-if="buttonState === ButtonStates.MAIN" key="main">
-        <button class="btn-circle settings" @click="showSettings" />
-        <button class="btn-circle close" @click="hideWallet" />
-      </div> -->
-
-    <!-- <div :class="{ hidden: isDialog }" class="balance">
-        <h1>{{ balance | toEtherFixed }}</h1>
-        <p>{{ tokenSymbol }}</p>
-      </div> -->
-    <!-- <p :class="{ hidden: !isDialog || dialog.title == '' }" class="title">
-        {{ dialog.title }}
-      </p> -->
-    <!-- </div> -->
-
     <div
       v-if="
         !isDrawerActive &&
@@ -103,10 +78,15 @@
       </span> -->
     </div>
 
-    <p v-else-if="!isDrawerActive || !isDialog" class="balance">
+    <p
+      v-else-if="
+        (!isDrawerActive && !showWhitelistingTimer) ||
+          (isDrawerActive && !isDialog)
+      "
+      class="balance"
+    >
       {{ balance | toEtherFixed }}
 
-      <!-- <p> -->
       <span v-if="isDrawerActive || tokenSymbol != 'EBK'">{{
         tokenSymbol
       }}</span>
@@ -118,15 +98,17 @@
         height="14"
         :class="{ hidden: isDialog || isDrawerActive }"
       />
-      <!-- </p> -->
     </p>
 
     <p v-if="isDrawerActive && isDialog && dialog.title != ''" class="title">
       {{ dialog.title }}
     </p>
-    <!-- <p class="title">{{ dialog.title }}Test title</p> -->
 
     <Navigation v-if="isDrawerActive && !isDialog && !isLocked" />
+
+    <template v-if="showWhitelistingTimer">
+      <DappWhitelistedStatusBar />
+    </template>
 
     <div v-if="isDrawerActive" key="buttons" class="buttons">
       <template v-if="buttonState === ButtonStates.EXIT">
@@ -160,7 +142,7 @@ import {
 } from '@/parentFrameMessenger/parentFrameMessenger'
 
 import Identicon from '@/components/Identicon'
-// import WhitelistedStatusBar from './components/UI/WhitelistedStatusBar'
+import DappWhitelistedStatusBar from '@/components/DappWhitelistedStatusBar'
 import Navigation from '@/components/Navigation'
 
 import { RouteNames } from '@/router'
@@ -173,7 +155,7 @@ const ButtonStates = {
 }
 
 export default {
-  components: { Identicon, Navigation },
+  components: { Identicon, Navigation, DappWhitelistedStatusBar },
   data() {
     return {
       resizeFrameTimer: null,
@@ -268,7 +250,7 @@ export default {
       }
     },
     isDrawerActive: function(val, oldVal) {
-      if (val !== oldVal && val == true) {
+      if (val !== oldVal && val == false) {
         resizeFrameWidthInParentWindow(400, 120)
         clearTimeout(this.resizeFrameTimer)
         this.resizeFrameTimer = setTimeout(() => {
@@ -281,14 +263,10 @@ export default {
     },
   },
   mounted() {
-    this.$nextTick(() => {
-      this.updateInnerHeight()
-    })
+    this.updateInnerHeight()
   },
   updated() {
-    this.$nextTick(() => {
-      this.updateInnerHeight()
-    })
+    this.updateInnerHeight()
   },
   methods: {
     showWallet: function() {
@@ -296,7 +274,7 @@ export default {
         expandFrameInParentWindow()
       }
 
-      this.$store.commit(MutationTypes.ACTIVATE_DRAWER)
+      this.$store.commit(MutationTypes.ACTIVATE_DRAWER, true)
     },
     hideWallet: function() {
       this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
@@ -325,12 +303,14 @@ export default {
     },
     updateInnerHeight: function() {
       // handle "iOS viewport scroll bug", https://css-tricks.com/the-trick-to-viewport-units-on-mobile/
-      // set the value in the --vh custom property to the root of the document
-      const height = this.$refs.statusBar.clientHeight * 0.01
-      document.documentElement.style.setProperty(
-        '--status-bar-vh',
-        `${height}px`
-      )
+      // set the value in the --status-bar-vh custom property to the root of the document
+      this.$nextTick(() => {
+        const height = this.$refs.statusBar.clientHeight * 0.01
+        document.documentElement.style.setProperty(
+          '--status-bar-vh',
+          `${height}px`
+        )
+      })
     },
   },
 }

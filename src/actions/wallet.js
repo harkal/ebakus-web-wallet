@@ -222,7 +222,10 @@ const exitDialog = () => {
   const routeName = router.app.$route.name
   const { component } = store.state.ui.dialog
 
-  if (routeName === RouteNames.NEW || component == DialogComponents.NO_FUNDS) {
+  if (
+    !store.state.ui.isDrawerActiveByUser &&
+    (routeName === RouteNames.NEW || component == DialogComponents.NO_FUNDS)
+  ) {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
 
     if (loadedInIframe()) {

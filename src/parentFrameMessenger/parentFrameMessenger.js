@@ -1,4 +1,5 @@
 import { SpinnerState } from '@/constants'
+
 import store from '@/store'
 
 import {
@@ -132,6 +133,11 @@ const postMessage = (
   )
 
   try {
+    if (!target) {
+      console.log('Please wait for parent frame messaging to init')
+      return
+    }
+
     target.postMessage(JSON.stringify(payload), targetOrigin)
   } catch (err) {
     console.error('Wallet send message to parent err: ', err)

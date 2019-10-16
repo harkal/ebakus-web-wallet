@@ -2,15 +2,23 @@ import Vue from 'vue'
 import VueClipboard from 'vue-clipboard2'
 import floor from 'lodash/floor'
 
-import App from './App.vue'
-import router from './router'
-import MutationTypes from './store/mutation-types'
-import store from './store'
-import { init as initWeb3, web3 } from './actions/web3ebakus'
+import { init as initWeb3, web3 } from '@/actions/web3ebakus'
 
-import './assets/css/main.scss'
+import MutationTypes from '@/store/mutation-types'
+
+import store from '@/store'
+
+import router from '@/router'
+
+import parentFrameMessenger from '@/parentFrameMessenger/parentFrameMessenger'
+
+import App from '@/App.vue'
+import '@/assets/css/main.scss'
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
+
+// start listening to messages from parent window if nested in iFrame
+parentFrameMessenger()
 
 Vue.use(VueClipboard)
 
@@ -42,10 +50,10 @@ new Vue({
   router,
   store,
   beforeCreate() {
+    this.$store.commit(MutationTypes.INITIALISE_STORE)
+
     // init web3 ebakus instance
     initWeb3(this.$store.getters.network)
-
-    this.$store.commit(MutationTypes.INITIALISE_STORE)
   },
   render: h => h(App),
 }).$mount('#app')
