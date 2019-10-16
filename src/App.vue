@@ -9,8 +9,8 @@
     >
       <Status ref="status" />
       <div v-show="isDrawerActive" class="main">
-        <component :is="dialog.component" v-if="isDialog" />
-        <router-view v-if="!isDialog" />
+        <component :is="dialog.component" v-if="isDialog && dialog.component" />
+        <router-view v-else />
       </div>
     </div>
 
@@ -45,11 +45,21 @@ import { RouteNames } from '@/router'
 import MutationTypes from '@/store/mutation-types'
 
 import SendTx from '@/components/dialogs/SendTx.vue'
-import NoFunds from '@/components/dialogs/NoFunds.vue'
 import Status from '@/views/Status'
 
 export default {
-  components: { Status, SendTx, NoFunds },
+  components: {
+    Status,
+    DeleteWallet: () =>
+      import(
+        /* webpackChunkName: "delete-wallet" */ '@/components/dialogs/DeleteWallet.vue'
+      ),
+    NoFunds: () =>
+      import(
+        /* webpackChunkName: "no-funds" */ '@/components/dialogs/NoFunds.vue'
+      ),
+    SendTx,
+  },
   data() {
     return {
       isWalletActive: false,
@@ -170,6 +180,8 @@ export default {
   },
   methods: {
     checkNodeConnectivity: function() {
+      const self = this
+
       this.$store.commit(
         MutationTypes.SET_SPINNER_STATE,
         SpinnerState.NODE_CONNECT
@@ -178,13 +190,13 @@ export default {
       web3.eth.net
         .getId()
         .then(() => {
-          this.$store.dispatch(
+          self.$store.dispatch(
             MutationTypes.SET_SPINNER_STATE,
             SpinnerState.NODE_CONNECTED
           )
         })
         .catch(err => {
-          this.$store.dispatch(
+          self.$store.dispatch(
             MutationTypes.SET_SPINNER_STATE,
             SpinnerState.NODE_DISCONNECTED
           )
@@ -198,7 +210,7 @@ export default {
         // console.log('Wallet Locked')
       } else if (this.publicAddress !== null && this.isLocked) {
         this.$router.push({ name: RouteNames.UNLOCK }, () => {})
-      } else {
+      } else if (this.$route.name !== RouteNames.NEW) {
         this.$router.push({ name: RouteNames.NEW }, () => {})
       }
     },

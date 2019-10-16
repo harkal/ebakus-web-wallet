@@ -40,11 +40,7 @@
           <button class="full" @click="secureWallet">Next</button>
         </div>
       </div>
-      <div
-        v-if="mnemonic"
-        class="pane backup"
-        :class="{ display: activePane == Panes.BACKUP }"
-      >
+      <div class="pane backup" :class="{ display: activePane == Panes.BACKUP }">
         <div class="wrapper">
           <Backup type="mnemonic" :mnemonic="mnemonic" />
           <button class="secondary col" @click="requestNewPassword">
@@ -120,22 +116,21 @@ export default {
       this.activePane = Panes.CREATE
     },
   },
-  mounted() {
+  async mounted() {
     const self = this
 
     this.$store.commit(MutationTypes.SHOW_DIALOG)
 
     if (this.publicAddress === null && this.isLocked) {
-      generateWallet()
-        .then(mnemonic => {
-          console.log('New Wallet Created', this.publicAddress)
-          if (mnemonic) {
-            self.mnemonic = mnemonic.split(' ')
-          }
-        })
-        .catch(err => {
-          console.log('Failed to create new wallet', err)
-        })
+      try {
+        const mnemonic = await generateWallet()
+        console.log('New Wallet Created', this.publicAddress)
+        if (mnemonic) {
+          self.mnemonic = mnemonic.split(' ')
+        }
+      } catch (err) {
+        console.log('Failed to create new wallet', err)
+      }
     }
   },
   beforeDestroy() {
@@ -234,12 +229,6 @@ export default {
         transform: rotate(45deg) translateX(-50%);
       }
     }
-  }
-}
-
-.scroll-wrapper {
-  > div {
-    padding-top: 20px;
   }
 }
 

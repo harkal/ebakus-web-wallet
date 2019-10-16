@@ -2,7 +2,7 @@ import { version } from '../../package.json'
 
 import { DefaultToken } from '@/constants'
 
-export default {
+const initialState = {
   version,
 
   // current operating transaction at wallet
@@ -70,3 +70,7 @@ export default {
     },
   },
 }
+
+export default () => ({
+  ...JSON.parse(JSON.stringify(initialState)),
+})

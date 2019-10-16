@@ -561,72 +561,69 @@ button {
   white-space: pre;
   top: 25px;
 }
+
 /* dropdown ____________________________________________________*/
+
+.dropdown-wrapper {
+  position: relative;
+  right: 1.125em;
+  left: 0px;
+  margin: 8px 0px;
+  z-index: 4;
+  border: 1px solid #000;
+  border-radius: 4px;
+
+  &::after {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    margin-top: -0.4375em;
+    max-width: 100%;
+    width: 8px;
+    height: 8px;
+    z-index: 4;
+
+    pointer-events: none;
+    transform: rotate(-45deg);
+    transform-origin: center;
+    border: 2px solid #000;
+    border-radius: 2px;
+    border-right: 0;
+    border-top: 0;
+    box-sizing: inherit;
+    vertical-align: middle;
+  }
+}
 
 select.dropdown {
   -moz-appearance: none;
   -webkit-appearance: none;
-  align-items: center;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  box-shadow: none;
   display: inline-flex;
-  font-size: 13px;
-
+  align-items: center;
   justify-content: flex-start;
+
+  width: 100%;
+  margin: 0px;
+
   padding-bottom: 8px;
   padding-left: calc(0.625em - 1px);
   padding-right: 30px;
   padding-top: 8px;
 
-  vertical-align: top;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  box-shadow: none;
+  font-size: 13px;
 
   background: #fff;
   vertical-align: middle;
-  width: 100%;
-  margin: 0px;
   color: #000;
-}
-div.dropdown_wrapper {
-  position: relative;
-  border-color: #000;
-  right: 1.125em;
-  z-index: 4;
-  border: 1px solid #000;
-  border-radius: 4px;
-  left: 0px;
-  margin: 8px 0px;
-}
 
-div.dropdown_wrapper::after {
-  content: '';
-  border: 2px solid transparent;
-  border-radius: 2px;
-  border-right: 0;
-  border-top: 0;
-
-  display: block;
-  height: 8px;
-  margin-top: -0.4375em;
-  pointer-events: none;
-  position: absolute;
-  top: 50%;
-  -webkit-transform: rotate(-45deg);
-  transform: rotate(-45deg);
-  -webkit-transform-origin: center;
-  transform-origin: center;
-  width: 8px;
-  border-color: #000;
-  right: 14px;
-  z-index: 4;
-  box-sizing: inherit;
-  display: inline-block;
-  max-width: 100%;
-  position: absolute;
-  vertical-align: middle;
-}
-select.dropdown:focus {
-  outline: none;
+  &:focus {
+    outline: none;
+  }
 }
 
 /* textbox ____________________________________________________*/

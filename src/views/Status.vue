@@ -16,7 +16,7 @@
 
     <!-- <div key="header" class="header" :class="{ dialog: isDialog }"> -->
     <!-- <div v-if="buttonState === ButtonStates.EXIT" key="exit">
-        <button class="btn-circle exit" @click="exitPopUP" />
+        <button class="btn-circle exit" @click="exit" />
       </div>
       <div v-else-if="buttonState === ButtonStates.UNLOCK" key="unlock">
         <button class="btn-circle close" @click="hideWallet" />
@@ -27,7 +27,7 @@
       </div> -->
 
     <!-- <div :class="{ hidden: isDialog }" class="balance">
-        <h1>{{ balance | toEtherBalance }}</h1>
+        <h1>{{ balance | toEtherFixed }}</h1>
         <p>{{ tokenSymbol }}</p>
       </div> -->
     <!-- <p :class="{ hidden: !isDialog || dialog.title == '' }" class="title">
@@ -98,13 +98,13 @@
       />
 
       <!-- <span v-else key="balance" class="balance">
-        {{ balance | toEtherBalance }}
+        {{ balance | toEtherFixed }}
         <img src="@/assets/img/ebakus_logo_small.svg" width="14" height="14" />
       </span> -->
     </div>
 
     <p v-else-if="!isDrawerActive || !isDialog" class="balance">
-      {{ balance | toEtherBalance }}
+      {{ balance | toEtherFixed }}
 
       <!-- <p> -->
       <span v-if="isDrawerActive || tokenSymbol != 'EBK'">{{
@@ -130,7 +130,7 @@
 
     <div v-if="isDrawerActive" key="buttons" class="buttons">
       <template v-if="buttonState === ButtonStates.EXIT">
-        <button class="btn-circle exit" @click.stop="exitPopUP" />
+        <button class="btn-circle exit" @click.stop="exit" />
       </template>
       <template v-else-if="buttonState === ButtonStates.UNLOCK">
         <button class="btn-circle close" @click.stop="hideWallet" />
@@ -146,12 +146,11 @@
 <script>
 import { mapState } from 'vuex'
 
-import { SpinnerState, DialogType } from '@/constants'
+import { SpinnerState, DialogComponents } from '@/constants'
 
 import { isContractCall, isContractCallWhitelisted } from '@/actions/whitelist'
 
 import MutationTypes from '@/store/mutation-types'
-import store from '@/store'
 
 import {
   loadedInIframe,
@@ -199,8 +198,8 @@ export default {
     buttonState() {
       if (this.isDialog) {
         if (
-          [DialogType.SEND_TX, DialogType.WHITELIST_DAPP].includes(
-            this.dialog.type
+          [DialogComponents.SEND_TX, DialogComponents.WHITELIST_DAPP].includes(
+            this.dialog.component
           )
         ) {
           return ButtonStates.NONE
@@ -233,7 +232,10 @@ export default {
         ) {
           clearTimeout(this.resizeFrameTimer)
           this.resizeFrameTimer = setTimeout(() => {
-            store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.SUCCESS)
+            this.$store.commit(
+              MutationTypes.SET_SPINNER_STATE,
+              SpinnerState.SUCCESS
+            )
           }, 1000)
         }
 
@@ -294,28 +296,28 @@ export default {
         expandFrameInParentWindow()
       }
 
-      store.commit(MutationTypes.ACTIVATE_DRAWER)
+      this.$store.commit(MutationTypes.ACTIVATE_DRAWER)
     },
     hideWallet: function() {
-      store.commit(MutationTypes.DEACTIVATE_DRAWER)
-      // store.commit('setActiveTab', 'ebk-tab_history')
+      this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
 
       if (loadedInIframe()) {
         shrinkFrameInParentWindow()
       }
     },
-    exitPopUP: function() {
-      console.log('TCL: this.dialog', JSON.stringify(this.dialog))
+    exit: function() {
       if (this.$route.name == RouteNames.NEW) {
-        store.commit(MutationTypes.DEACTIVATE_DRAWER)
+        this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
 
         if (loadedInIframe()) {
           shrinkFrameInParentWindow()
         }
       } else if (this.$route.name == RouteNames.IMPORT) {
         this.$router.push({ name: RouteNames.NEW }, () => {})
+      } else if (this.$route.name == RouteNames.SETTINGS) {
+        this.$router.push({ name: RouteNames.HOME }, () => {})
       } else if (this.isDialog) {
-        store.commit(MutationTypes.CLEAR_DIALOG)
+        this.$store.commit(MutationTypes.CLEAR_DIALOG)
       }
     },
     showSettings: function() {

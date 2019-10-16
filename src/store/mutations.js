@@ -3,7 +3,7 @@ import { version } from '../../package.json'
 import { web3 } from '@/actions/web3ebakus'
 import { DefaultToken, SpinnerState, StorageNames } from '@/constants'
 
-import defaultState from './state'
+import initialState from './state'
 import MutationTypes from './mutation-types'
 
 export default {
@@ -75,6 +75,13 @@ export default {
     state.wallet.token = token
   },
 
+  [MutationTypes.DELETE_WALLET](state) {
+    Object.keys(state).forEach(key => {
+      state[key] = initialState()[key]
+    })
+    state.ui.isDrawerActive = true
+  },
+
   [MutationTypes.SET_TOKENS](state, tokens) {
     state.tokens = tokens
   },
@@ -100,7 +107,7 @@ export default {
     localStorage.setItem(StorageNames.LOGS, JSON.stringify(logs))
   },
   [MutationTypes.RESET_LOGS](state) {
-    state.history = { ...defaultState.history }
+    state.history = { ...initialState().history }
     localStorage.removeItem(StorageNames.LOGS)
   },
 
@@ -108,7 +115,7 @@ export default {
     state.tx.object = tx
   },
   [MutationTypes.CLEAR_TX](state) {
-    state.tx = { ...defaultState.tx }
+    state.tx = { ...initialState().tx }
   },
 
   [MutationTypes.SET_NETWORK](state, data) {
@@ -130,14 +137,14 @@ export default {
     state.ui.overlayColor = color
   },
   [MutationTypes.UNSET_OVERLAY_COLOR](state) {
-    state.ui.overlayColor = defaultState.ui.overlayColor
+    state.ui.overlayColor = initialState().ui.overlayColor
   },
 
   [MutationTypes.SHOW_DIALOG](state, data) {
-    state.ui.dialog = { ...defaultState.ui.dialog, ...data, active: true }
+    state.ui.dialog = { ...initialState().ui.dialog, ...data, active: true }
   },
   [MutationTypes.CLEAR_DIALOG](state) {
-    state.ui.dialog = { ...defaultState.ui.dialog }
+    state.ui.dialog = { ...initialState().ui.dialog }
   },
 
   /* -- Whitelisting mutations -- */

@@ -36,4 +36,7 @@ export default {
   [MutationTypes.SHOW_DIALOG](context, data) {
     context.commit(MutationTypes.SHOW_DIALOG, data)
   },
+  [MutationTypes.CLEAR_DIALOG](context) {
+    context.commit(MutationTypes.CLEAR_DIALOG)
+  },
 }

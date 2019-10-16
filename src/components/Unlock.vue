@@ -49,6 +49,12 @@ export default {
       }
     },
   },
+  mounted() {
+    this.$store.commit(MutationTypes.SHOW_DIALOG)
+  },
+  beforeDestroy() {
+    this.$store.commit(MutationTypes.CLEAR_DIALOG)
+  },
   methods: {
     unlockWallet: function() {
       const self = this

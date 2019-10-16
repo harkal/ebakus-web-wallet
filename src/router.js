@@ -7,6 +7,7 @@ import OnBoarding from '@/components/OnBoarding.vue'
 import Send from '@/components/Send.vue'
 import Receive from '@/components/Receive.vue'
 import Unlock from '@/components/Unlock.vue'
+import Settings from '@/components/Settings.vue'
 
 import store from '@/store'
 
@@ -61,11 +62,16 @@ const router = new Router({
       name: RouteNames.RECEIVE,
       component: Receive,
     },
+
+    {
+      path: '/settings',
+      name: RouteNames.SETTINGS,
+      component: Settings,
+    },
   ],
 })
 
 router.beforeEach((to, from, next) => {
-  // handle NavigationDuplicated: don't move to next page if it's the same one
   if (
     ![RouteNames.NEW, RouteNames.IMPORT, RouteNames.UNLOCK].includes(to.name) &&
     store.state.wallet.locked

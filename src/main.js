@@ -23,11 +23,19 @@ Vue.filter('floor', function(number) {
 })
 
 Vue.filter('toEther', function(wei) {
-  return web3.utils.fromWei(String(wei))
+  if (typeof wei == 'number') {
+    wei = '0x' + wei.toString(16)
+  }
+
+  return web3.utils.fromWei(wei)
 })
 
-Vue.filter('toEtherBalance', function(wei) {
-  return floor(parseFloat(web3.utils.fromWei(String(wei))), 2).toFixed(2)
+Vue.filter('toEtherFixed', function(wei) {
+  if (typeof wei == 'number') {
+    wei = '0x' + wei.toString(16)
+  }
+
+  return floor(parseFloat(web3.utils.fromWei(wei)), 2).toFixed(2)
 })
 
 new Vue({

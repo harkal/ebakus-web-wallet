@@ -49,17 +49,6 @@ const getBalance = () => {
         )
       }
 
-      if (
-        [SpinnerState.NODE_CONNECT, SpinnerState.NODE_DISCONNECTED].includes(
-          store.state.ui.currentSpinnerState
-        )
-      ) {
-        store.dispatch(
-          MutationTypes.SET_SPINNER_STATE,
-          SpinnerState.NODE_CONNECTED
-        )
-      }
-
       if (parseFloat(weiBalance) != parseFloat(store.state.wallet.balance)) {
         store.dispatch(MutationTypes.SET_WALLET_BALANCE, String(weiBalance))
 
@@ -204,16 +193,8 @@ const importWallet = _seed => {
 const deleteWallet = () => {
   web3.eth.accounts.wallet.clear()
   localStorage.removeItem(StorageNames.WEB3_WALLET)
+  store.commit(MutationTypes.DELETE_WALLET)
   store.commit(MutationTypes.RESET_LOGS)
-
-  return this.generateWallet()
-    .then(() => {
-      return true
-    })
-    .catch(err => {
-      console.log('Failed to delete wallet', err)
-      return false
-    })
 }
 
 const unlockWallet = pass => {

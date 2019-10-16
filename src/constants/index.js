@@ -58,10 +58,7 @@ if (process.env.NODE_ENV === 'development') {
 const DialogComponents = {
   SEND_TX: 'SendTx',
   NO_FUNDS: 'NoFunds',
-  DIALOGUE: 'DIALOGUE',
-}
-
-const DialogType = {
+  DELETE_WALLET: 'DeleteWallet',
   WHITELIST_DAPP: 'WHITELIST_DAPP',
 }
 
@@ -78,6 +75,5 @@ export {
   SpinnerState,
   Networks,
   DialogComponents,
-  DialogType,
   StorageNames,
 }

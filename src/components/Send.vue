@@ -11,7 +11,7 @@
         @keyup.enter="addPendingTx"
       />
 
-      <div class="dropdown_wrapper">
+      <div class="dropdown-wrapper">
         <select
           v-model="inputs.token"
           class="dropdown"

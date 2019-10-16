@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import axios from 'axios'
 
 import { SpinnerState } from '@/constants'
@@ -117,13 +118,14 @@ const getTxLogInfo = async receipt => {
   const {
     to,
     from: txFrom,
-    value = 0,
     contractAddress,
     data: txData,
     input,
     hash,
     timestamp,
   } = receipt
+
+  let { value = 0 } = receipt
 
   let logTitle, logAddress, decodedData
 
@@ -135,6 +137,8 @@ const getTxLogInfo = async receipt => {
   const token = getTokenInfoForContractAddress(foreignAddress)
   const data = txData || input
 
+  value = Vue.options.filters.toEtherFixed(value)
+
   if (token && data) {
     decodedData = decodeData(data)
   } else if (data) {
@@ -142,7 +146,7 @@ const getTxLogInfo = async receipt => {
   }
 
   if (isLocal) {
-    logTitle = `You sent ${web3.utils.fromWei(String(value))} ebk to:`
+    logTitle = `You sent ${value} EBK to:`
     logAddress = to
 
     if (isContractCreation) {
@@ -152,8 +156,8 @@ const getTxLogInfo = async receipt => {
       const { name, params } = decodedData
 
       if (name === 'transfer') {
-        const value = getValueForParam('_value', params) || 0
-        logTitle = `You sent ${web3.utils.fromWei(String(value))} ${
+        const tokenValue = getValueForParam('_value', params) || 0
+        logTitle = `You sent ${web3.utils.fromWei(String(tokenValue))} ${
           token.symbol
         } to:`
         logAddress = getValueForParam('_to', params)
@@ -164,7 +168,7 @@ const getTxLogInfo = async receipt => {
       }
     }
   } else {
-    logTitle = `You received ${web3.utils.fromWei(String(value))} ebk from:`
+    logTitle = `You received ${value} EBK from:`
     logAddress = txFrom
 
     if (decodedData && decodedData.name === 'getWei') {
