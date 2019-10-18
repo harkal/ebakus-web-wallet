@@ -199,14 +199,13 @@ export default {
       SpinnerState.NODE_SELECT
     )
   },
-  beforeDestroy() {
-    this.$store.commit(MutationTypes.CLEAR_DIALOG)
-    this.$store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
-  },
   methods: {
     importKey: function() {
       this.$store.commit(MutationTypes.SHOW_DIALOG, { title: 'Import wallet' })
-      this.$router.push({ name: RouteNames.IMPORT })
+      this.$router.push({
+        name: RouteNames.IMPORT,
+        query: { redirectFrom: this.$route.name },
+      })
     },
     deleteWallet: function() {
       this.$store.commit(MutationTypes.SHOW_DIALOG, {

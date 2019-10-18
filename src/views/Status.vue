@@ -6,13 +6,15 @@
   >
     <identicon
       v-if="isDrawerActive || (!isDrawerActive && !showWhitelistingTimer)"
+      key="identicon"
       :public-key="publicAddress"
-      :class="{ loading: isSpinnerActive }"
+      :class="{ loading: !animating && isSpinnerActive }"
     />
 
     <div
       v-if="
-        !isDrawerActive &&
+        animating &&
+          !isDrawerActive &&
           [
             SpinnerState.CALC_POW,
             SpinnerState.TRANSACTION_SENDING,
@@ -71,11 +73,6 @@
         height="31"
         title="Connection lost try refreshing the page."
       />
-
-      <!-- <span v-else key="balance" class="balance">
-        {{ balance | toEtherFixed }}
-        <img src="@/assets/img/ebakus_logo_small.svg" width="14" height="14" />
-      </span> -->
     </div>
 
     <p
@@ -83,16 +80,17 @@
         (!isDrawerActive && !showWhitelistingTimer) ||
           (isDrawerActive && !isDialog)
       "
+      key="balance"
       class="balance"
     >
       {{ balance | toEtherFixed }}
 
-      <span v-if="isDrawerActive || tokenSymbol != 'EBK'">{{
+      <span v-if="(!animating && isDrawerActive) || tokenSymbol != 'EBK'">{{
         tokenSymbol
       }}</span>
 
       <img
-        v-if="!isDrawerActive && tokenSymbol == 'EBK'"
+        v-if="!animating && !isDrawerActive && tokenSymbol == 'EBK'"
         src="@/assets/img/ebakus_logo_small.svg"
         width="14"
         height="14"
@@ -100,28 +98,50 @@
       />
     </p>
 
-    <p v-if="isDrawerActive && isDialog && dialog.title != ''" class="title">
+    <p
+      v-if="!animating && isDrawerActive && isDialog && dialog.title != ''"
+      key="title"
+      class="title"
+    >
       {{ dialog.title }}
     </p>
 
-    <Navigation v-if="isDrawerActive && !isDialog && !isLocked" />
+    <Navigation
+      v-if="!animating && isDrawerActive && !isDialog && !isLocked"
+      key="navigation"
+    />
 
-    <template v-if="showWhitelistingTimer">
-      <DappWhitelistedStatusBar />
-    </template>
+    <transition name="whitelist-transition" appear>
+      <DappWhitelistedStatusBar v-if="showWhitelistingTimer" key="whitelist" />
+    </transition>
 
-    <div v-if="isDrawerActive" key="buttons" class="buttons">
-      <template v-if="buttonState === ButtonStates.EXIT">
-        <button class="btn-circle exit" @click.stop="exit" />
-      </template>
-      <template v-else-if="buttonState === ButtonStates.UNLOCK">
-        <button class="btn-circle close" @click.stop="hideWallet" />
-      </template>
-      <template v-else-if="buttonState === ButtonStates.MAIN">
-        <button class="btn-circle settings" @click.stop="showSettings" />
-        <button class="btn-circle close" @click.stop="hideWallet" />
-      </template>
-    </div>
+    <transition name="status-buttons-transition" appear>
+      <div v-if="isDrawerActive" key="buttons" class="buttons">
+        <transition-group name="fade-transition">
+          <button
+            v-show="buttonState === ButtonStates.EXIT"
+            key="exit"
+            class="btn-circle exit"
+            @click.stop="exit"
+          />
+          <button
+            v-show="buttonState === ButtonStates.MAIN"
+            key="settings"
+            class="btn-circle settings"
+            @click.stop="showSettings"
+          />
+          <button
+            v-show="
+              buttonState === ButtonStates.UNLOCK ||
+                buttonState === ButtonStates.MAIN
+            "
+            key="close"
+            class="btn-circle close"
+            @click.stop="hideWallet"
+          />
+        </transition-group>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -156,6 +176,12 @@ const ButtonStates = {
 
 export default {
   components: { Identicon, Navigation, DappWhitelistedStatusBar },
+  props: {
+    animating: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
       resizeFrameTimer: null,
@@ -179,7 +205,9 @@ export default {
     ButtonStates: () => ButtonStates,
 
     buttonState() {
-      if (this.isDialog) {
+      if (this.$route.name == RouteNames.UNLOCK) {
+        return ButtonStates.UNLOCK
+      } else if (this.isDialog) {
         if (
           [DialogComponents.SEND_TX, DialogComponents.WHITELIST_DAPP].includes(
             this.dialog.component
@@ -189,8 +217,6 @@ export default {
         } else {
           return ButtonStates.EXIT
         }
-      } else if (this.$route.name == RouteNames.UNLOCK) {
-        return ButtonStates.UNLOCK
       }
       return ButtonStates.MAIN
     },
@@ -206,7 +232,7 @@ export default {
   },
   watch: {
     spinnerState: function(val, oldVal) {
-      if (val !== oldVal) {
+      if (!this.isDrawerActive && val !== oldVal) {
         // check if state needs update in order to present the balance
         if (
           [
@@ -293,9 +319,12 @@ export default {
           shrinkFrameInParentWindow()
         }
       } else if (this.$route.name == RouteNames.IMPORT) {
-        this.$router.push({ name: RouteNames.NEW }, () => {})
+        const redirectFrom = this.$route.query.redirectFrom || RouteNames.HOME
+        this.$router.push({ name: redirectFrom }, () => {})
+        this.$store.commit(MutationTypes.CLEAR_DIALOG)
       } else if (this.$route.name == RouteNames.SETTINGS) {
         this.$router.push({ name: RouteNames.HOME }, () => {})
+        this.$store.commit(MutationTypes.CLEAR_DIALOG)
       } else if (this.isDialog) {
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
       }
@@ -319,47 +348,22 @@ export default {
 </script>
 
 <style scoped lang="scss">
-// .header {
-//   position: absolute;
-//   top: 0px;
-//   width: 100%;
-//   height: 255px;
-//   background: #0a111f;
-//   transition: all 0.15s ease-out;
-
-//   z-index: 9000;
-
-//   &.dialog {
-//     height: 147px;
-//   }
-// }
+@import '../assets/css/_animations.scss';
 
 .title {
-  // position: absolute;
-  // top: 118px;
-  // left: 50%;
-  // transform: translateX(-50%);
-
   color: white;
   font-family: sans-serif;
   font-size: 13px;
   font-weight: 400;
   line-height: 13px;
   text-align: center;
-  transition: opacity 0.2s ease-out;
 
   &.hidden {
-    transition: opacity 0.2s ease-in;
     opacity: 0;
   }
 }
 
 .balance {
-  // position: absolute;
-  // top: 75px;
-  // left: 50%;
-  // transform: translateX(-50%);
-  // transition: opacity 0.3s ease-out;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -390,14 +394,6 @@ export default {
     opacity: 0;
   }
 
-  // & > * {
-  //   margin: 0;
-  // }
-
-  // & > h1 {
-  //   // margin-top: 48px;
-  // }
-
   span {
     font-size: 13px;
     line-height: 13px;
@@ -414,11 +410,13 @@ export default {
 
 .buttons {
   position: absolute;
+  top: 0px;
+  left: 0;
+  margin: 0 !important;
 }
 
 .btn-circle {
-  position: fixed;
-  top: 0px;
+  position: absolute;
 
   &.settings,
   &.exit {

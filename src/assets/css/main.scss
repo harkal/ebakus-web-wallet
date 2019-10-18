@@ -1,3 +1,6 @@
+@import 'animations';
+@import 'z-index';
+
 * {
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
@@ -64,11 +67,12 @@ a {
   font-weight: 400;
 }
 
-#ebk-wallet {
+#wallet {
+  @include z-index(wallet);
+
   position: fixed;
   right: 0;
   overflow: hidden;
-  z-index: 1;
 
   height: auto;
 
@@ -79,7 +83,10 @@ a {
   align-items: center;
   align-content: center;
 
-  & > * {
+  animation: wallet-animation 0 forwards;
+  @include animation-duration(wallet);
+
+  > div {
     flex: 0 0 auto;
 
     width: 100%;
@@ -88,12 +95,8 @@ a {
 
   &:not(.opened) {
     max-width: 320px;
-
-    background-color: rgba(10, 17, 31, 1);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-width: 0;
-    border-right-width: 0;
     border-bottom-left-radius: 5px;
+    animation-direction: alternate-reverse;
 
     &:not(.whitelisted) {
       cursor: pointer;
@@ -110,6 +113,20 @@ a {
 
     background: #ffffff;
     box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
+
+    animation-direction: reverse;
+  }
+}
+
+@keyframes wallet-animation {
+  0% {
+    height: 100vh;
+  }
+  50% {
+    width: 320px;
+  }
+  100% {
+    box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
   }
 }
 
@@ -118,40 +135,45 @@ a {
 $status-bar-padding: 16px;
 
 .status-bar {
+  @include z-index(status);
+  position: relative;
   display: flex;
   flex-wrap: nowrap;
   flex-direction: row;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   align-content: center;
 
   min-height: 44px;
 
   background-color: rgb(10, 17, 31);
-  transition: all 0.15s ease-out;
 
-  & > * {
-    flex: 1 1 auto;
+  & > div,
+  & > p {
     margin: 0 8px;
   }
 
+  #wallet:not(.opened) & {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-left-radius: 5px;
+  }
+
+  .animating & {
+    flex-wrap: wrap;
+  }
+
   .opened & {
-    flex-direction: column;
+    flex-wrap: wrap;
     justify-content: flex-start;
 
     padding: $status-bar-padding;
 
-    transition: all 0.15s ease-out; /* open transition */
-
-    & > * {
-      flex: 0 0 auto;
+    > * {
+      margin: 8px auto;
 
       width: 100%;
-      margin: 8px 0;
-    }
-
-    > :not(.widget) {
-      transition: opacity 0.05s ease-out; /* open transition */
     }
 
     .navigation {
@@ -159,32 +181,20 @@ $status-bar-padding: 16px;
       margin-right: -$status-bar-padding;
       margin-bottom: -$status-bar-padding;
       margin-left: -$status-bar-padding;
-      width: auto;
+      width: calc(100% + #{$status-bar-padding * 2});
+      flex-basis: calc(100% + #{$status-bar-padding * 2});
     }
   }
 
   .whitelisted:not(.opened) & {
-    // max-width: 320px;
     min-height: 74px;
     padding: 12px 16px;
-  }
-
-  :not(.whitelisted) &,
-  > span {
-    transition: all 0.2s ease-in 0.15s; /* close transition */
   }
 }
 
 .main {
-  width: 100%;
-  // height: 100vh;
-  // padding: 16px;
-
-  transform: translateX(110%);
-
-  .opened & {
-    transform: translateX(0%);
-  }
+  @include z-index(main);
+  background-color: #fff;
 }
 
 .overlay {
@@ -200,8 +210,7 @@ $status-bar-padding: 16px;
     right: 0;
     bottom: 0;
     opacity: 0.8;
-    z-index: 0;
-    animation: 0.3s showOpacity80 ease-out;
+    @include z-index(overlay);
   }
   &.red {
     background: #fd315f;
@@ -209,119 +218,6 @@ $status-bar-padding: 16px;
   &.black {
     background: #000;
   }
-}
-
-/* Widget ______________________________________________________*/
-.widget {
-  position: relative;
-
-  flex-grow: 0;
-
-  // top: 6px;
-  // right: 70%;
-  // right: calc(100% - 43px);
-  width: 29px;
-  height: 29px;
-  background: transparent;
-  border: 2px solid transparent;
-  border-radius: 50px;
-  box-shadow: 0 2px 14px 0 rgba(0, 0, 0, 0.15);
-  z-index: 9999;
-
-  &::before {
-    display: block;
-    content: '';
-    width: 29px;
-    height: 29px;
-    margin: -3px;
-    position: relative;
-    border-left: 2px solid rgba(254, 65, 132, 1);
-    border-right: 3px solid rgba(40, 216, 179, 1);
-    border-bottom: 3px solid rgba(0, 174, 239, 0);
-    border-top: 3px solid rgba(40, 216, 179, 0);
-    border-radius: 100%;
-    opacity: 0;
-    animation: rotation 1s infinite linear;
-  }
-
-  &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 18px 0 rgba(0, 0, 0, 0.18);
-
-    &::before {
-      opacity: 0.75;
-    }
-  }
-
-  /* loading */
-  .loading::before {
-    opacity: 1;
-  }
-
-  .opened & {
-    // top: 39px;
-    // right: 130px;
-    margin-top: 32px;
-    width: 60px;
-    height: 60px;
-    background-color: #121212;
-    border-color: #fff;
-    pointer-events: initial;
-
-    &:hover {
-      transform: scale(1);
-    }
-
-    &::before {
-      width: 64px;
-      height: 64px;
-      margin: -7px;
-    }
-  }
-}
-
-/* identicon */
-.identicon > div {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  bottom: 2px;
-  right: 2px;
-  transform: scale(0.49);
-  transform-origin: top left;
-}
-
-.opened .identicon > div {
-  top: 3px;
-  left: 3px;
-  transform: scale(1);
-}
-
-.identicon.placeholder::after {
-  content: '';
-  display: block;
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  bottom: 3px;
-  right: 3px;
-  border-radius: 2em;
-  background-color: rgba(251, 251, 251, 0.15);
-}
-
-/* transitions ______________________________________________________*/
-.widget,
-.widget::before,
-.identicon > div,
-#ebk-wallet {
-  transition: all 0.2s ease-in; /* close transition */
-}
-
-.opened .widget,
-.opened .widget::before,
-.opened .identicon > div,
-.opened ~ #ebk-wallet {
-  transition: all 0.2s ease-out 0.1s; /* open transition */
 }
 
 /* content area ______________________________________________________*/
@@ -549,37 +445,73 @@ label {
   }
 }
 
-.animate-fade-in-out {
-  animation: fadeInOutAnimation 0.5s infinite;
-}
-.animate-fade-in-out-slow {
-  animation: fadeInOutAnimation 1s infinite;
-}
-
-@keyframes fadeInOutAnimation {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 1;
-  }
+.status-buttons-transition-enter-active,
+.status-buttons-transition-leave-active {
+  transition: opacity 0 ease-in;
+  @include transition-duration(status, buttons, enter);
 }
 
-.animate-hide-me {
-  animation: hideAnimation 0s ease-in 1s forwards;
-  animation-fill-mode: forwards;
+.status-buttons-transition-leave-active {
+  @include transition-duration(status, buttons, leave);
 }
 
-@keyframes hideAnimation {
-  to {
-    width: 0;
-    height: 0;
-    overflow: hidden;
-    padding: 0;
-  }
+.status-buttons-transition-leave {
+}
+
+.status-buttons-transition-enter,
+.status-buttons-transition-leave-to {
+  opacity: 0;
+}
+
+.fade-transition-enter-active,
+.fade-transition-leave-active {
+  transition: opacity 0 ease-in-out;
+  @include transition-duration(fade, enter);
+}
+.fade-transition-enter-active {
+  @include transition-delay(fade, leave);
+}
+
+.fade-transition-leave-active {
+  @include transition-duration(fade, leave);
+}
+
+.fade-transition-enter,
+.fade-transition-leave-to {
+  opacity: 0;
+}
+
+.whitelist-transition-enter-to,
+.whitelist-transition-leave {
+  transform: translate3d(0, 0, 0);
+  left: 0
+}
+
+.whitelist-transition-enter,
+.whitelist-transition-leave-to {
+  transform: translate3d(100%, 0, 0);
+  opacity: 0;
+}
+.whitelist-transition-enter-active,
+.whitelist-transition-leave-active {
+  position: relative;
+  transition: all .15s ease-in-out;
+}
+
+.main-transition-enter-to,
+.main-transition-leave {
+  transform: translate3d(0, 0, 0);
+}
+
+.main-transition-enter,
+.main-transition-leave-to {
+  transform: translate3d(0, -100%, 0);
+  opacity: 0;
+}
+
+.main-transition-enter-active,
+.main-transition-leave-active {
+  position: relative;
 }
 
 @keyframes contentGrowAnimation {
@@ -593,19 +525,5 @@ label {
   }
   100% {
     opacity: 1;
-  }
-}
-
-@keyframes showOpacity80 {
-  0% {
-    opacity: 0;
-    display: none;
-  }
-  1% {
-    display: block;
-    opacity: 0;
-  }
-  100% {
-    opacity: 0.8;
   }
 }

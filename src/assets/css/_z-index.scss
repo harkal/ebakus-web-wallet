@@ -1,0 +1,14 @@
+$z-index: (
+  overlay: 1,
+  wallet: 100,
+  status: 1000,
+  main: 200,
+);
+
+@function z-index($key) {
+  @return map-get($z-index, $key);
+}
+
+@mixin z-index($key) {
+  z-index: z-index($key);
+}

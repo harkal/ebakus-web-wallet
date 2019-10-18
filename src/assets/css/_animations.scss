@@ -1,0 +1,55 @@
+$animation-duration: (
+  // overlay: .5s,
+  wallet: .3s,
+  status: (
+    base: .2s,
+    buttons: (
+      enter: .2s,
+      leave: .05s,
+    ),
+    identicon: .15s,
+    navigation: .1s
+  ),
+  main: .1s,
+  fade: (
+    enter: .15s,
+    leave: .05s,
+  )
+);
+
+@function map-deep-get($map, $keys...) {
+  @each $key in $keys {
+    $map: map-get($map, $key);
+  }
+
+  @return $map;
+}
+
+@function animation-duration($keys...) {
+  @return map-deep-get($animation-duration, $keys...);
+}
+
+$smooth-animation: cubic-bezier(0.17, 0.67, 0.48, 1.28);
+
+@mixin accelerate($name) {
+  will-change: $name;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+ }
+
+@mixin animation-duration($keys...) {
+  animation-duration: animation-duration($keys...);
+}
+
+@mixin animation-delay($keys...) {
+  animation-delay: animation-duration($keys...);
+}
+
+@mixin transition-duration($keys...) {
+  transition-duration: animation-duration($keys...);
+}
+
+@mixin transition-delay($keys...) {
+  transition-delay: animation-duration($keys...);
+}

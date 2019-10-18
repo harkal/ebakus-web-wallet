@@ -192,7 +192,7 @@ const importWallet = _seed => {
 
 const deleteWallet = () => {
   web3.eth.accounts.wallet.clear()
-  localStorage.removeItem(StorageNames.WEB3_WALLET)
+  localStorage.clear()
   store.commit(MutationTypes.DELETE_WALLET)
   store.commit(MutationTypes.RESET_LOGS)
 }

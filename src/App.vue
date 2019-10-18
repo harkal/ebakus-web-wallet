@@ -1,26 +1,36 @@
 <template>
   <div>
     <div
-      id="ebk-wallet"
+      id="wallet"
       :class="{
-        opened: isDrawerActive,
+        opened: isWalletActive,
+        animating: animatingDrawer,
         whitelisted: showWhitelistingTimer,
       }"
     >
-      <Status ref="status" />
-      <div v-show="isDrawerActive" class="main">
-        <component :is="dialog.component" v-if="isDialog && dialog.component" />
-        <router-view v-else />
-      </div>
+      <Status ref="status" :animating="animatingDrawer" />
+
+      <transition name="main-transition" appear>
+        <div v-show="isDrawerActive" class="main">
+          <component
+            :is="dialog.component"
+            v-if="isDialog && dialog.component"
+          />
+          <router-view v-else />
+        </div>
+      </transition>
     </div>
 
-    <div
-      class="overlay"
-      :class="{
-        black: overlayColor == 'black',
-        red: overlayColor == 'red',
-      }"
-    />
+    <transition name="fade-transition" duration="500" appear>
+      <div
+        v-if="overlayColor !== ''"
+        class="overlay"
+        :class="{
+          black: overlayColor == 'black',
+          red: overlayColor == 'red',
+        }"
+      />
+    </transition>
   </div>
 </template>
 
@@ -52,12 +62,10 @@ export default {
     Status,
     DeleteWallet: () =>
       import(
-        /* webpackChunkName: "delete-wallet" */ '@/components/dialogs/DeleteWallet.vue'
+        /* webpackChunkName: "delete-wallet" */ './components/dialogs/DeleteWallet'
       ),
     NoFunds: () =>
-      import(
-        /* webpackChunkName: "no-funds" */ '@/components/dialogs/NoFunds.vue'
-      ),
+      import(/* webpackChunkName: "no-funds" */ './components/dialogs/NoFunds'),
     SendTx,
   },
   data() {
@@ -85,6 +93,9 @@ export default {
         isContractCallWhitelisted() &&
         this.$route.name !== RouteNames.UNLOCK
       )
+    },
+    animatingDrawer: function() {
+      return this.isWalletActive != this.isDrawerActive
     },
   },
   watch: {
@@ -146,6 +157,13 @@ export default {
           //       this.$refs.statusBar.clientHeight + 2
           //     )
           //   }, 600)
+        }
+        if (val) {
+          setTimeout(() => {
+            this.isWalletActive = val
+          }, 100)
+        } else {
+          this.isWalletActive = val
         }
       }
     },
