@@ -18,11 +18,13 @@ module.exports = {
       new webpack.DefinePlugin({
         'process.env': env,
       }),
+
+      new webpack.IgnorePlugin(/^\.\/wordlists\/(?!english)/, /bip39\/src$/),
     ],
   },
   chainWebpack: config => {
     // config.optimization.delete('splitChunks')
-    config.output.globalObject('this')
+    // config.output.globalObject('this')
 
     // this is not a good practice,
     // but it's used because we link to a local path for `web3-ebakus` at package.json
