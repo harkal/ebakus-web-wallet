@@ -65,9 +65,15 @@ export default {
     }
   }
 
-  .qrcode ::v-deep img {
-    width: 240px;
-    padding: 10px 0px;
+  .qrcode {
+    overflow: hidden;
+    max-width: 240px;
+
+    ::v-deep img {
+      max-width: 240px;
+      width: 240px;
+      padding: 10px 0px;
+    }
   }
 }
 </style>

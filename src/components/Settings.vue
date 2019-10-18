@@ -388,4 +388,72 @@ hr {
     content: '30 sec';
   }
 }
+
+.slider {
+  position: relative;
+  -webkit-appearance: none; /* Override default CSS styles */
+  appearance: none;
+  width: 100%; /* Full-width */
+  height: 11px; /* Specified height */
+  background: rgb(212, 212, 212); /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  transition: opacity 0.2s;
+  border-radius: 20px;
+  --range: calc(var(--max) - var(--min));
+  --ratio: calc((var(--val) - var(--min)) / var(--range));
+  --sx: calc(0.5 * 1.5em + var(--ratio) * (100% - 1.5em));
+
+  margin: 60px 0px 50px 0px;
+
+  /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 27px; /* Set a specific slider handle width */
+    height: 27px; /* Slider handle height */
+    cursor: pointer; /* Cursor on hover */
+    background: #fcfcfc;
+    box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.28),
+      inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
+    border-radius: 100%;
+    border: 1px solid transparent;
+  }
+
+  &::-moz-range-thumb {
+    width: 27px; /* Set a specific slider handle width */
+    height: 27px; /* Slider handle height */
+    cursor: pointer; /* Cursor on hover */
+    background: #fcfcfc;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.28),
+      inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
+    box-shadow: -100vw 0 0 100vw dodgerblue;
+    border-radius: 100%;
+    border: 1px solid transparent;
+  }
+
+  &::before {
+    position: absolute;
+    font-size: 12px;
+    content: '0 ebakus staked  \A 0 ebakus liquid';
+    white-space: pre; /* or pre-wrap */
+    width: 100%;
+    text-align: center;
+    top: -50px;
+    background-image: url(../assets/img/ic_fast.png),
+      url(../assets/img/ic_slow.png);
+    background-repeat: no-repeat;
+    background-size: 32px, 32px;
+    background-position: top right, top left;
+    height: 30px;
+    color: #000;
+  }
+
+  &::after {
+    position: absolute;
+    font-size: 10px;
+    content: 'Liquidity                                                Performance';
+    white-space: pre;
+    top: 25px;
+  }
+}
 </style>

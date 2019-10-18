@@ -210,8 +210,7 @@ export default {
 .qrcode-text-btn {
   display: none;
 
-  @media only screen and (-webkit-device-pixel-ratio: 3),
-    only screen and (max-width: 600px) {
+  @media (pointer: none), (pointer: coarse) {
     display: block;
     height: 20px;
     width: 20px;

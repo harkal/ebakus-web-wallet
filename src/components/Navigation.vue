@@ -1,6 +1,6 @@
 <template>
   <ul class="navigation">
-    <router-link :to="{ name: RouteNames.HOME }" tag="li">
+    <router-link :to="{ name: RouteNames.HOME }" tag="li" exact>
       History
     </router-link>
     <router-link :to="{ name: RouteNames.SEND }" tag="li">
@@ -44,15 +44,15 @@ export default {
     font-weight: 500;
     user-select: none;
 
-    &:hover {
-      color: white;
-      background: rgb(253, 49, 95);
-      border: 1px solid #fd315f;
-    }
+    &:hover,
     &.active {
       color: white;
       background: rgba(253, 49, 95, 0.8);
       border: 1px solid #fd315f;
+    }
+
+    &:hover {
+      background: rgb(253, 49, 95);
     }
 
     &.notification:after {
