@@ -117,6 +117,9 @@ export default {
   [MutationTypes.SET_TX_OBJECT](state, tx) {
     state.tx.object = tx
   },
+  [MutationTypes.SET_TX_JOB_ID](state, jobId) {
+    state.tx.jobId = jobId
+  },
   [MutationTypes.CLEAR_TX](state) {
     state.tx = { ...initialState().tx }
   },

@@ -36,7 +36,7 @@ const addPendingTx = async tx => {
   return txObject
 }
 
-const calcWorkAndSendTx = tx => {
+const calcWork = async tx => {
   // TODO: remove this after:
   // 1. pownode.ebakus.com has the latest code
   // 2. for web3.js > beta.41, if possible
@@ -44,6 +44,28 @@ const calcWorkAndSendTx = tx => {
 
   store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.CALC_POW)
 
+  try {
+    const difficulty = await web3.eth.suggestDifficulty(tx.from)
+    const txWithPow = await web3.eth.calculateWorkForTransaction(
+      { ...tx },
+      difficulty
+    )
+
+    store.dispatch(MutationTypes.SET_TX_OBJECT, txWithPow)
+
+    return txWithPow
+  } catch (err) {
+    console.log('calcWorkAndSendTx err', err)
+
+    store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
+
+    if (loadedInIframe()) {
+      replyToParentWindow(null, err.message)
+    }
+  }
+}
+
+const calcWorkAndSendTx = async tx => {
   if (loadedInIframe() && !store.state.ui.isDrawerActiveByUser) {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
     shrinkFrameInParentWindow()
@@ -52,46 +74,42 @@ const calcWorkAndSendTx = tx => {
   const originalPendingTx = store.state.tx.object
   store.commit(MutationTypes.CLEAR_TX)
 
-  return web3.eth
-    .suggestDifficulty(tx.from)
-    .then(difficulty => web3.eth.calculateWorkForTransaction(tx, difficulty))
-    .then(txWithPow => {
-      console.log('txWithPow: ', txWithPow)
+  try {
+    if (!tx.workNonce) {
+      tx = await calcWork(tx)
+    }
 
-      store.dispatch(
-        MutationTypes.SET_SPINNER_STATE,
-        SpinnerState.TRANSACTION_SENDING
-      )
+    store.dispatch(
+      MutationTypes.SET_SPINNER_STATE,
+      SpinnerState.TRANSACTION_SENDING
+    )
 
-      return web3.eth.sendTransaction(txWithPow)
+    const receipt = await web3.eth.sendTransaction(tx)
+
+    if (loadedInIframe()) {
+      replyToParentWindow(receipt)
+    }
+
+    store.dispatch(
+      MutationTypes.SET_SPINNER_STATE,
+      SpinnerState.TRANSACTION_SENT_SUCCESS
+    )
+
+    const log = await getTxLogInfo({
+      ...originalPendingTx,
+      ...receipt,
+      hash: receipt.transactionHash,
     })
-    .then(receipt => {
-      console.log('receipt', receipt)
+    store.dispatch(MutationTypes.ADD_LOCAL_LOG, log)
+  } catch (err) {
+    console.log('calcWorkAndSendTx err', err)
 
-      store.dispatch(
-        MutationTypes.SET_SPINNER_STATE,
-        SpinnerState.TRANSACTION_SENT_SUCCESS
-      )
+    store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
 
-      getTxLogInfo({
-        ...originalPendingTx,
-        ...receipt,
-        hash: receipt.transactionHash,
-      }).then(log => store.dispatch(MutationTypes.ADD_LOCAL_LOG, log))
-
-      if (loadedInIframe()) {
-        replyToParentWindow(receipt)
-      }
-    })
-    .catch(err => {
-      console.log('calcWorkAndSendTx err', err)
-
-      store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
-
-      if (loadedInIframe()) {
-        replyToParentWindow(null, err.message)
-      }
-    })
+    if (loadedInIframe()) {
+      replyToParentWindow(null, err.message)
+    }
+  }
 }
 
 const cancelPendingTx = () => {
@@ -295,6 +313,7 @@ const loadTxsInfoFromExplorer = () => {
 
 export {
   addPendingTx,
+  calcWork,
   calcWorkAndSendTx,
   cancelPendingTx,
   checkIfEnoughBalance,

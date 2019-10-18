@@ -1,4 +1,4 @@
-import { addPendingTx } from '@/actions/transactions'
+import { addPendingTx, calcWork } from '@/actions/transactions'
 import { getCurrentProviderEndpoint } from '@/actions/providers'
 import { getBalance as getBalanceFromWallet } from '@/actions/wallet'
 import { performWhitelistedAction } from '@/actions/whitelist'
@@ -51,9 +51,12 @@ const getBalance = payload => {
 }
 
 const sendTransaction = async payload => {
-  const { req } = payload
+  const { id, req } = payload
 
-  /* const pendingTx = */ await addPendingTx(req)
+  store.commit(MutationTypes.SET_TX_JOB_ID, id)
+
+  const pendingTx = await addPendingTx(req)
+  calcWork(pendingTx)
 
   const routeName = router.app.$route.name
 

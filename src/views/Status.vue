@@ -172,6 +172,7 @@ export default {
       publicAddress: state => state.wallet.address,
       balance: state => state.wallet.balance,
       tokenSymbol: state => state.wallet.token,
+      isTxFromParentFrame: state => state.tx.jobId,
     }),
 
     SpinnerState: () => SpinnerState,
@@ -196,6 +197,7 @@ export default {
 
     showWhitelistingTimer: function() {
       return (
+        this.isTxFromParentFrame &&
         isContractCall() &&
         isContractCallWhitelisted() &&
         this.$route.name !== RouteNames.UNLOCK
