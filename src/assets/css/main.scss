@@ -1,3 +1,4 @@
+@import 'variables';
 @import 'animations';
 @import 'z-index';
 
@@ -80,23 +81,21 @@ a {
   flex-wrap: nowrap;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: center;
-  align-content: center;
+  align-items: flex-end;
+  align-content: flex-end;
 
-  animation: wallet-animation 0 forwards;
-  @include animation-duration(wallet);
+  transform: translateZ(0);
 
   > div {
     flex: 0 0 auto;
 
     width: 100%;
-    margin: 0px;
+    margin: 0;
   }
 
   &:not(.opened) {
-    max-width: 320px;
+    max-width: $wallet-opened-width;
     border-bottom-left-radius: 5px;
-    animation-direction: alternate-reverse;
 
     &:not(.whitelisted) {
       cursor: pointer;
@@ -108,13 +107,16 @@ a {
   }
 
   &.opened {
-    width: 320px;
+    width: $wallet-opened-width;
     height: 100vh;
 
-    background: #ffffff;
-    box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
+    > div {
+      width: $wallet-opened-width;
+    }
 
-    animation-direction: reverse;
+    background: #ffffff;
+
+    box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
   }
 }
 
@@ -138,18 +140,20 @@ $status-bar-padding: 16px;
   @include z-index(status);
   position: relative;
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   flex-direction: row;
-  justify-content: center;
   align-items: center;
   align-content: center;
+  justify-content: flex-end;
 
-  min-height: 44px;
+  min-height: $wallet-closed-height;
 
   background-color: rgb(10, 17, 31);
 
-  & > div,
-  & > p {
+  padding-left: $widget-size-base + 8px;
+  transition: all animation-duration(status,base) ease-out;
+  > div,
+  > p {
     margin: 0 8px;
   }
 
@@ -158,19 +162,26 @@ $status-bar-padding: 16px;
     border-top-width: 0;
     border-right-width: 0;
     border-bottom-left-radius: 5px;
-  }
-
-  .animating & {
-    flex-wrap: wrap;
+    box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
   }
 
   .opened & {
     flex-wrap: wrap;
-    justify-content: flex-start;
 
+    height: 252px;
+    min-height: 252px;
     padding: $status-bar-padding;
+    padding-top: $status-bar-padding + $widget-size-opened + 32px;
 
-    > * {
+    transition-timing-function: ease-in, ease-in;
+
+    @at-root .opened.has-dialog .status-bar {
+      min-height: 130px;
+      height: auto;
+    }
+
+    > div,
+    > p {
       margin: 8px auto;
 
       width: 100%;
@@ -194,12 +205,24 @@ $status-bar-padding: 16px;
 
 .main {
   @include z-index(main);
+  position: relative;
   background-color: #fff;
+}
+
+// useful for transitioning between dialogs
+.dialog {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  overflow-x: hidden;
+
+  &:last-child {
+    z-index: 2;
+  }
 }
 
 .overlay {
   display: none;
-  transition: all 0.5s ease-out;
 
   &.red,
   &.black {
@@ -228,28 +251,22 @@ $status-bar-padding: 16px;
     (var(--vh, 1vh) * 100) - (var(--status-bar-vh, 1vh) * 100)
   ); /* --vh is set at App.vue and --status-bar-vh at Status.vue */
   opacity: 1;
-  animation: contentGrowAnimation 0.3s ease-out;
+  animation: contentGrowAnimation animation-duration(scrollWrapper) ease-out;
   overflow-y: auto;
-}
 
-@media only screen and (max-width: 600px) {
-  .scroll-wrapper {
+  @media only screen and (max-width: 600px) {
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
   }
 }
 
 .wrapper {
-  width: 320px;
+  width: $wallet-opened-width;
   padding: 20px 39px;
 }
 
 .popup .wrapper {
   padding-top: 25px;
-}
-
-.dialog {
-  overflow-x: hidden;
 }
 
 /* circular button ______________________________________________________*/
@@ -447,15 +464,11 @@ label {
 
 .status-buttons-transition-enter-active,
 .status-buttons-transition-leave-active {
-  transition: opacity 0 ease-in;
-  @include transition-duration(status, buttons, enter);
+  transition: opacity animation-duration(status, buttons, enter) ease-in;
 }
 
 .status-buttons-transition-leave-active {
-  @include transition-duration(status, buttons, leave);
-}
-
-.status-buttons-transition-leave {
+  transition-duration: animation-duration(status, buttons, leave);
 }
 
 .status-buttons-transition-enter,
@@ -464,16 +477,20 @@ label {
 }
 
 .fade-transition-enter-active,
-.fade-transition-leave-active {
-  transition: opacity 0 ease-in-out;
-  @include transition-duration(fade, enter);
-}
-.fade-transition-enter-active {
-  @include transition-delay(fade, leave);
+.fade-transition-leave-active,
+.main-fade-transition-enter-active,
+.main-fade-transition-leave-active {
+  transition: opacity animation-duration(fade, enter) ease-in;
 }
 
-.fade-transition-leave-active {
-  @include transition-duration(fade, leave);
+.main-fade-transition-enter-active{
+  // transition-delay: animation-duration(fade, leave);
+}
+
+.fade-transition-leave-active,
+.main-fade-transition-enter-active {
+  transition-timing-function: ease-out;
+  transition-duration: animation-duration(fade, leave);
 }
 
 .fade-transition-enter,
@@ -484,7 +501,6 @@ label {
 .whitelist-transition-enter-to,
 .whitelist-transition-leave {
   transform: translate3d(0, 0, 0);
-  left: 0
 }
 
 .whitelist-transition-enter,
@@ -492,26 +508,29 @@ label {
   transform: translate3d(100%, 0, 0);
   opacity: 0;
 }
+
 .whitelist-transition-enter-active,
 .whitelist-transition-leave-active {
   position: relative;
-  transition: all .15s ease-in-out;
+  transition: all animation-duration(status, whitelist) ease-in;
 }
 
-.main-transition-enter-to,
-.main-transition-leave {
-  transform: translate3d(0, 0, 0);
+.whitelist-transition-leave-active {
+  transition-timing-function: ease-out;
 }
 
-.main-transition-enter,
-.main-transition-leave-to {
-  transform: translate3d(0, -100%, 0);
+.overlay-transition-enter-active,
+.overlay-transition-leave-active {
+  transition: opacity animation-duration(overlay) ease-in;
+}
+
+.overlay-transition-leave-active {
+  transition-timing-function: ease-out;
+}
+
+.overlay-transition-enter,
+.overlay-transition-leave-to {
   opacity: 0;
-}
-
-.main-transition-enter-active,
-.main-transition-leave-active {
-  position: relative;
 }
 
 @keyframes contentGrowAnimation {

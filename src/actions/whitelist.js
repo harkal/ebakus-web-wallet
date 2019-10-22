@@ -37,8 +37,13 @@ const loadWhitelistedDapp = () => {
 }
 
 const isDappWhitelisted = () => {
-  const { contracts = [] } = loadWhitelistedDapp() || {}
-  return contracts.length > 0
+  const dapp = loadWhitelistedDapp()
+  return (
+    dapp &&
+    typeof dapp.all !== 'undefined' &&
+    dapp.all.timer &&
+    typeof dapp.contracts !== 'undefined'
+  )
 }
 
 const isContractCallWhitelisted = to => {
@@ -81,8 +86,8 @@ const removeDappFromWhitelist = () => {
   }
 }
 
-const showWhitelistNewDappView = () => {
-  if (userOptedOutOnceForSession) {
+const showWhitelistNewDappView = (forceOptIn = false) => {
+  if (!forceOptIn && userOptedOutOnceForSession) {
     store.commit(MutationTypes.SHOW_DIALOG, {
       component: DialogComponents.SEND_TX,
       title: 'Send Confirmation',

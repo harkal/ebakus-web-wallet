@@ -46,24 +46,23 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import '../assets/css/variables';
 @import '../assets/css/animations';
-
-$widget-size-base: 29px;
-$widget-size-opened: 59px;
-$widget-border-width: 2px;
-$widget-blades-offset: 4px;
 
 .widget {
   --widget-size: #{$widget-size-base};
 
   flex-grow: 0;
   flex-shrink: 0;
-  align-self: center;
-  justify-self: center;
 
-  position: relative;
+  position: absolute;
+  margin: 0;
+  top: 8px;
+  right: calc(100% - #{$widget-size-base + 8px});
+
   width: var(--widget-size) !important;
   height: var(--widget-size);
+
   background: transparent;
   border: $widget-border-width solid transparent;
   border-radius: var(--widget-size);
@@ -71,8 +70,8 @@ $widget-blades-offset: 4px;
   z-index: 9999;
   pointer-events: initial;
 
-  transition: all 0 ease-in-out;
-  @include transition-duration(status, identicon);
+  transform-origin: center;
+  transition: all animation-duration(status, identicon) linear;
 
   &::before {
     display: block;
@@ -90,8 +89,7 @@ $widget-blades-offset: 4px;
     box-sizing: border-box;
     opacity: 0;
     animation: rotation 1s infinite linear;
-    transition: all 0 ease-in-out;
-    @include transition-duration(status, identicon);
+    transition: all animation-duration(status, identicon) linear;
   }
 
   &:hover {
@@ -116,7 +114,8 @@ $widget-blades-offset: 4px;
   .opened & {
     --widget-size: #{$widget-size-opened};
 
-    margin-top: 32px;
+    top: 32px;
+    right: (320px / 2) - ($widget-size-opened / 2);
     background-color: #121212;
     border-color: #fff;
   }
@@ -125,7 +124,8 @@ $widget-blades-offset: 4px;
 .identicon {
   position: relative;
   top: -$widget-border-width;
-  left: -$widget-border-width;
+  // left: -$widget-border-width;
+  right: 0;
   width: calc(var(--widget-size) - #{$widget-border-width * 2});
   height: calc(var(--widget-size) - #{$widget-border-width * 2});
   border-radius: var(--widget-size);
@@ -136,26 +136,26 @@ $widget-blades-offset: 4px;
     content: '';
     display: block;
     position: absolute;
-    top: 0;
+    top: $widget-border-width;
     left: 0;
-    bottom: 0;
+    bottom: -$widget-border-width;
     right: 0;
     border-radius: var(--widget-size);
     background-color: rgba(251, 251, 251, 0.15);
   }
 
   ::v-deep > div {
-    position: absolute;
+    position: relative;
     top: 0;
-    left: 0;
+    left: -($widget-border-width * 1);
+    transform: translateZ(0);
     transform-origin: 0 0;
-    transform: scale(0.29);
-    transition: all 0 ease-in-out;
-    @include transition-duration(status, identicon);
+    transform: scale(0.25);
+    transition: all animation-duration(status, identicon) linear;
 
     .opened & {
       top: ($widget-border-width * 3);
-      left: ($widget-border-width * 3);
+      left: ($widget-border-width * 2);
       transform: scale(0.47);
     }
   }

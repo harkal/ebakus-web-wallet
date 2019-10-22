@@ -199,6 +199,9 @@ export default {
       SpinnerState.NODE_SELECT
     )
   },
+  beforeDestroy() {
+    this.$store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
+  },
   methods: {
     importKey: function() {
       this.$store.commit(MutationTypes.SHOW_DIALOG, { title: 'Import wallet' })
@@ -220,7 +223,7 @@ export default {
       const delay = valueAsNumber * 1000 // in ms
       setWhitelistDappTimer(delay)
     },
-    whitelistThisDapp: () => showWhitelistNewDappView(),
+    whitelistThisDapp: () => showWhitelistNewDappView(true),
     removeDappFromWhitelist: () => removeDappFromWhitelist(),
     connectToNode: function() {
       const self = this

@@ -198,7 +198,7 @@ const shrinkFrameInParentWindow = () => {
     resizeFrameWidthInParentWindow(400)
   }
 }
-const resizeFrameWidthInParentWindow = (width, height = 46) =>
+const resizeFrameWidthInParentWindow = (width, height = 60) =>
   postMessage({ cmd: 'resize', width, height })
 const expandOverlayFrameInParentWindow = () =>
   postMessage({ cmd: 'withOverlay' })

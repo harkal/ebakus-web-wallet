@@ -23,9 +23,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import '../assets/css/_variables.scss';
+
 .navigation {
   list-style: none;
-  width: 320px;
+  width: $wallet-opened-width;
   background: #161d2a;
   color: #bababa;
   padding: 5px 9px;

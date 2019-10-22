@@ -8,116 +8,160 @@
       v-if="isDrawerActive || (!isDrawerActive && !showWhitelistingTimer)"
       key="identicon"
       :public-key="publicAddress"
-      :class="{ loading: !animating && isSpinnerActive }"
+      :class="{ loading: isSpinnerActive }"
     />
 
-    <div
-      v-if="
-        animating &&
-          !isDrawerActive &&
-          [
-            SpinnerState.CALC_POW,
-            SpinnerState.TRANSACTION_SENDING,
-            SpinnerState.TRANSACTION_SENT_SUCCESS,
-            SpinnerState.NODE_CONNECT,
-            SpinnerState.NODE_CONNECTED,
-            SpinnerState.NODE_DISCONNECTED,
-          ].includes(spinnerState)
-      "
-      key="closedState"
-      class="closed-state"
+    <transition
+      name="fade-transition"
+      :duration="{
+        enter: styles.animationFadeEnter,
+        leave: 0,
+      }"
+      appear
     >
-      <span
+      <div
         v-if="
-          [SpinnerState.CALC_POW, SpinnerState.TRANSACTION_SENDING].includes(
-            spinnerState
-          )
+          !isDrawerActive &&
+            [
+              SpinnerState.CALC_POW,
+              SpinnerState.TRANSACTION_SENDING,
+              SpinnerState.TRANSACTION_SENT_SUCCESS,
+              SpinnerState.NODE_CONNECT,
+              SpinnerState.NODE_CONNECTED,
+              SpinnerState.NODE_DISCONNECTED,
+            ].includes(spinnerState)
         "
-        key="working"
-        class="animate-fade-in-out-slow"
+        key="closedState"
+        class="closed-state"
       >
-        Working...
-      </span>
+        <span
+          v-if="
+            [SpinnerState.CALC_POW, SpinnerState.TRANSACTION_SENDING].includes(
+              spinnerState
+            )
+          "
+          key="working"
+        >
+          Working...
+        </span>
 
-      <span
-        v-else-if="spinnerState === SpinnerState.TRANSACTION_SENT_SUCCESS"
-        key="sent"
-        class="animate-hide-me"
+        <span
+          v-else-if="spinnerState === SpinnerState.TRANSACTION_SENT_SUCCESS"
+          key="sent"
+        >
+          Sent
+
+          <img src="@/assets/img/ic_sent.svg" width="13" height="7" />
+        </span>
+
+        <img
+          v-else-if="spinnerState === SpinnerState.NODE_CONNECT"
+          key="connecting"
+          src="@/assets/img/ic_connecting.svg"
+          width="16"
+          height="31"
+          class="animate-fade-in-out"
+        />
+        <img
+          v-else-if="spinnerState === SpinnerState.NODE_CONNECTED"
+          key="connected"
+          src="@/assets/img/ic_connected.svg"
+          width="16"
+          height="31"
+        />
+        <img
+          v-else-if="spinnerState === SpinnerState.NODE_DISCONNECTED"
+          key="disconnected"
+          src="@/assets/img/ic_disconnected.svg"
+          width="21"
+          height="31"
+          title="Connection lost try refreshing the page."
+        />
+      </div>
+
+      <p
+        v-else-if="
+          (!isDrawerActive && !showWhitelistingTimer) ||
+            (isDrawerActive && !isDialog)
+        "
+        key="balance"
+        class="balance"
       >
-        Sent
+        {{ balance | toEtherFixed }}
 
-        <img src="@/assets/img/ic_sent.svg" width="13" height="7" />
-      </span>
+        <transition
+          name="fade-transition"
+          :duration="{
+            enter: styles.animationFadeEnter,
+            leave: 0,
+          }"
+        >
+          <img
+            v-if="!isDrawerActive && tokenSymbol == 'EBK'"
+            src="@/assets/img/ebakus_logo_small.svg"
+            width="14"
+            height="14"
+          />
 
-      <img
-        v-else-if="spinnerState === SpinnerState.NODE_CONNECT"
-        key="connecting"
-        src="@/assets/img/ic_connecting.svg"
-        width="16"
-        height="31"
-        class="animate-fade-in-out"
-      />
-      <img
-        v-else-if="spinnerState === SpinnerState.NODE_CONNECTED"
-        key="connected"
-        src="@/assets/img/ic_connected.svg"
-        width="16"
-        height="31"
-        class="animate-hide-me"
-      />
-      <img
-        v-else-if="spinnerState === SpinnerState.NODE_DISCONNECTED"
-        key="disconnected"
-        src="@/assets/img/ic_disconnected.svg"
-        width="21"
-        height="31"
-        title="Connection lost try refreshing the page."
-      />
-    </div>
+          <span v-else>{{ tokenSymbol }}</span>
+        </transition>
+      </p>
+    </transition>
 
-    <p
-      v-else-if="
-        (!isDrawerActive && !showWhitelistingTimer) ||
-          (isDrawerActive && !isDialog)
-      "
-      key="balance"
-      class="balance"
+    <transition
+      name="fade-transition"
+      :duration="{
+        enter: styles.animationFadeEnter,
+        leave: 0,
+      }"
     >
-      {{ balance | toEtherFixed }}
+      <p
+        v-if="isDrawerActive && isDialog && dialog.title != ''"
+        key="title"
+        class="title"
+      >
+        {{ dialog.title }}
+      </p>
+    </transition>
 
-      <span v-if="(!animating && isDrawerActive) || tokenSymbol != 'EBK'">{{
-        tokenSymbol
-      }}</span>
-
-      <img
-        v-if="!animating && !isDrawerActive && tokenSymbol == 'EBK'"
-        src="@/assets/img/ebakus_logo_small.svg"
-        width="14"
-        height="14"
-        :class="{ hidden: isDialog || isDrawerActive }"
-      />
-    </p>
-
-    <p
-      v-if="!animating && isDrawerActive && isDialog && dialog.title != ''"
-      key="title"
-      class="title"
+    <transition
+      name="fade-transition"
+      :duration="{
+        enter: styles.animationFadeEnter,
+        leave: 0,
+      }"
     >
-      {{ dialog.title }}
-    </p>
+      <Navigation
+        v-if="isDrawerActive && !isDialog && !isLocked"
+        key="navigation"
+      />
+    </transition>
 
-    <Navigation
-      v-if="!animating && isDrawerActive && !isDialog && !isLocked"
-      key="navigation"
-    />
-
-    <transition name="whitelist-transition" appear>
+    <transition
+      name="whitelist-transition"
+      :duration="{ enter: styles.animationStatusWhitelist, leave: 0 }"
+      appear
+    >
       <DappWhitelistedStatusBar v-if="showWhitelistingTimer" key="whitelist" />
     </transition>
 
-    <transition name="status-buttons-transition" appear>
+    <transition
+      name="status-buttons-transition"
+      :duration="{
+        enter: styles.animationStatusButtonsEnter,
+        leave: styles.animationStatusButtonsLeave,
+      }"
+      appear
+    >
       <div v-if="isDrawerActive" key="buttons" class="buttons">
-        <transition-group name="fade-transition">
+        <transition-group
+          name="fade-transition"
+          :duration="{
+            enter: styles.animationFadeEnter,
+            leave: 0,
+          }"
+          appear
+        >
           <button
             v-show="buttonState === ButtonStates.EXIT"
             key="exit"
@@ -132,8 +176,7 @@
           />
           <button
             v-show="
-              buttonState === ButtonStates.UNLOCK ||
-                buttonState === ButtonStates.MAIN
+              [ButtonStates.UNLOCK, ButtonStates.MAIN].includes(buttonState)
             "
             key="close"
             class="btn-circle close"
@@ -167,6 +210,8 @@ import Navigation from '@/components/Navigation'
 
 import { RouteNames } from '@/router'
 
+import styles from '@/assets/css/_animations.scss'
+
 const ButtonStates = {
   NONE: 'NONE',
   MAIN: 'MAIN',
@@ -176,12 +221,6 @@ const ButtonStates = {
 
 export default {
   components: { Identicon, Navigation, DappWhitelistedStatusBar },
-  props: {
-    animating: {
-      type: Boolean,
-      default: false,
-    },
-  },
   data() {
     return {
       resizeFrameTimer: null,
@@ -203,6 +242,7 @@ export default {
 
     SpinnerState: () => SpinnerState,
     ButtonStates: () => ButtonStates,
+    styles: () => styles,
 
     buttonState() {
       if (this.$route.name == RouteNames.UNLOCK) {
@@ -232,48 +272,44 @@ export default {
   },
   watch: {
     spinnerState: function(val, oldVal) {
-      if (!this.isDrawerActive && val !== oldVal) {
-        // check if state needs update in order to present the balance
+      if (val !== oldVal) {
         if (
           [
             SpinnerState.TRANSACTION_SENT_SUCCESS,
             SpinnerState.NODE_CONNECTED,
           ].includes(val)
         ) {
-          clearTimeout(this.resizeFrameTimer)
-          this.resizeFrameTimer = setTimeout(() => {
+          setTimeout(() => {
             this.$store.commit(
               MutationTypes.SET_SPINNER_STATE,
               SpinnerState.SUCCESS
             )
-          }, 1000)
+          }, 800)
         }
 
-        if (
-          !this.isDrawerActive &&
-          loadedInIframe() &&
-          [SpinnerState.CANCEL, SpinnerState.SUCCESS].includes(val)
-        ) {
-          clearTimeout(this.resizeFrameTimer)
-          this.resizeFrameTimer = setTimeout(() => {
-            resizeFrameWidthInParentWindow(this.$refs.statusBar.clientWidth + 2)
-          }, 1000)
-        }
+        if (!this.isDrawerActive) {
+          if (loadedInIframe()) {
+            if ([SpinnerState.CANCEL, SpinnerState.SUCCESS].includes(val)) {
+              clearTimeout(this.resizeFrameTimer)
+              this.resizeFrameTimer = setTimeout(() => {
+                resizeFrameWidthInParentWindow(
+                  this.$refs.statusBar.clientWidth + 2
+                )
+              }, 800)
+            } else if (
+              [SpinnerState.TRANSACTION_WHITELISTED_TIMER].includes(val)
+            ) {
+              resizeFrameWidthInParentWindow(400, 120)
 
-        if (
-          !this.isDrawerActive &&
-          loadedInIframe() &&
-          [SpinnerState.TRANSACTION_WHITELISTED_TIMER].includes(val)
-        ) {
-          resizeFrameWidthInParentWindow(400, 120)
-
-          clearTimeout(this.resizeFrameTimer)
-          this.resizeFrameTimer = setTimeout(() => {
-            resizeFrameWidthInParentWindow(
-              this.$refs.statusBar.clientWidth + 2,
-              this.$refs.statusBar.clientHeight + 2
-            )
-          }, 600)
+              clearTimeout(this.resizeFrameTimer)
+              this.resizeFrameTimer = setTimeout(() => {
+                resizeFrameWidthInParentWindow(
+                  this.$refs.statusBar.clientWidth + 2,
+                  this.$refs.statusBar.clientHeight + 2
+                )
+              }, 800)
+            }
+          }
         }
       }
     },
@@ -286,7 +322,7 @@ export default {
             this.$refs.statusBar.clientWidth + 2,
             this.$refs.statusBar.clientHeight + 2
           )
-        }, 600)
+        }, 800)
       }
     },
   },
@@ -298,6 +334,10 @@ export default {
   },
   methods: {
     showWallet: function() {
+      this.$emit('showWallet')
+
+      clearTimeout(this.resizeFrameTimer)
+
       if (loadedInIframe()) {
         expandFrameInParentWindow()
       }
@@ -305,6 +345,8 @@ export default {
       this.$store.commit(MutationTypes.ACTIVATE_DRAWER, true)
     },
     hideWallet: function() {
+      this.$emit('hideWallet')
+
       this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
 
       if (loadedInIframe()) {
@@ -357,16 +399,15 @@ export default {
   font-weight: 400;
   line-height: 13px;
   text-align: center;
-
-  &.hidden {
-    opacity: 0;
-  }
 }
 
 .balance {
   display: flex;
-  justify-content: center;
+  flex-wrap: wrap;
+  flex-direction: row;
   align-items: center;
+  align-content: center;
+  justify-content: center;
 
   color: white;
   text-align: center;
@@ -390,7 +431,7 @@ export default {
     }
   }
 
-  &.hidden {
+  .hidden {
     opacity: 0;
   }
 
@@ -410,7 +451,7 @@ export default {
 
 .buttons {
   position: absolute;
-  top: 0px;
+  top: 0;
   left: 0;
   margin: 0 !important;
 }

@@ -1,21 +1,26 @@
+$animation-speed-fraction: 1;
+
 $animation-duration: (
-  // overlay: .5s,
-  wallet: .3s,
+  overlay: 700 * $animation-speed-fraction,
+  wallet: 400 * $animation-speed-fraction,
   status: (
-    base: .2s,
+    base: 150 * $animation-speed-fraction,
     buttons: (
-      enter: .2s,
-      leave: .05s,
+      enter: 300 * $animation-speed-fraction,
+      leave: 100 * $animation-speed-fraction,
     ),
-    identicon: .15s,
-    navigation: .1s
+    identicon: 400 * $animation-speed-fraction,
+    whitelist: 400 * $animation-speed-fraction,
   ),
-  main: .1s,
+  main: 400 * $animation-speed-fraction,
+  scrollWrapper: 400 * $animation-speed-fraction,
   fade: (
-    enter: .15s,
-    leave: .05s,
-  )
+    enter: 300 * $animation-speed-fraction,
+    leave: 100 * $animation-speed-fraction,
+  ),
 );
+
+$smooth-animation: cubic-bezier(0.17, 0.67, 0.48, 1.28);
 
 @function map-deep-get($map, $keys...) {
   @each $key in $keys {
@@ -26,30 +31,39 @@ $animation-duration: (
 }
 
 @function animation-duration($keys...) {
-  @return map-deep-get($animation-duration, $keys...);
-}
+  $animation-length: map-deep-get($animation-duration, $keys...);
+  $animation-to-ms: $animation-length + 0ms;
 
-$smooth-animation: cubic-bezier(0.17, 0.67, 0.48, 1.28);
+  @return $animation-to-ms;
+}
 
 @mixin accelerate($name) {
   will-change: $name;
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
- }
-
-@mixin animation-duration($keys...) {
-  animation-duration: animation-duration($keys...);
 }
 
-@mixin animation-delay($keys...) {
-  animation-delay: animation-duration($keys...);
-}
-
-@mixin transition-duration($keys...) {
-  transition-duration: animation-duration($keys...);
-}
-
-@mixin transition-delay($keys...) {
-  transition-delay: animation-duration($keys...);
+:export {
+  animationOverlay: map-deep-get($animation-duration, overlay);
+  animationWallet: map-deep-get($animation-duration, wallet);
+  animationStatusButtonsEnter: map-deep-get(
+    $animation-duration,
+    status,
+    buttons,
+    enter
+  );
+  animationStatusButtonsLeave: map-deep-get(
+    $animation-duration,
+    status,
+    buttons,
+    leave
+  );
+  animationStatusWhitelist: map-deep-get(
+    $animation-duration,
+    status,
+    whitelist
+  );
+  animationFadeEnter: map-deep-get($animation-duration, fade, enter);
+  animationFadeLeave: map-deep-get($animation-duration, fade, leave);
 }

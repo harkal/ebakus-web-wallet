@@ -189,6 +189,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import '../assets/css/_variables.scss';
+
 .status-bar-whitelisted {
   display: flex;
   flex-direction: row;
@@ -197,7 +199,7 @@ export default {
   align-content: stretch;
   align-items: stretch;
   padding-right: 0;
-  max-width: 320px;
+  max-width: $wallet-opened-width;
 }
 
 .popup {
