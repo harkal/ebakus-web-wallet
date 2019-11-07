@@ -18,6 +18,7 @@ import router, { RouteNames } from '@/router'
 
 import { calcWorkAndSendTx, checkIfEnoughBalance } from './transactions'
 import { loadConfirmTxMsg } from './wallet'
+import { web3 } from './web3ebakus'
 
 let userOptedOutOnceForSession = false
 
@@ -48,7 +49,10 @@ const isDappWhitelisted = () => {
 
 const isContractCallWhitelisted = to => {
   if (!to) {
-    to = store.state.tx.object.to
+    let objectTo = store.state.tx.object.to
+    if (web3.utils.isAddress(objectTo)) {
+      to = web3.utils.toChecksumAddress(objectTo)
+    }
   }
 
   // auto-whitelist contracts if dapp is whitelisted and contracts are below 3

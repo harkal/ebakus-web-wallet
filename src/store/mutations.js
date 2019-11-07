@@ -174,7 +174,7 @@ export default {
           ...(curOrigin.contracts ? curOrigin.contracts : []),
           ...(curOrigin.contracts &&
           !curOrigin.contracts.includes(contractAddress)
-            ? [contractAddress]
+            ? [web3.utils.toChecksumAddress(contractAddress)]
             : []),
         ],
         all: {
@@ -217,7 +217,7 @@ export default {
           ...(curOrigin.contracts ? curOrigin.contracts : []),
           ...(curOrigin.contracts &&
           !curOrigin.contracts.includes(contractAddress)
-            ? [contractAddress]
+            ? [web3.utils.toChecksumAddress(contractAddress)]
             : []),
         ],
       },

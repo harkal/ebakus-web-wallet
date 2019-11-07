@@ -30,6 +30,7 @@ const addPendingTx = async tx => {
     chainId: web3.utils.toHex(7),
     gas: 100000,
     ...tx,
+    to: web3.utils.toChecksumAddress(tx.to),
     from,
     nonce,
   }
