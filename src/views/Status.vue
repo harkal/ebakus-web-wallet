@@ -266,7 +266,8 @@ export default {
         this.isTxFromParentFrame &&
         isContractCall() &&
         isContractCallWhitelisted() &&
-        this.$route.name !== RouteNames.UNLOCK
+        this.$route.name !== RouteNames.UNLOCK &&
+        this.dialog.component !== DialogComponents.NO_FUNDS
       )
     },
   },

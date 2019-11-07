@@ -16,7 +16,7 @@ import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
 import router, { RouteNames } from '@/router'
 
-import { calcWorkAndSendTx } from './transactions'
+import { calcWorkAndSendTx, checkIfEnoughBalance } from './transactions'
 import { loadConfirmTxMsg } from './wallet'
 
 let userOptedOutOnceForSession = false
@@ -166,33 +166,35 @@ const cancelWhitelistDapp = () => {
 const performWhitelistedAction = () => {
   const tx = store.state.tx.object
 
-  if (isContractCall()) {
-    const isCallWhitelisted = isContractCallWhitelisted()
-    const { contracts = [] } = loadWhitelistedDapp() || {}
+  if (checkIfEnoughBalance()) {
+    if (isContractCall()) {
+      const isCallWhitelisted = isContractCallWhitelisted()
+      const { contracts = [] } = loadWhitelistedDapp() || {}
 
-    if (!isCallWhitelisted && contracts.length > 3) {
-      showAddContractToWhitelistedDappView()
-    } else if (!isCallWhitelisted) {
-      showWhitelistNewDappView()
-    } else {
-      const timer = getWhitelistDappTimer()
-      if (timer === 0) {
-        calcWorkAndSendTx(tx)
+      if (!isCallWhitelisted && contracts.length > 3) {
+        showAddContractToWhitelistedDappView()
+      } else if (!isCallWhitelisted) {
+        showWhitelistNewDappView()
       } else {
-        store.commit(
-          MutationTypes.SET_SPINNER_STATE,
-          SpinnerState.TRANSACTION_WHITELISTED_TIMER
-        )
-      }
+        const timer = getWhitelistDappTimer()
+        if (timer === 0) {
+          calcWorkAndSendTx(tx)
+        } else {
+          store.commit(
+            MutationTypes.SET_SPINNER_STATE,
+            SpinnerState.TRANSACTION_WHITELISTED_TIMER
+          )
+        }
 
-      if (loadedInIframe() && !store.state.ui.isDrawerActiveByUser) {
-        store.commit(MutationTypes.DEACTIVATE_DRAWER)
-        shrinkFrameInParentWindow()
+        if (loadedInIframe() && !store.state.ui.isDrawerActiveByUser) {
+          store.commit(MutationTypes.DEACTIVATE_DRAWER)
+          shrinkFrameInParentWindow()
+        }
+        return
       }
-      return
+    } else {
+      loadConfirmTxMsg(tx)
     }
-  } else {
-    loadConfirmTxMsg(tx)
   }
 
   if (loadedInIframe()) {

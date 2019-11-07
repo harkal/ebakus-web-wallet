@@ -57,7 +57,7 @@ import { getBalance } from '@/actions/wallet'
 import { web3 } from '@/actions/web3ebakus'
 import { isContractCall, isContractCallWhitelisted } from '@/actions/whitelist'
 
-import { SpinnerState } from '@/constants'
+import { SpinnerState, DialogComponents } from '@/constants'
 
 import {
   loadedInIframe,
@@ -109,7 +109,8 @@ export default {
       return (
         isContractCall() &&
         isContractCallWhitelisted() &&
-        this.$route.name !== RouteNames.UNLOCK
+        this.$route.name !== RouteNames.UNLOCK &&
+        this.dialog.component !== DialogComponents.NO_FUNDS
       )
     },
   },

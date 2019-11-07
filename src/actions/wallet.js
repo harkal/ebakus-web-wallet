@@ -7,7 +7,6 @@ import store from '@/store'
 import {
   loadedInIframe,
   frameEventBalanceUpdated,
-  replyToParentWindow,
   shrinkFrameInParentWindow,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 
@@ -224,15 +223,11 @@ const exitDialog = () => {
 
   if (
     !store.state.ui.isDrawerActiveByUser &&
-    (routeName === RouteNames.NEW || component == DialogComponents.NO_FUNDS)
+    (routeName === RouteNames.NEW || component === DialogComponents.NO_FUNDS)
   ) {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
 
     if (loadedInIframe()) {
-      if (component == DialogComponents.NO_FUNDS) {
-        replyToParentWindow(null, 'no_funds')
-      }
-
       shrinkFrameInParentWindow()
     }
   }

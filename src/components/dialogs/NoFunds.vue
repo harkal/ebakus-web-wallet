@@ -20,6 +20,13 @@ import { mapState } from 'vuex'
 import { exitDialog } from '@/actions/wallet'
 import { web3 } from '@/actions/web3ebakus'
 
+import { SpinnerState } from '@/constants'
+
+import {
+  loadedInIframe,
+  replyToParentWindow,
+} from '@/parentFrameMessenger/parentFrameMessenger'
+
 import MutationTypes from '@/store/mutation-types'
 
 import GetFaucet from '@/components/GetFaucet.vue'
@@ -41,6 +48,10 @@ export default {
   mounted: async function() {
     this.$store.commit(MutationTypes.SET_OVERLAY_COLOR, 'red')
 
+    if (loadedInIframe()) {
+      replyToParentWindow(null, 'no_funds')
+    }
+
     const balance = parseFloat(web3.utils.fromWei(this.balance))
     const value = this.tx.value ? web3.utils.fromWei(this.tx.value) : '0'
 
@@ -53,7 +64,12 @@ export default {
     }
   },
   methods: {
-    exit: () => exitDialog(),
+    exit: function() {
+      this.$store.commit(MutationTypes.CLEAR_TX)
+      this.$store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.CANCEL)
+
+      exitDialog()
+    },
   },
 }
 </script>

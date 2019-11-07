@@ -87,8 +87,6 @@ export default {
   },
   mounted() {
     if (!checkIfEnoughBalance()) {
-      // this.$store.commit(MutationTypes.CLEAR_TX)
-      // this.$store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.CANCEL)
       activateDrawerIfClosed()
     } else {
       this.getTxInfo()
