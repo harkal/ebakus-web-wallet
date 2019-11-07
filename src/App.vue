@@ -12,23 +12,12 @@
       <Status ref="status" @showWallet="showWallet" @hideWallet="hideWallet" />
 
       <div v-show="isDrawerActive" class="main">
-        <transition-group
-          name="fade-transition"
-          enter-active-class="main-fade-transition-enter-active"
-          leave-active-class="main-fade-transition-leave-active"
-          :duration="{
-            enter: styles.animationFadeEnter,
-            leave: isDrawerActive ? styles.animationFadeLeave : 0,
-          }"
-          appear
-        >
-          <component
-            :is="dialog.component"
-            v-if="isDialog && dialog.component"
-            :key="dialog.component"
-          />
-          <router-view v-else key="router" class="dialog" />
-        </transition-group>
+        <component
+          :is="dialog.component"
+          v-if="isDialog && dialog.component"
+          :key="dialog.component"
+        />
+        <router-view v-else key="router" />
       </div>
     </div>
 

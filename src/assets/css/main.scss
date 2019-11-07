@@ -477,18 +477,11 @@ label {
 }
 
 .fade-transition-enter-active,
-.fade-transition-leave-active,
-.main-fade-transition-enter-active,
-.main-fade-transition-leave-active {
+.fade-transition-leave-active {
   transition: opacity animation-duration(fade, enter) ease-in;
 }
 
-.main-fade-transition-enter-active{
-  // transition-delay: animation-duration(fade, leave);
-}
-
-.fade-transition-leave-active,
-.main-fade-transition-enter-active {
+.fade-transition-leave-active {
   transition-timing-function: ease-out;
   transition-duration: animation-duration(fade, leave);
 }
