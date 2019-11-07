@@ -40,6 +40,10 @@ store.subscribe(({ type }, state) => {
     whitelist: state.whitelist,
   }
 
+  if (typeof store.network.status !== 'undefined') {
+    delete store.network.status
+  }
+
   localStorage.setItem(StorageNames.WALLET_STORE, JSON.stringify(store))
 })
 

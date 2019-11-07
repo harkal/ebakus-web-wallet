@@ -125,18 +125,18 @@ const postMessage = (
     jobQueue.next()
   }
 
-  console.log(
-    'Wallet send message to parent -',
-    payload.cmd,
-    'payload: ',
-    payload
-  )
-
   try {
     if (!target) {
       console.log('Please wait for parent frame messaging to init')
       return
     }
+
+    console.log(
+      'Wallet send message to parent -',
+      payload.cmd,
+      'payload: ',
+      payload
+    )
 
     target.postMessage(JSON.stringify(payload), targetOrigin)
   } catch (err) {
@@ -215,9 +215,12 @@ const postEvent = (type, payload) =>
   })
 
 const frameEventCurrentProviderEndpointUpdated = endpoint =>
-  postEvent('currentProviderEndpointUpdated', endpoint)
+  postEvent('ebakusCurrentProviderEndpoint', endpoint)
 
-const frameEventBalanceUpdated = balance => postEvent('balanceUpdated', balance)
+const frameEventBalanceUpdated = balance => postEvent('ebakusBalance', balance)
+
+const frameEventConnectionStatusUpdated = status =>
+  postEvent('ebakusConnectionStatus', status)
 
 const init = () => {
   if (loadedInIframe()) {
@@ -241,4 +244,5 @@ export {
   openInNewTabInParentWindow,
   frameEventCurrentProviderEndpointUpdated,
   frameEventBalanceUpdated,
+  frameEventConnectionStatusUpdated,
 }

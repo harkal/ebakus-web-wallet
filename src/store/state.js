@@ -1,6 +1,6 @@
 import { version } from '../../package.json'
 
-import { DefaultToken } from '@/constants'
+import { DefaultToken, NetworkStatus } from '@/constants'
 
 const initialState = {
   version,
@@ -15,6 +15,7 @@ const initialState = {
   network: {
     id: 0,
     nodeAddress: '',
+    status: NetworkStatus.DISCONNECTED,
   },
 
   // custom ERC-20 tokens set by the dApp developer

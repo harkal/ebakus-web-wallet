@@ -1,16 +1,22 @@
 import { generateMnemonic, mnemonicToSeed } from 'bip39'
 import hdkey from 'hdkey'
 
-import { SpinnerState, StorageNames, DialogComponents } from '@/constants'
+import {
+  SpinnerState,
+  StorageNames,
+  DialogComponents,
+  NetworkStatus,
+} from '@/constants'
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
 import {
   loadedInIframe,
   frameEventBalanceUpdated,
   shrinkFrameInParentWindow,
+  frameEventConnectionStatusUpdated,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 
-import { setProvider } from './providers'
+import { setProvider, checkNodeConnection } from './providers'
 import { getTokenInfoForSymbol, getBalanceOfAddressForToken } from './tokens'
 import { loadTxsInfoFromExplorer } from './transactions'
 import { web3 } from './web3ebakus'
@@ -21,63 +27,65 @@ const getBalanceCatchUpdateNetworkTimeouts = []
 
 const loadConfirmTxMsg = async () => {}
 
-const getBalance = () => {
+const getBalance = async () => {
   const { address, token: symbol } = store.state.wallet
   if (!address) {
     return Promise.reject('No wallet created')
   }
-  const addr = web3.utils.toChecksumAddress(address)
 
-  let promise
   const tokenInfo = getTokenInfoForSymbol(symbol)
-  if (tokenInfo) {
-    promise = getBalanceOfAddressForToken(tokenInfo)
-  } else {
-    promise = web3.eth.getBalance(addr)
-  }
 
-  return promise
-    .then(weiBalance => {
-      if (symbol !== store.state.wallet.token) {
-        return Promise.reject('User changed selected token')
-      }
+  try {
+    let wei
+    if (tokenInfo) {
+      wei = await getBalanceOfAddressForToken(tokenInfo)
+    } else {
+      wei = await web3.eth.getBalance(address)
+    }
 
-      if (getBalanceCatchUpdateNetworkTimeouts.length > 0) {
-        getBalanceCatchUpdateNetworkTimeouts.forEach(handle =>
-          clearTimeout(handle)
-        )
-      }
+    if (symbol !== store.state.wallet.token) {
+      return Promise.reject('User changed selected token')
+    }
 
-      if (parseFloat(weiBalance) != parseFloat(store.state.wallet.balance)) {
-        store.dispatch(MutationTypes.SET_WALLET_BALANCE, String(weiBalance))
-
-        if (loadedInIframe()) {
-          frameEventBalanceUpdated(weiBalance)
-        }
-
-        setTimeout(loadTxsInfoFromExplorer(), 2000)
-      }
-
-      return Promise.resolve(weiBalance)
-    })
-    .catch(err => {
-      store.dispatch(
-        MutationTypes.SET_SPINNER_STATE,
-        SpinnerState.NODE_DISCONNECTED
+    if (getBalanceCatchUpdateNetworkTimeouts.length > 0) {
+      getBalanceCatchUpdateNetworkTimeouts.forEach(handle =>
+        clearTimeout(handle)
       )
+    }
 
-      console.error('Failed to connect to network')
-      const updateNetworkTimeout = setTimeout(() => {
-        store.dispatch(
-          MutationTypes.SET_SPINNER_STATE,
-          SpinnerState.NODE_CONNECT
-        )
-        setProvider(store.getters.network)
-      }, 2000)
-      getBalanceCatchUpdateNetworkTimeouts.push(updateNetworkTimeout)
+    if (parseFloat(wei) != parseFloat(store.state.wallet.balance)) {
+      store.dispatch(MutationTypes.SET_WALLET_BALANCE, String(wei))
 
-      return Promise.reject(err)
-    })
+      if (loadedInIframe()) {
+        frameEventBalanceUpdated(wei)
+      }
+
+      setTimeout(loadTxsInfoFromExplorer(), 2000)
+    }
+
+    return wei
+  } catch (err) {
+    store.dispatch(
+      MutationTypes.SET_SPINNER_STATE,
+      SpinnerState.NODE_DISCONNECTED
+    )
+    store.dispatch(MutationTypes.SET_NETWORK_STATUS, NetworkStatus.DISCONNECTED)
+
+    if (loadedInIframe()) {
+      frameEventConnectionStatusUpdated(NetworkStatus.DISCONNECTED)
+    }
+
+    console.error('Failed to connect to network')
+    const updateNetworkTimeout = setTimeout(() => {
+      store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.NODE_CONNECT)
+      setProvider(store.getters.network)
+
+      checkNodeConnection()
+    }, 2000)
+    getBalanceCatchUpdateNetworkTimeouts.push(updateNetworkTimeout)
+
+    return Promise.reject(err)
+  }
 }
 
 const generateWallet = () => {

@@ -39,4 +39,8 @@ export default {
   [MutationTypes.CLEAR_DIALOG](context) {
     context.commit(MutationTypes.CLEAR_DIALOG)
   },
+
+  [MutationTypes.SET_NETWORK_STATUS](context, data) {
+    context.commit(MutationTypes.SET_NETWORK_STATUS, data)
+  },
 }

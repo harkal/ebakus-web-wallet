@@ -53,8 +53,8 @@
 import debounce from 'lodash/debounce'
 import { mapState } from 'vuex'
 
+import { checkNodeConnection } from '@/actions/providers'
 import { getBalance } from '@/actions/wallet'
-import { web3 } from '@/actions/web3ebakus'
 import { isContractCall, isContractCallWhitelisted } from '@/actions/whitelist'
 
 import { SpinnerState, DialogComponents } from '@/constants'
@@ -138,10 +138,6 @@ export default {
   },
 
   created() {
-    setInterval(() => {
-      getBalance().catch(() => {}) // just for catching exceptions
-    }, 1000)
-
     this.getViewportInnerHeight()
 
     window.addEventListener(
@@ -150,35 +146,20 @@ export default {
     )
   },
   mounted() {
-    this.checkNodeConnectivity()
+    this.$store.commit(
+      MutationTypes.SET_SPINNER_STATE,
+      SpinnerState.NODE_CONNECT
+    )
+
+    checkNodeConnection(true)
+
+    setInterval(() => {
+      getBalance().catch(() => {}) // just for catching exceptions
+    }, 1000)
+
     this.loadWalletState()
   },
   methods: {
-    checkNodeConnectivity: function() {
-      const self = this
-
-      this.$store.commit(
-        MutationTypes.SET_SPINNER_STATE,
-        SpinnerState.NODE_CONNECT
-      )
-
-      web3.eth.net
-        .getId()
-        .then(() => {
-          self.$store.dispatch(
-            MutationTypes.SET_SPINNER_STATE,
-            SpinnerState.NODE_CONNECTED
-          )
-        })
-        .catch(err => {
-          self.$store.dispatch(
-            MutationTypes.SET_SPINNER_STATE,
-            SpinnerState.NODE_DISCONNECTED
-          )
-
-          console.error('Failed to connect to network', err)
-        })
-    },
     loadWalletState: function() {
       if (this.publicAddress !== null && !this.isLocked) {
         console.log('Wallet Loaded')

@@ -1,5 +1,12 @@
-import { Networks } from '@/constants'
-import store from '@/store/index'
+import { Networks, NetworkStatus, SpinnerState } from '@/constants'
+
+import MutationTypes from '@/store/mutation-types'
+import store from '@/store'
+
+import {
+  loadedInIframe,
+  frameEventConnectionStatusUpdated,
+} from '@/parentFrameMessenger/parentFrameMessenger'
 
 import { web3 } from './web3ebakus'
 
@@ -68,10 +75,50 @@ const setProviderByNetworkId = id => {
   return false
 }
 
+const checkNodeConnection = async (force = false) => {
+  if (!force && store.state.network.status === NetworkStatus.CONNECTED) {
+    return
+  }
+
+  try {
+    await web3.eth.net.getId()
+
+    if (store.state.network.status !== NetworkStatus.CONNECTED) {
+      store.dispatch(
+        MutationTypes.SET_SPINNER_STATE,
+        SpinnerState.NODE_CONNECTED
+      )
+      store.dispatch(MutationTypes.SET_NETWORK_STATUS, NetworkStatus.CONNECTED)
+
+      if (loadedInIframe()) {
+        frameEventConnectionStatusUpdated(NetworkStatus.CONNECTED)
+      }
+    }
+  } catch (err) {
+    console.error('Failed to connect to network', err)
+
+    if (store.state.network.status !== NetworkStatus.DISCONNECTED) {
+      store.dispatch(
+        MutationTypes.SET_SPINNER_STATE,
+        SpinnerState.NODE_DISCONNECTED
+      )
+      store.dispatch(
+        MutationTypes.SET_NETWORK_STATUS,
+        NetworkStatus.DISCONNECTED
+      )
+
+      if (loadedInIframe()) {
+        frameEventConnectionStatusUpdated(NetworkStatus.DISCONNECTED)
+      }
+    }
+  }
+}
+
 export {
   getProvider,
   setProvider,
   getProviderByNetworkId,
   getCurrentProviderEndpoint,
   setProviderByNetworkId,
+  checkNodeConnection,
 }

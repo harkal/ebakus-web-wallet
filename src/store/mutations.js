@@ -3,7 +3,12 @@ import Web3 from 'web3'
 import { version } from '../../package.json'
 
 import { web3 } from '@/actions/web3ebakus'
-import { DefaultToken, SpinnerState, StorageNames } from '@/constants'
+import {
+  DefaultToken,
+  NetworkStatus,
+  SpinnerState,
+  StorageNames,
+} from '@/constants'
 
 import initialState from './state'
 import MutationTypes from './mutation-types'
@@ -129,14 +134,11 @@ export default {
     state.network = {
       network_id: networkId,
       node_address: networkId == '-1' ? nodeAddress : '',
+      status: NetworkStatus.DISCONNECTED,
     }
-    localStorage.setItem(
-      'network',
-      JSON.stringify({
-        networkId,
-        nodeAddress,
-      })
-    )
+  },
+  [MutationTypes.SET_NETWORK_STATUS](state, status) {
+    state.network.status = status
   },
 
   [MutationTypes.SET_OVERLAY_COLOR](state, color) {

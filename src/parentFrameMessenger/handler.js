@@ -11,6 +11,7 @@ import router, { RouteNames } from '@/router'
 import {
   replyToParentWindow,
   expandFrameInParentWindow,
+  frameEventConnectionStatusUpdated,
 } from './parentFrameMessenger'
 
 const unlockWallet = () => {
@@ -85,7 +86,9 @@ const externalFrameHandler = payload => {
 const externalPassiveFrameHandler = payload => {
   const { cmd, req } = payload
 
-  if (cmd === 'init') {
+  if (cmd === '_') {
+    frameEventConnectionStatusUpdated(store.state.network.status)
+  } else if (cmd === 'init') {
     if (typeof req === 'object') {
       const { tokens = [] } = req
       if (tokens.length > 0) {

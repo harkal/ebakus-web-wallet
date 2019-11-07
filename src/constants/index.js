@@ -55,6 +55,11 @@ if (process.env.NODE_ENV === 'development') {
   }
 }
 
+const NetworkStatus = {
+  CONNECTED: 'connected',
+  DISCONNECTED: 'disconnected',
+}
+
 const DialogComponents = {
   SEND_TX: 'SendTx',
   NO_FUNDS: 'NoFunds',
@@ -74,6 +79,7 @@ export {
   DefaultDappWhitelistTimer,
   SpinnerState,
   Networks,
+  NetworkStatus,
   DialogComponents,
   StorageNames,
 }

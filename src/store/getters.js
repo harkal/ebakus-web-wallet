@@ -5,6 +5,7 @@ export default {
     return {
       networkId: state.network.network_id || process.env.DEFAULT_NETWORK_ID,
       nodeAddress: state.network.node_address,
+      status: state.network.status,
     }
   },
 
