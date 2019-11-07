@@ -104,7 +104,11 @@ const showWhitelistNewDappView = (forceOptIn = false) => {
     SpinnerState.TRANSACTION_WHITELISTING
   )
 
-  router.push({ name: RouteNames.WHITELIST_DAPP })
+  const routeName = router.app.$route.name
+  router.push({
+    name: RouteNames.WHITELIST_DAPP,
+    query: { redirectFrom: routeName },
+  })
 }
 
 const showAddContractToWhitelistedDappView = () => {
@@ -121,7 +125,11 @@ const showAddContractToWhitelistedDappView = () => {
     SpinnerState.TRANSACTION_WHITELISTING
   )
 
-  router.push({ name: RouteNames.WHITELIST_CONTRACT_FOR_DAPP })
+  const routeName = router.app.$route.name
+  router.push({
+    name: RouteNames.WHITELIST_CONTRACT_FOR_DAPP,
+    query: { redirectFrom: routeName },
+  })
 }
 
 const whitelistNewDapp = () => {

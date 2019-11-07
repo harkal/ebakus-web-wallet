@@ -58,7 +58,8 @@ export default {
       whitelistNewDappFunc()
 
       exitDialog()
-      this.$router.push({ name: RouteNames.HOME })
+      const redirectFrom = this.$route.query.redirectFrom || RouteNames.HOME
+      this.$router.push({ name: redirectFrom }, () => {})
     },
     cancelWhitelistDapp: () => cancelWhitelistDappFunc(),
   },

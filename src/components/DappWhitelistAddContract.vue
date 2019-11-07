@@ -73,8 +73,9 @@ export default {
         }
       }
 
-      this.$router.push({ name: RouteNames.HOME })
       exitDialog()
+      const redirectFrom = this.$route.query.redirectFrom || RouteNames.HOME
+      this.$router.push({ name: redirectFrom }, () => {})
     },
     cancelWhitelistDapp: () => cancelWhitelistDappFunc(),
   },
