@@ -50,7 +50,7 @@
         </label>
       </div>
 
-      <span class="error"> {{ error }} </span>
+      <span class="text-error"> {{ error }} </span>
 
       <button class="full" @click="addPendingTx">Send</button>
     </div>

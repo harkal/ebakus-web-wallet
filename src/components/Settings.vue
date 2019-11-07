@@ -86,7 +86,7 @@
           <input
             type="range"
             class="whitelist-slider"
-            min="0"
+            min="1"
             :max="maxWhitelistDelay"
             step="1"
             :value="getWhitelistDelay"

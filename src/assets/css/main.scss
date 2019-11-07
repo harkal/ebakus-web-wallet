@@ -546,3 +546,22 @@ label {
     opacity: 1;
   }
 }
+
+.animate-fade-in-out {
+  animation: fadeInOutAnimation 0.5s infinite;
+}
+.animate-fade-in-out-slow {
+  animation: fadeInOutAnimation 1s infinite;
+}
+
+@keyframes fadeInOutAnimation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}

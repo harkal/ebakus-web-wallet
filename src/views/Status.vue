@@ -41,6 +41,7 @@
             )
           "
           key="working"
+          class="animate-fade-in-out-slow"
         >
           Working...
         </span>

@@ -59,8 +59,6 @@ const calcWork = async tx => {
 
     return txWithPow
   } catch (err) {
-    console.log('calcWorkAndSendTx err', err)
-
     store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
 
     if (loadedInIframe()) {

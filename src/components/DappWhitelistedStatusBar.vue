@@ -172,8 +172,6 @@ export default {
           } else {
             this.emTitle = `to call ${name}`
           }
-        } else {
-          this.emTitle = `to spend ${value} EBK`
         }
       }
 
