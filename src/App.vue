@@ -61,7 +61,7 @@ import MutationTypes from '@/store/mutation-types'
 import SendTx from '@/components/dialogs/SendTx.vue'
 import Status from '@/views/Status'
 
-import styleVariables from '@/assets/css/_variables.scss'
+// import styleVariables from '@/assets/css/_variables.scss'
 import styleAnimationVariables from '@/assets/css/_animations.scss'
 
 export default {
@@ -166,36 +166,32 @@ export default {
       document.documentElement.style.setProperty('--vh', `${vh}px`)
     },
     showWallet: function() {
-      const width = getComputedStyle(this.$refs.wallet).width
-
-      this.$refs.wallet.style.transition = `width ${styleAnimationVariables.animationWallet}ms linear`
-      this.$refs.wallet.style.width = width
-
-      this.$refs.wallet.style.minWidth = null
-      this.$refs.wallet.style.height = '100vh'
-
-      // Force repaint to make sure the
-      // animation is triggered correctly.
-      getComputedStyle(this.$refs.wallet).width
-
-      requestAnimationFrame(() => {
-        this.$refs.wallet.style.width = styleVariables.walletOpenedWidth
-      })
+      // const width = getComputedStyle(this.$refs.wallet).width
+      // this.$refs.wallet.style.transition = `width ${styleAnimationVariables.animationWallet}ms linear`
+      // this.$refs.wallet.style.width = width
+      // this.$refs.wallet.style.minWidth = null
+      // this.$refs.wallet.style.height = '100vh'
+      // // Force repaint to make sure the
+      // // animation is triggered correctly.
+      // getComputedStyle(this.$refs.wallet).width
+      // requestAnimationFrame(() => {
+      //   this.$refs.wallet.style.width = styleVariables.walletOpenedWidth
+      // })
     },
     hideWallet: function() {
-      this.$refs.wallet.style.transition = `min-width ${styleAnimationVariables.animationWallet}ms linear, height ${styleAnimationVariables.animationWallet}ms linear`
-      this.$refs.wallet.style.minWidth = styleVariables.walletOpenedWidth
-      this.$refs.wallet.style.width = styleVariables.walletOpenedWidth
-      const height = getComputedStyle(this.$refs.wallet).height
-      this.$refs.wallet.style.height = height
-      // Force repaint to make sure the
-      // animation is triggered correctly.
-      getComputedStyle(this.$refs.wallet).height
-      requestAnimationFrame(() => {
-        this.$refs.wallet.style.width = 'auto'
-        this.$refs.wallet.style.minWidth = '60px'
-        this.$refs.wallet.style.height = styleVariables.walletClosedHeight
-      })
+      // this.$refs.wallet.style.transition = `min-width ${styleAnimationVariables.animationWallet}ms linear, height ${styleAnimationVariables.animationWallet}ms linear`
+      // this.$refs.wallet.style.minWidth = styleVariables.walletOpenedWidth
+      // this.$refs.wallet.style.width = styleVariables.walletOpenedWidth
+      // const height = getComputedStyle(this.$refs.wallet).height
+      // this.$refs.wallet.style.height = height
+      // // Force repaint to make sure the
+      // // animation is triggered correctly.
+      // getComputedStyle(this.$refs.wallet).height
+      // requestAnimationFrame(() => {
+      //   this.$refs.wallet.style.width = 'auto'
+      //   this.$refs.wallet.style.minWidth = '60px'
+      //   this.$refs.wallet.style.height = styleVariables.walletClosedHeight
+      // })
     },
   },
 }

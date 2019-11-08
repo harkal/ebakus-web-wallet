@@ -151,7 +151,7 @@ $status-bar-padding: 16px;
   background-color: rgb(10, 17, 31);
 
   padding-left: $widget-size-base + 8px;
-  transition: all animation-duration(status,base) ease-out;
+  // transition: all animation-duration(status,base) ease-out;
   > div,
   > p {
     margin: 0 8px;
@@ -173,7 +173,7 @@ $status-bar-padding: 16px;
     padding: $status-bar-padding;
     padding-top: $status-bar-padding + $widget-size-opened + 32px;
 
-    transition-timing-function: ease-in, ease-in;
+    // transition-timing-function: ease-in, ease-in;
 
     @at-root .opened.has-dialog .status-bar {
       min-height: 130px;
@@ -251,7 +251,7 @@ $status-bar-padding: 16px;
     (var(--vh, 1vh) * 100) - (var(--status-bar-vh, 1vh) * 100)
   ); /* --vh is set at App.vue and --status-bar-vh at Status.vue */
   opacity: 1;
-  animation: contentGrowAnimation animation-duration(scrollWrapper) ease-out;
+  // animation: contentGrowAnimation animation-duration(scrollWrapper) ease-out;
   overflow-y: auto;
 
   @media only screen and (max-width: 600px) {

@@ -71,7 +71,7 @@ export default {
   pointer-events: initial;
 
   transform-origin: center;
-  transition: all animation-duration(status, identicon) linear;
+  // transition: all animation-duration(status, identicon) linear;
 
   &::before {
     display: block;
@@ -89,7 +89,7 @@ export default {
     box-sizing: border-box;
     opacity: 0;
     animation: rotation 1s infinite linear;
-    transition: all animation-duration(status, identicon) linear;
+    // transition: all animation-duration(status, identicon) linear;
   }
 
   &:hover {
@@ -151,7 +151,7 @@ export default {
     transform: translateZ(0);
     transform-origin: 0 0;
     transform: scale(0.25);
-    transition: all animation-duration(status, identicon) linear;
+    // transition: all animation-duration(status, identicon) linear;
 
     .opened & {
       top: ($widget-border-width * 3);

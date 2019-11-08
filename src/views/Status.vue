@@ -11,181 +11,179 @@
       :class="{ loading: isSpinnerActive }"
     />
 
-    <transition
+    <!-- <transition
       name="fade-transition"
       :duration="{
         enter: styles.animationFadeEnter,
         leave: 0,
       }"
       appear
+    > -->
+    <div
+      v-if="
+        !isDrawerActive &&
+          [
+            SpinnerState.CALC_POW,
+            SpinnerState.TRANSACTION_SENDING,
+            SpinnerState.TRANSACTION_SENT_SUCCESS,
+            SpinnerState.NODE_CONNECT,
+            SpinnerState.NODE_CONNECTED,
+            SpinnerState.NODE_DISCONNECTED,
+          ].includes(spinnerState)
+      "
+      key="closedState"
+      class="closed-state"
     >
-      <div
+      <span
         v-if="
-          !isDrawerActive &&
-            [
-              SpinnerState.CALC_POW,
-              SpinnerState.TRANSACTION_SENDING,
-              SpinnerState.TRANSACTION_SENT_SUCCESS,
-              SpinnerState.NODE_CONNECT,
-              SpinnerState.NODE_CONNECTED,
-              SpinnerState.NODE_DISCONNECTED,
-            ].includes(spinnerState)
+          [SpinnerState.CALC_POW, SpinnerState.TRANSACTION_SENDING].includes(
+            spinnerState
+          )
         "
-        key="closedState"
-        class="closed-state"
+        key="working"
+        class="animate-fade-in-out-slow"
       >
-        <span
-          v-if="
-            [SpinnerState.CALC_POW, SpinnerState.TRANSACTION_SENDING].includes(
-              spinnerState
-            )
-          "
-          key="working"
-          class="animate-fade-in-out-slow"
-        >
-          Working...
-        </span>
+        Working...
+      </span>
 
-        <span
-          v-else-if="spinnerState === SpinnerState.TRANSACTION_SENT_SUCCESS"
-          key="sent"
-        >
-          Sent
-
-          <img src="@/assets/img/ic_sent.svg" width="13" height="7" />
-        </span>
-
-        <img
-          v-else-if="spinnerState === SpinnerState.NODE_CONNECT"
-          key="connecting"
-          src="@/assets/img/ic_connecting.svg"
-          width="16"
-          height="31"
-          class="animate-fade-in-out"
-        />
-        <img
-          v-else-if="spinnerState === SpinnerState.NODE_CONNECTED"
-          key="connected"
-          src="@/assets/img/ic_connected.svg"
-          width="16"
-          height="31"
-        />
-        <img
-          v-else-if="spinnerState === SpinnerState.NODE_DISCONNECTED"
-          key="disconnected"
-          src="@/assets/img/ic_disconnected.svg"
-          width="21"
-          height="31"
-          title="Connection lost try refreshing the page."
-        />
-      </div>
-
-      <p
-        v-else-if="
-          (!isDrawerActive && !showWhitelistingTimer) ||
-            (isDrawerActive && !isDialog)
-        "
-        key="balance"
-        class="balance"
+      <span
+        v-else-if="spinnerState === SpinnerState.TRANSACTION_SENT_SUCCESS"
+        key="sent"
       >
-        {{ balance | toEtherFixed }}
+        Sent
 
-        <transition
+        <img src="@/assets/img/ic_sent.svg" width="13" height="7" />
+      </span>
+
+      <img
+        v-else-if="spinnerState === SpinnerState.NODE_CONNECT"
+        key="connecting"
+        src="@/assets/img/ic_connecting.svg"
+        width="16"
+        height="31"
+        class="animate-fade-in-out"
+      />
+      <img
+        v-else-if="spinnerState === SpinnerState.NODE_CONNECTED"
+        key="connected"
+        src="@/assets/img/ic_connected.svg"
+        width="16"
+        height="31"
+      />
+      <img
+        v-else-if="spinnerState === SpinnerState.NODE_DISCONNECTED"
+        key="disconnected"
+        src="@/assets/img/ic_disconnected.svg"
+        width="21"
+        height="31"
+        title="Connection lost try refreshing the page."
+      />
+    </div>
+
+    <p
+      v-else-if="
+        (!isDrawerActive && !showWhitelistingTimer) ||
+          (isDrawerActive && !isDialog)
+      "
+      key="balance"
+      class="balance"
+    >
+      {{ balance | toEtherFixed }}
+
+      <!-- <transition
           name="fade-transition"
           :duration="{
             enter: styles.animationFadeEnter,
             leave: 0,
           }"
-        >
-          <img
-            v-if="!isDrawerActive && tokenSymbol == 'EBK'"
-            src="@/assets/img/ebakus_logo_small.svg"
-            width="14"
-            height="14"
-          />
-
-          <span v-else>{{ tokenSymbol }}</span>
-        </transition>
-      </p>
-    </transition>
-
-    <transition
-      name="fade-transition"
-      :duration="{
-        enter: styles.animationFadeEnter,
-        leave: 0,
-      }"
-    >
-      <p
-        v-if="isDrawerActive && isDialog && dialog.title != ''"
-        key="title"
-        class="title"
-      >
-        {{ dialog.title }}
-      </p>
-    </transition>
-
-    <transition
-      name="fade-transition"
-      :duration="{
-        enter: styles.animationFadeEnter,
-        leave: 0,
-      }"
-    >
-      <Navigation
-        v-if="isDrawerActive && !isDialog && !isLocked"
-        key="navigation"
+        > -->
+      <img
+        v-if="!isDrawerActive && tokenSymbol == 'EBK'"
+        src="@/assets/img/ebakus_logo_small.svg"
+        width="14"
+        height="14"
       />
-    </transition>
 
-    <transition
+      <span v-else>{{ tokenSymbol }}</span>
+      <!-- </transition> -->
+    </p>
+    <!-- </transition> -->
+
+    <!-- <transition
+      name="fade-transition"
+      :duration="{
+        enter: styles.animationFadeEnter,
+        leave: 0,
+      }"
+    > -->
+    <p
+      v-if="isDrawerActive && isDialog && dialog.title != ''"
+      key="title"
+      class="title"
+    >
+      {{ dialog.title }}
+    </p>
+    <!-- </transition> -->
+
+    <!-- <transition
+      name="fade-transition"
+      :duration="{
+        enter: styles.animationFadeEnter,
+        leave: 0,
+      }"
+    > -->
+    <Navigation
+      v-if="isDrawerActive && !isDialog && !isLocked"
+      key="navigation"
+    />
+    <!-- </transition> -->
+
+    <!-- <transition
       name="whitelist-transition"
       :duration="{ enter: styles.animationStatusWhitelist, leave: 0 }"
       appear
-    >
-      <DappWhitelistedStatusBar v-if="showWhitelistingTimer" key="whitelist" />
-    </transition>
+    > -->
+    <DappWhitelistedStatusBar v-if="showWhitelistingTimer" key="whitelist" />
+    <!-- </transition> -->
 
-    <transition
+    <!-- <transition
       name="status-buttons-transition"
       :duration="{
         enter: styles.animationStatusButtonsEnter,
         leave: styles.animationStatusButtonsLeave,
       }"
       appear
-    >
-      <div v-if="isDrawerActive" key="buttons" class="buttons">
-        <transition-group
+    > -->
+    <div v-if="isDrawerActive" key="buttons" class="buttons">
+      <!-- <transition-group
           name="fade-transition"
           :duration="{
             enter: styles.animationFadeEnter,
             leave: 0,
           }"
           appear
-        >
-          <button
-            v-show="buttonState === ButtonStates.EXIT"
-            key="exit"
-            class="btn-circle exit"
-            @click.stop="exit"
-          />
-          <button
-            v-show="buttonState === ButtonStates.MAIN"
-            key="settings"
-            class="btn-circle settings"
-            @click.stop="showSettings"
-          />
-          <button
-            v-show="
-              [ButtonStates.UNLOCK, ButtonStates.MAIN].includes(buttonState)
-            "
-            key="close"
-            class="btn-circle close"
-            @click.stop="hideWallet"
-          />
-        </transition-group>
-      </div>
-    </transition>
+        > -->
+      <button
+        v-show="buttonState === ButtonStates.EXIT"
+        key="exit"
+        class="btn-circle exit"
+        @click.stop="exit"
+      />
+      <button
+        v-show="buttonState === ButtonStates.MAIN"
+        key="settings"
+        class="btn-circle settings"
+        @click.stop="showSettings"
+      />
+      <button
+        v-show="[ButtonStates.UNLOCK, ButtonStates.MAIN].includes(buttonState)"
+        key="close"
+        class="btn-circle close"
+        @click.stop="hideWallet"
+      />
+      <!-- </transition-group> -->
+    </div>
+    <!-- </transition> -->
   </div>
 </template>
 
