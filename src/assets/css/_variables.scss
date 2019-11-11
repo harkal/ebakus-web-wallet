@@ -1,5 +1,6 @@
 $wallet-opened-width: 320px;
 $wallet-closed-height: 44px;
+$wallet-opened-min-height: 115px;
 
 $widget-size-base: 25px;
 $widget-size-opened: 67px;
@@ -9,4 +10,5 @@ $widget-blades-offset: 4px;
 :export {
   walletOpenedWidth: $wallet-opened-width;
   walletClosedHeight: $wallet-closed-height;
+  walletOpenedMinHeight: $wallet-opened-min-height;
 }

@@ -11,7 +11,7 @@
     >
       <Status ref="status" @showWallet="showWallet" @hideWallet="hideWallet" />
 
-      <div v-show="isDrawerActive" class="main">
+      <div v-show="isDrawerActive" ref="main" class="main">
         <component
           :is="dialog.component"
           v-if="isDialog && dialog.component"
@@ -129,10 +129,10 @@ export default {
       }
     },
     balance: function() {
-      nextAnimationFrame(this.hideAnimation)
+      nextAnimationFrame(this.hideWalletAnimation)
     },
     networkStatus: function() {
-      nextAnimationFrame(this.hideAnimation)
+      nextAnimationFrame(this.hideWalletAnimation)
     },
   },
 
@@ -152,7 +152,7 @@ export default {
 
     checkNodeConnection(true)
 
-    nextAnimationFrame(this.hideAnimation)
+    nextAnimationFrame(this.hideWalletAnimation)
 
     setInterval(() => {
       getBalance().catch(() => {}) // just for catching exceptions
@@ -189,12 +189,7 @@ export default {
       // requestAnimationFrame(() => {
       //   this.$refs.wallet.style.width = styleVariables.walletOpenedWidth
       // })
-      this.$refs.status.$el.style.width = '320px'
-
-      const self = this
-      nextAnimationFrame(() => {
-        self.$refs.wallet.style.height = '100vh'
-      })
+      nextAnimationFrame(this.showWalletAnimation)
     },
 
     hideWallet: function() {
@@ -211,23 +206,76 @@ export default {
       //   this.$refs.wallet.style.minWidth = '60px'
       //   this.$refs.wallet.style.height = styleVariables.walletClosedHeight
       // })
-      const self = this
+      nextAnimationFrame(this.hideWalletAnimation)
+    },
+    showWalletAnimation: function() {
+      const wallet = this.$refs.wallet
+      const status = this.$refs.status.$el
+      const identiconWidget = this.$refs.status.$refs.identicon.$el
+      const main = this.$refs.main
+
+      main.style.opacity = 0
+
+      status.style.width = 0
+      status.style.maxWidth = 0
+      status.style.paddingLeft = 0
+      status.style.paddingRight = 0
+      status.style.height = 'auto'
+
+      const finalHeight = getComputedStyle(status).height
+      status.style.height = styleVariables.walletClosedHeight
+
+      identiconWidget.style.right = getComputedStyle(identiconWidget).right
+
+      getComputedStyle(status).height
+
       nextAnimationFrame(() => {
-        self.$refs.wallet.style.height = styleVariables.walletClosedHeight
-        self.hideAnimation()
+        wallet.style.height = '100vh'
+
+        status.style.maxWidth = styleVariables.walletOpenedWidth
+        status.style.padding = null
+        status.style.paddingLeft = null
+        status.style.paddingRight = null
+        status.style.width = styleVariables.walletOpenedWidth
+        status.style.height = `calc(${finalHeight} + ${styleVariables.walletOpenedMinHeight})`
+        status.style.transform = 'translate3d(0, 0, 0)'
+
+        identiconWidget.style.right = '126.5px'
+
+        main.style.opacity = 1
       })
     },
-    hideAnimation: function() {
-      this.$refs.status.$el.style.width = 'fit-content'
-      const finalWidth = getComputedStyle(this.$refs.status.$el).width
-
-      this.$refs.status.$el.style.width = styleVariables.walletOpenedWidth
-      getComputedStyle(this.$refs.status.$el).width
+    hideWalletAnimation: function() {
       const self = this
+      const wallet = this.$refs.wallet
+      const status = this.$refs.status.$el
+      const identiconWidget = this.$refs.status.$refs.identicon.$el
+
+      wallet.style.height = styleVariables.walletClosedHeight
+
+      status.style.width = 'fit-content'
+      identiconWidget.style.left = '8px'
+      identiconWidget.style.right = null
+
+      const finalWidth = getComputedStyle(status).width
+      const finalIdenticonWidgetRight = getComputedStyle(identiconWidget).right
+
+      status.style.width = styleVariables.walletOpenedWidth
+      identiconWidget.style.left = null
+      identiconWidget.style.right = '126.5px'
+
+      status.style.transform = 'translate3d(0, 0, 0)'
+
+      getComputedStyle(status).width
       nextAnimationFrame(() => {
-        self.$refs.status.$el.style.width = finalWidth
+        status.style.width = finalWidth
+        status.style.transform = `translate3d(-${styleVariables.walletOpenedWidth}, 0, 0)`
+
+        status.style.height = styleVariables.walletClosedHeight
+
+        identiconWidget.style.right = finalIdenticonWidgetRight
         if (self.widthWhileAnimating != finalWidth) {
-          nextAnimationFrame(self.hideAnimation)
+          nextAnimationFrame(self.hideWalletAnimation)
         }
         self.widthWhileAnimating = finalWidth
       })

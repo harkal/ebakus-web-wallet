@@ -82,7 +82,7 @@ a {
   width: $wallet-opened-width;
   transition: transform animation-duration(wallet) ease-out,
     height animation-duration(wallet) / 3 ease-out,
-    box-shadow animation-duration(wallet) / 5 ease-out;
+    box-shadow animation-duration(wallet) / 5 ease-out animation-duration(wallet) / 2;
 
 
   > div {
@@ -107,7 +107,6 @@ a {
   &.opened {
     width: $wallet-opened-width;
     height: 100vh;
-    overflow: hidden;
 
     transform: translate3d(0, 0, 0);
 
@@ -139,7 +138,9 @@ $status-bar-padding: 16px;
   margin-left: auto !important;
   transform: translate3d(0, 0, 0);
   transition: transform animation-duration(wallet) ease-out,
-    width animation-duration(wallet) ease-out;
+    max-width animation-duration(wallet) ease-out,
+    width animation-duration(wallet) ease-out,
+    height animation-duration(wallet) / 3 ease-out;
 
   > div,
   > p {
@@ -149,7 +150,6 @@ $status-bar-padding: 16px;
   #wallet:not(.opened) & {
     width: $wallet-opened-width;
     width: fit-content;
-    transform: translate3d(-$wallet-opened-width, 0, 0);
 
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-width: 0;
@@ -160,14 +160,10 @@ $status-bar-padding: 16px;
 
   .opened & {
 
-    height: 252px;
-    min-height: 252px;
-    padding: ($status-bar-padding + $widget-size-opened + 32px) $status-bar-padding 0;
 
     // transition-timing-function: ease-in, ease-in;
 
     @at-root .opened.has-dialog .status-bar {
-      min-height: 130px;
       height: auto;
     }
 
@@ -197,6 +193,8 @@ $status-bar-padding: 16px;
   @include z-index(main);
   position: relative;
   background-color: #fff;
+
+  transition: opacity animation-duration(wallet) ease-in
 }
 
 // useful for transitioning between dialogs

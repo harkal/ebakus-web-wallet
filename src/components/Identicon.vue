@@ -55,7 +55,6 @@ export default {
   position: absolute;
   margin: 0;
   top: 8px;
-  right: calc(100% - #{$widget-size-base + 8px});
 
   width: var(--widget-size) !important;
   height: var(--widget-size);
@@ -112,7 +111,6 @@ export default {
     --widget-size: #{$widget-size-opened};
 
     top: 32px;
-    right: (320px / 2) - ($widget-size-opened / 2);
     background-color: #121212;
     border-color: #fff;
   }
@@ -156,5 +154,17 @@ export default {
       transform: scale(0.55);
     }
   }
+}
+
+.widget,
+.widget::before,
+.identicon::v-deep > div {
+  transition-property: top, height, right, width;
+  transition-duration: animation-duration(status, identicon);
+  transition-timing-function: linear;
+}
+
+.identicon::v-deep > div {
+  transition-property: top, left, transform;
 }
 </style>

@@ -7,6 +7,7 @@
     <identicon
       v-if="isDrawerActive || (!isDrawerActive && !showWhitelistingTimer)"
       key="identicon"
+      ref="identicon"
       :public-key="publicAddress"
       :class="{ loading: isSpinnerActive }"
     />
