@@ -403,7 +403,7 @@ export default {
 
 .balance {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   flex-direction: row;
   align-items: center;
   align-content: center;
@@ -429,6 +429,10 @@ export default {
       flex-basis: 100%;
       font-weight: 400;
     }
+  }
+
+  * {
+    flex-shrink: 0;
   }
 
   .hidden {

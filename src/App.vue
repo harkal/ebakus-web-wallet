@@ -61,7 +61,9 @@ import MutationTypes from '@/store/mutation-types'
 import SendTx from '@/components/dialogs/SendTx.vue'
 import Status from '@/views/Status'
 
-// import styleVariables from '@/assets/css/_variables.scss'
+import { nextAnimationFrame } from '@/utils'
+
+import styleVariables from '@/assets/css/_variables.scss'
 import styleAnimationVariables from '@/assets/css/_animations.scss'
 
 export default {
@@ -78,6 +80,7 @@ export default {
   data() {
     return {
       resizeFrameTimer: null,
+      widthWhileAnimating: null,
     }
   },
   computed: {
@@ -91,6 +94,7 @@ export default {
       overlayColor: state => state.ui.overlayColor,
       isDialog: state => state.ui.dialog.active,
       dialog: state => state.ui.dialog,
+      networkStatus: state => state.network.status,
     }),
     SpinnerState: () => SpinnerState,
     styles: () => styleAnimationVariables,
@@ -124,6 +128,12 @@ export default {
         }
       }
     },
+    balance: function() {
+      nextAnimationFrame(this.hideAnimation)
+    },
+    networkStatus: function() {
+      nextAnimationFrame(this.hideAnimation)
+    },
   },
 
   created() {
@@ -141,6 +151,8 @@ export default {
     )
 
     checkNodeConnection(true)
+
+    nextAnimationFrame(this.hideAnimation)
 
     setInterval(() => {
       getBalance().catch(() => {}) // just for catching exceptions
@@ -177,7 +189,14 @@ export default {
       // requestAnimationFrame(() => {
       //   this.$refs.wallet.style.width = styleVariables.walletOpenedWidth
       // })
+      this.$refs.status.$el.style.width = '320px'
+
+      const self = this
+      nextAnimationFrame(() => {
+        self.$refs.wallet.style.height = '100vh'
+      })
     },
+
     hideWallet: function() {
       // this.$refs.wallet.style.transition = `min-width ${styleAnimationVariables.animationWallet}ms linear, height ${styleAnimationVariables.animationWallet}ms linear`
       // this.$refs.wallet.style.minWidth = styleVariables.walletOpenedWidth
@@ -192,6 +211,26 @@ export default {
       //   this.$refs.wallet.style.minWidth = '60px'
       //   this.$refs.wallet.style.height = styleVariables.walletClosedHeight
       // })
+      const self = this
+      nextAnimationFrame(() => {
+        self.$refs.wallet.style.height = styleVariables.walletClosedHeight
+        self.hideAnimation()
+      })
+    },
+    hideAnimation: function() {
+      this.$refs.status.$el.style.width = 'fit-content'
+      const finalWidth = getComputedStyle(this.$refs.status.$el).width
+
+      this.$refs.status.$el.style.width = styleVariables.walletOpenedWidth
+      getComputedStyle(this.$refs.status.$el).width
+      const self = this
+      nextAnimationFrame(() => {
+        self.$refs.status.$el.style.width = finalWidth
+        if (self.widthWhileAnimating != finalWidth) {
+          nextAnimationFrame(self.hideAnimation)
+        }
+        self.widthWhileAnimating = finalWidth
+      })
     },
   },
 }

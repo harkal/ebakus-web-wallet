@@ -52,9 +52,6 @@ export default {
 .widget {
   --widget-size: #{$widget-size-base};
 
-  flex-grow: 0;
-  flex-shrink: 0;
-
   position: absolute;
   margin: 0;
   top: 8px;
@@ -156,7 +153,7 @@ export default {
     .opened & {
       top: ($widget-border-width * 3);
       left: ($widget-border-width * 2);
-      transform: scale(0.47);
+      transform: scale(0.55);
     }
   }
 }
