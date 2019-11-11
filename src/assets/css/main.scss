@@ -71,23 +71,21 @@ a {
 #wallet {
   @include z-index(wallet);
 
+  will-change: transform;
+
   position: fixed;
   right: 0;
-  overflow: hidden;
 
   height: auto;
 
-  display: flex;
-  flex-wrap: nowrap;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-end;
-  align-content: flex-end;
+  transform: translate3d($wallet-opened-width, 0, 0);
+  width: $wallet-opened-width;
+  transition: transform animation-duration(wallet) ease-out,
+    height animation-duration(wallet) / 3 ease-out,
+    box-shadow animation-duration(wallet) / 5 ease-out;
 
-  transform: translateZ(0);
 
   > div {
-    flex: 0 0 auto;
 
     width: 100%;
     margin: 0;
@@ -109,6 +107,9 @@ a {
   &.opened {
     width: $wallet-opened-width;
     height: 100vh;
+    overflow: hidden;
+
+    transform: translate3d(0, 0, 0);
 
     > div {
       width: $wallet-opened-width;
@@ -120,17 +121,6 @@ a {
   }
 }
 
-@keyframes wallet-animation {
-  0% {
-    height: 100vh;
-  }
-  50% {
-    width: 320px;
-  }
-  100% {
-    box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
-  }
-}
 
 /* Status bar ______________________________________________________*/
 
@@ -138,13 +128,7 @@ $status-bar-padding: 16px;
 
 .status-bar {
   @include z-index(status);
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-  align-items: center;
-  align-content: center;
-  justify-content: flex-end;
+  will-change: transform;
 
   min-height: $wallet-closed-height;
 
@@ -152,12 +136,21 @@ $status-bar-padding: 16px;
 
   padding-left: $widget-size-base + 8px;
   // transition: all animation-duration(status,base) ease-out;
+  margin-left: auto !important;
+  transform: translate3d(0, 0, 0);
+  transition: transform animation-duration(wallet) ease-out,
+    width animation-duration(wallet) ease-out;
+
   > div,
   > p {
     margin: 0 8px;
   }
 
   #wallet:not(.opened) & {
+    width: $wallet-opened-width;
+    width: fit-content;
+    transform: translate3d(-$wallet-opened-width, 0, 0);
+
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-width: 0;
     border-right-width: 0;
@@ -166,12 +159,10 @@ $status-bar-padding: 16px;
   }
 
   .opened & {
-    flex-wrap: wrap;
 
     height: 252px;
     min-height: 252px;
-    padding: $status-bar-padding;
-    padding-top: $status-bar-padding + $widget-size-opened + 32px;
+    padding: ($status-bar-padding + $widget-size-opened + 32px) $status-bar-padding 0;
 
     // transition-timing-function: ease-in, ease-in;
 
@@ -188,12 +179,11 @@ $status-bar-padding: 16px;
     }
 
     .navigation {
-      margin-top: 8px;
+      margin-top: $status-bar-padding;
       margin-right: -$status-bar-padding;
-      margin-bottom: -$status-bar-padding;
+      margin-bottom: 0;
       margin-left: -$status-bar-padding;
       width: calc(100% + #{$status-bar-padding * 2});
-      flex-basis: calc(100% + #{$status-bar-padding * 2});
     }
   }
 
