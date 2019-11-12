@@ -159,12 +159,15 @@ export default {
 .widget,
 .widget::before,
 .identicon::v-deep > div {
-  transition-property: top, height, right, width;
-  transition-duration: animation-duration(status, identicon);
-  transition-timing-function: linear;
+  transition: top animation-duration(status, identicon) ease-out,
+    height animation-duration(status, identicon) ease-out,
+    right animation-duration(status, identicon) ease-out,
+    width animation-duration(status, identicon) ease-out;
 }
 
 .identicon::v-deep > div {
-  transition-property: top, left, transform;
+  transition: top animation-duration(status, identicon) ease-out,
+    left animation-duration(status, identicon) ease-out,
+    transform animation-duration(status, identicon) ease-out;
 }
 </style>

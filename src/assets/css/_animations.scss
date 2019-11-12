@@ -9,7 +9,7 @@ $animation-duration: (
       enter: 300 * $animation-speed-fraction,
       leave: 100 * $animation-speed-fraction,
     ),
-    identicon: 400 * $animation-speed-fraction,
+    identicon: 200 * $animation-speed-fraction,
     whitelist: 400 * $animation-speed-fraction,
   ),
   main: 400 * $animation-speed-fraction,

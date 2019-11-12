@@ -71,22 +71,19 @@ a {
 #wallet {
   @include z-index(wallet);
 
-  will-change: transform;
+  will-change: height;
 
   position: fixed;
   right: 0;
 
+  width: auto;
   height: auto;
 
-  transform: translate3d($wallet-opened-width, 0, 0);
-  width: $wallet-opened-width;
-  transition: transform animation-duration(wallet) ease-out,
-    height animation-duration(wallet) / 3 ease-out,
-    box-shadow animation-duration(wallet) / 5 ease-out animation-duration(wallet) / 2;
 
+  transition: height animation-duration(wallet) cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    box-shadow animation-duration(wallet) / 2 ease-out;
 
   > div {
-
     width: 100%;
     margin: 0;
   }
@@ -108,7 +105,8 @@ a {
     width: $wallet-opened-width;
     height: 100vh;
 
-    transform: translate3d(0, 0, 0);
+    transition: height animation-duration(wallet) cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      box-shadow animation-duration(wallet) / 2 ease-out animation-duration(wallet) / 4;
 
     > div {
       width: $wallet-opened-width;
@@ -120,27 +118,23 @@ a {
   }
 }
 
-
 /* Status bar ______________________________________________________*/
 
 $status-bar-padding: 16px;
 
 .status-bar {
   @include z-index(status);
-  will-change: transform;
+
+  will-change: width, height;
 
   min-height: $wallet-closed-height;
 
   background-color: rgb(10, 17, 31);
 
   padding-left: $widget-size-base + 8px;
-  // transition: all animation-duration(status,base) ease-out;
   margin-left: auto !important;
-  transform: translate3d(0, 0, 0);
-  transition: transform animation-duration(wallet) ease-out,
-    max-width animation-duration(wallet) ease-out,
-    width animation-duration(wallet) ease-out,
-    height animation-duration(wallet) / 3 ease-out;
+  transition: width animation-duration(status, base) ease-out,
+    height animation-duration(status, base) ease-out;
 
   > div,
   > p {
@@ -148,8 +142,6 @@ $status-bar-padding: 16px;
   }
 
   #wallet:not(.opened) & {
-    width: $wallet-opened-width;
-    width: fit-content;
 
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-width: 0;
@@ -159,7 +151,7 @@ $status-bar-padding: 16px;
   }
 
   .opened & {
-
+    padding: 0 $status-bar-padding;
 
     // transition-timing-function: ease-in, ease-in;
 
@@ -194,7 +186,7 @@ $status-bar-padding: 16px;
   position: relative;
   background-color: #fff;
 
-  transition: opacity animation-duration(wallet) ease-in
+  transition: opacity animation-duration(fade, enter) ease-out animation-duration(status, base);
 }
 
 // useful for transitioning between dialogs
