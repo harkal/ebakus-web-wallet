@@ -11,14 +11,16 @@
     >
       <Status ref="status" @showWallet="showWallet" @hideWallet="hideWallet" />
 
-      <div v-show="isDrawerActive" ref="main" class="main">
-        <component
-          :is="dialog.component"
-          v-if="isDialog && dialog.component"
-          :key="dialog.component"
-        />
-        <router-view v-else key="router" />
-      </div>
+      <transition name="fade-transition" appear>
+        <div v-show="isDrawerActive" ref="main" class="main">
+          <component
+            :is="dialog.component"
+            v-if="isDialog && dialog.component"
+            :key="dialog.component"
+          />
+          <router-view v-else key="router" />
+        </div>
+      </transition>
     </div>
 
     <transition
@@ -128,11 +130,10 @@ export default {
         }
       }
     },
-    balance: function() {
-      nextAnimationFrame(this.hideWalletAnimation)
-    },
-    networkStatus: function() {
-      nextAnimationFrame(this.hideWalletAnimation)
+    balance: function(val, oldVal) {
+      if (oldVal !== '0') {
+        nextAnimationFrame(this.hideWalletAnimation)
+      }
     },
   },
 
@@ -150,9 +151,9 @@ export default {
       SpinnerState.NODE_CONNECT
     )
 
-    checkNodeConnection(true)
-
     nextAnimationFrame(this.hideWalletAnimation)
+
+    checkNodeConnection(true)
 
     setInterval(() => {
       getBalance().catch(() => {}) // just for catching exceptions
@@ -187,20 +188,15 @@ export default {
       const wallet = this.$refs.wallet
       const status = this.$refs.status.$el
       const identiconWidget = this.$refs.status.$refs.identicon.$el
-      const main = this.$refs.main
 
       status.style.width = 0
-
       status.style.height = 'auto'
       const finalStatusHeight = getComputedStyle(status).height
       status.style.height = styleVariables.walletClosedHeight
 
       identiconWidget.style.right = getComputedStyle(identiconWidget).right
 
-      main.style.opacity = 0
-
       getComputedStyle(status).height
-
       nextAnimationFrame(() => {
         wallet.style.height = '100vh'
 
@@ -208,20 +204,24 @@ export default {
         status.style.height = `calc(${finalStatusHeight} + ${styleVariables.walletOpenedMinHeight})`
 
         identiconWidget.style.right = '126.5px'
-
-        main.style.opacity = 1
       })
     },
     hideWalletAnimation: function() {
       const wallet = this.$refs.wallet
       const status = this.$refs.status.$el
       const identiconWidget = this.$refs.status.$refs.identicon.$el
+      const main = this.$refs.main
 
       wallet.style.height = styleVariables.walletClosedHeight
+
+      const mainDisplay = main.style.display
+      main.style.display = 'none'
 
       status.style.width = 'auto'
       const finalWidth = getComputedStyle(status).width
       status.style.width = styleVariables.walletOpenedWidth
+
+      main.style.display = mainDisplay
 
       // Force repaint to make sure the
       // animation is triggered correctly.

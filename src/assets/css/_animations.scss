@@ -37,8 +37,8 @@ $smooth-animation: cubic-bezier(0.17, 0.67, 0.48, 1.28);
   @return $animation-to-ms;
 }
 
-@mixin accelerate($name) {
-  will-change: $name;
+@mixin accelerate($properties...) {
+  will-change: $properties;
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;

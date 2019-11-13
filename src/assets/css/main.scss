@@ -70,8 +70,7 @@ a {
 
 #wallet {
   @include z-index(wallet);
-
-  will-change: height;
+  @include accelerate(height, box-shadow);
 
   position: fixed;
   right: 0;
@@ -81,7 +80,7 @@ a {
 
 
   transition: height animation-duration(wallet) cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    box-shadow animation-duration(wallet) / 2 ease-out;
+    box-shadow animation-duration(wallet) / 4 ease-out;
 
   > div {
     width: 100%;
@@ -106,7 +105,7 @@ a {
     height: 100vh;
 
     transition: height animation-duration(wallet) cubic-bezier(0.25, 0.46, 0.45, 0.94),
-      box-shadow animation-duration(wallet) / 2 ease-out animation-duration(wallet) / 4;
+      box-shadow animation-duration(wallet) / 2 ease-out animation-duration(status, base);
 
     > div {
       width: $wallet-opened-width;
@@ -114,7 +113,7 @@ a {
 
     background: #ffffff;
 
-    box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
+    box-shadow: -2px -20px 14px 0 rgba(0, 0, 0, 0.15);
   }
 }
 
@@ -124,8 +123,8 @@ $status-bar-padding: 16px;
 
 .status-bar {
   @include z-index(status);
+  @include accelerate(width, height);
 
-  will-change: width, height;
 
   min-height: $wallet-closed-height;
 
@@ -142,6 +141,7 @@ $status-bar-padding: 16px;
   }
 
   #wallet:not(.opened) & {
+    width: auto;
 
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-width: 0;
@@ -458,12 +458,13 @@ label {
 
 .fade-transition-enter-active,
 .fade-transition-leave-active {
-  transition: opacity animation-duration(fade, enter) ease-in;
+  transition: opacity animation-duration(fade, enter) ease-in animation-duration(wallet);
 }
 
 .fade-transition-leave-active {
   transition-timing-function: ease-out;
   transition-duration: animation-duration(fade, leave);
+  transition-delay: 0s;
 }
 
 .fade-transition-enter,
