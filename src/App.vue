@@ -6,12 +6,12 @@
       :class="{
         opened: isDrawerActive,
         whitelisted: showWhitelistingTimer,
-        'has-dialog': isDialog,
+        hasDialog: isDialog,
       }"
     >
       <Status ref="status" @showWallet="showWallet" @hideWallet="hideWallet" />
 
-      <transition name="fade-transition" appear>
+      <transition name="fade-drawer-appear-transition">
         <div v-show="isDrawerActive" ref="main" class="main">
           <component
             :is="dialog.component"
@@ -81,6 +81,7 @@ export default {
   },
   data() {
     return {
+      isInitialRender: true,
       resizeFrameTimer: null,
       widthWhileAnimating: null,
     }
@@ -185,41 +186,36 @@ export default {
       nextAnimationFrame(this.hideWalletAnimation)
     },
     showWalletAnimation: function() {
-      const wallet = this.$refs.wallet
       const status = this.$refs.status.$el
       const identiconWidget = this.$refs.status.$refs.identicon.$el
-
       status.style.width = 0
-      status.style.height = 'auto'
-      const finalStatusHeight = getComputedStyle(status).height
-      status.style.height = styleVariables.walletClosedHeight
-
       identiconWidget.style.right = getComputedStyle(identiconWidget).right
 
       getComputedStyle(status).height
       nextAnimationFrame(() => {
-        wallet.style.height = '100vh'
-
         status.style.width = styleVariables.walletOpenedWidth
-        status.style.height = `calc(${finalStatusHeight} + ${styleVariables.walletOpenedMinHeight})`
 
+        identiconWidget.style.left = 'auto'
         identiconWidget.style.right = '126.5px'
       })
     },
     hideWalletAnimation: function() {
-      const wallet = this.$refs.wallet
       const status = this.$refs.status.$el
       const identiconWidget = this.$refs.status.$refs.identicon.$el
       const main = this.$refs.main
-
-      wallet.style.height = styleVariables.walletClosedHeight
 
       const mainDisplay = main.style.display
       main.style.display = 'none'
 
       status.style.width = 'auto'
       const finalWidth = getComputedStyle(status).width
-      status.style.width = styleVariables.walletOpenedWidth
+      if (!this.isInitialRender) {
+        status.style.width = styleVariables.walletOpenedWidth
+      } else {
+        this.isInitialRender = false
+      }
+
+      identiconWidget.style.left = 'auto'
 
       main.style.display = mainDisplay
 
@@ -229,9 +225,7 @@ export default {
 
       nextAnimationFrame(() => {
         status.style.width = finalWidth
-        status.style.height = styleVariables.walletClosedHeight
-
-        identiconWidget.style.right = `calc(${finalWidth} - 33px)` // includes widget size + padding
+        identiconWidget.style.right = `${parseInt(finalWidth, 10) - 33}px` // includes widget size + padding
       })
     },
   },

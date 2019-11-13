@@ -55,13 +55,14 @@ export default {
   position: absolute;
   margin: 0;
   top: 8px;
+  left: 8px;
 
   width: var(--widget-size) !important;
   height: var(--widget-size);
 
   background: transparent;
   border: $widget-border-width solid transparent;
-  border-radius: var(--widget-size);
+  border-radius: $widget-size-opened;
   box-shadow: 0 2px 14px 0 rgba(0, 0, 0, 0.15);
   z-index: 9999;
   pointer-events: initial;
@@ -84,6 +85,7 @@ export default {
     border-radius: 100%;
     box-sizing: border-box;
     opacity: 0;
+    transform: translateZ(0);
     animation: rotation 1s infinite linear;
     // transition: all animation-duration(status, identicon) linear;
   }
@@ -110,7 +112,7 @@ export default {
   .opened & {
     --widget-size: #{$widget-size-opened};
 
-    top: 32px;
+    top: $widget-opened-top;
     background-color: #121212;
     border-color: #fff;
   }
@@ -162,12 +164,23 @@ export default {
   transition: top animation-duration(status, identicon) ease-out,
     height animation-duration(status, identicon) ease-out,
     right animation-duration(status, identicon) ease-out,
-    width animation-duration(status, identicon) ease-out;
+    width animation-duration(status, identicon) ease-out,
+    border animation-duration(status, identicon) ease-out;
+  transition-delay: animation-duration(fade, leave);
+
+  .opened & {
+    transition-delay: 0s;
+  }
 }
 
 .identicon::v-deep > div {
   transition: top animation-duration(status, identicon) ease-out,
     left animation-duration(status, identicon) ease-out,
     transform animation-duration(status, identicon) ease-out;
+  transition-delay: animation-duration(fade, leave);
+
+  .opened & {
+    transition-delay: 0s;
+  }
 }
 </style>

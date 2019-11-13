@@ -79,8 +79,11 @@ a {
   height: auto;
 
 
-  transition: height animation-duration(wallet) cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    box-shadow animation-duration(wallet) / 4 ease-out;
+  // close animation
+  transition: height animation-duration(wallet)
+      cubic-bezier(0.25, 0.46, 0.45, 0.94) animation-duration(fade, leave),
+    box-shadow animation-duration(wallet) / 4 ease-out
+      animation-duration(fade, leave);
 
   > div {
     width: 100%;
@@ -102,10 +105,14 @@ a {
 
   &.opened {
     width: $wallet-opened-width;
-    height: 100vh;
+    height: 105vh;
+    padding-bottom: 5vh;
 
-    transition: height animation-duration(wallet) cubic-bezier(0.25, 0.46, 0.45, 0.94),
-      box-shadow animation-duration(wallet) / 2 ease-out animation-duration(status, base);
+    // open animation
+    transition: height animation-duration(wallet)
+        cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s,
+      box-shadow animation-duration(wallet) / 2 ease-out
+        animation-duration(status, base);
 
     > div {
       width: $wallet-opened-width;
@@ -119,29 +126,27 @@ a {
 
 /* Status bar ______________________________________________________*/
 
-$status-bar-padding: 16px;
-
 .status-bar {
   @include z-index(status);
   @include accelerate(width, height);
 
 
   min-height: $wallet-closed-height;
+  height: $wallet-closed-height;
 
   background-color: rgb(10, 17, 31);
 
   padding-left: $widget-size-base + 8px;
   margin-left: auto !important;
-  transition: width animation-duration(status, base) ease-out,
-    height animation-duration(status, base) ease-out;
+  // close animation
+  transition: width animation-duration(status, base) ease-out
+      animation-duration(fade, leave),
+    height animation-duration(status, base) ease-out
+      animation-duration(fade, leave);
 
-  > div,
-  > p {
-    margin: 0 8px;
-  }
 
   #wallet:not(.opened) & {
-    width: auto;
+    width: fit-content;
 
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-width: 0;
@@ -151,28 +156,14 @@ $status-bar-padding: 16px;
   }
 
   .opened & {
-    padding: 0 $status-bar-padding;
-
+    padding: 0;
+    overflow: hidden;
     // transition-timing-function: ease-in, ease-in;
 
-    @at-root .opened.has-dialog .status-bar {
-      height: auto;
-    }
+    // open animation
+    transition: width animation-duration(status, base) ease-out 0s,
+      height animation-duration(status, base) ease-out 0s;
 
-    > div,
-    > p {
-      margin: 8px auto;
-
-      width: 100%;
-    }
-
-    .navigation {
-      margin-top: $status-bar-padding;
-      margin-right: -$status-bar-padding;
-      margin-bottom: 0;
-      margin-left: -$status-bar-padding;
-      width: calc(100% + #{$status-bar-padding * 2});
-    }
   }
 
   .whitelisted:not(.opened) & {
@@ -186,7 +177,6 @@ $status-bar-padding: 16px;
   position: relative;
   background-color: #fff;
 
-  transition: opacity animation-duration(fade, enter) ease-out animation-duration(status, base);
 }
 
 // useful for transitioning between dialogs
@@ -457,19 +447,34 @@ label {
 }
 
 .fade-transition-enter-active,
-.fade-transition-leave-active {
-  transition: opacity animation-duration(fade, enter) ease-in animation-duration(wallet);
+.fade-transition-leave-active,
+.fade-drawer-appear-transition-enter-active,
+.fade-drawer-appear-transition-leave-active {
+  transition: opacity animation-duration(fade, enter) ease-in;
 }
 
-.fade-transition-leave-active {
+.fade-transition-leave-active,
+.fade-drawer-appear-transition-leave-active {
   transition-timing-function: ease-out;
   transition-duration: animation-duration(fade, leave);
   transition-delay: 0s;
 }
 
 .fade-transition-enter,
-.fade-transition-leave-to {
+.fade-drawer-appear-transition-enter,
+.fade-transition-leave-to,
+.fade-drawer-appear-transition-leave-to {
   opacity: 0;
+}
+
+.fade-drawer-appear-transition-enter-active,
+.fade-drawer-appear-transition-leave-active {
+  transition-delay: animation-duration(wallet);
+}
+
+.fade-drawer-appear-transition-leave-active {
+  transition-duration: animation-duration(fade, leave);
+  transition-delay: 0s;
 }
 
 .whitelist-transition-enter-to,

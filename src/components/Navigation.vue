@@ -26,11 +26,26 @@ export default {
 @import '../assets/css/_variables.scss';
 
 .navigation {
-  list-style: none;
+  position: absolute;
+  right: 0;
   width: $wallet-opened-width;
+  height: $status-navigation-height;
+  margin: 0;
+  padding: 5px 9px;
+
+  list-style: none;
   background: #161d2a;
   color: #bababa;
-  padding: 5px 9px;
+
+  .hasBalance & {
+    top: $widget-opened-top + $widget-size-opened + $status-bar-padding +
+      $status-balance-height + $status-bar-padding;
+  }
+
+  .hasTitle & {
+    top: $widget-opened-top + $widget-size-opened + $status-bar-padding +
+      $status-title-height + $status-bar-padding;
+  }
 
   li {
     position: relative;
