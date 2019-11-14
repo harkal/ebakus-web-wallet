@@ -161,6 +161,11 @@ export default {
     }, 1000)
 
     this.loadWalletState()
+
+    const self = this
+    this.$root.$on('restyleClosedWallet', () =>
+      nextAnimationFrame(self.hideWalletAnimation)
+    )
   },
   methods: {
     loadWalletState: function() {

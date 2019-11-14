@@ -168,6 +168,7 @@ a {
 
   .whitelisted:not(.opened) & {
     min-height: 74px;
+    height: auto;
     padding: 12px 16px;
   }
 }
