@@ -1,7 +1,10 @@
 $animation-speed-fraction: 1;
 
 $animation-duration: (
-  overlay: 700 * $animation-speed-fraction,
+  overlay: (
+    enter: 200 * $animation-speed-fraction,
+    leave: 100 * $animation-speed-fraction,
+  ),
   wallet: 300 * $animation-speed-fraction,
   status: (
     base: 150 * $animation-speed-fraction,
@@ -9,7 +12,7 @@ $animation-duration: (
       enter: 300 * $animation-speed-fraction,
       leave: 100 * $animation-speed-fraction,
     ),
-    identicon: 200 * $animation-speed-fraction,
+    identicon: 150 * $animation-speed-fraction,
     whitelist: 400 * $animation-speed-fraction,
   ),
   main: 400 * $animation-speed-fraction,
@@ -45,7 +48,7 @@ $smooth-animation: cubic-bezier(0.17, 0.67, 0.48, 1.28);
 }
 
 :export {
-  animationOverlay: map-deep-get($animation-duration, overlay);
+  animationOverlay: map-deep-get($animation-duration, overlay, enter);
   animationWallet: map-deep-get($animation-duration, wallet);
   animationStatusButtonsEnter: map-deep-get(
     $animation-duration,

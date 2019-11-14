@@ -10,7 +10,7 @@
     @click="!isDrawerActive && !showWhitelistingTimer && showWallet()"
   >
     <identicon
-      v-if="isDrawerActive || (!isDrawerActive && !showWhitelistingTimer)"
+      v-show="isDrawerActive || (!isDrawerActive && !showWhitelistingTimer)"
       key="identicon"
       ref="identicon"
       :public-key="publicAddress"
@@ -182,7 +182,6 @@ import {
   loadedInIframe,
   shrinkFrameInParentWindow,
   expandFrameInParentWindow,
-  resizeFrameWidthInParentWindow,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 
 import Identicon from '@/components/Identicon'
@@ -263,7 +262,7 @@ export default {
     },
   },
   watch: {
-    spinnerState: function(val, oldVal) {
+    spinnerState: async function(val, oldVal) {
       if (val !== oldVal) {
         if (
           [
@@ -279,30 +278,9 @@ export default {
           }, 800)
         }
 
-        if (!this.isDrawerActive) {
-          if (loadedInIframe()) {
-            if ([SpinnerState.CANCEL, SpinnerState.SUCCESS].includes(val)) {
-              clearTimeout(this.resizeFrameTimer)
-              this.resizeFrameTimer = setTimeout(() => {
-                resizeFrameWidthInParentWindow(
-                  this.$refs.statusBar.clientWidth + 2
-                )
-              }, 800)
-            }
-          }
+        if (!this.isDrawerActive && loadedInIframe()) {
+          this.$root.$emit('restyleWallet')
         }
-      }
-    },
-    isDrawerActive: function(val, oldVal) {
-      if (val !== oldVal && val == false) {
-        resizeFrameWidthInParentWindow(400, 120)
-        clearTimeout(this.resizeFrameTimer)
-        this.resizeFrameTimer = setTimeout(() => {
-          resizeFrameWidthInParentWindow(
-            this.$refs.statusBar.clientWidth + 2,
-            this.$refs.statusBar.clientHeight + 2
-          )
-        }, 800)
       }
     },
   },

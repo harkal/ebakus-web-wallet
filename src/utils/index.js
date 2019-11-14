@@ -8,4 +8,18 @@ const nextAnimationFrame =
     window.setTimeout(cb, 1000 / 60)
   }
 
-export { nextAnimationFrame }
+const cancelAnimationFrame =
+  window.cancelAnimationFrame ||
+  window.webkitCancelRequestAnimationFrame ||
+  window.webkitCancelAnimationFrame ||
+  window.mozCancelRequestAnimationFrame ||
+  window.mozCancelAnimationFrame ||
+  window.oCancelRequestAnimationFrame ||
+  window.oCancelAnimationFrame ||
+  window.msCancelRequestAnimationFrame ||
+  window.msCancelAnimationFrame ||
+  function(cb) {
+    window.setTimeout(cb, 1000 / 60)
+  }
+
+export { nextAnimationFrame, cancelAnimationFrame }

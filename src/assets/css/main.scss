@@ -193,8 +193,6 @@ a {
 }
 
 .overlay {
-  display: none;
-
   &.red,
   &.black {
     display: block;
@@ -501,16 +499,17 @@ label {
 
 .overlay-transition-enter-active,
 .overlay-transition-leave-active {
-  transition: opacity animation-duration(overlay) ease-in;
+  transition: opacity animation-duration(overlay, enter) ease-in animation-duration(wallet);
 }
 
 .overlay-transition-leave-active {
   transition-timing-function: ease-out;
+  transition-duration: 0;
 }
 
 .overlay-transition-enter,
 .overlay-transition-leave-to {
-  opacity: 0;
+  opacity: 0 !important;
 }
 
 @keyframes contentGrowAnimation {

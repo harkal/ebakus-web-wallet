@@ -124,7 +124,6 @@ const cancelPendingTx = () => {
 
     if (!store.state.ui.isDrawerActiveByUser) {
       store.commit(MutationTypes.DEACTIVATE_DRAWER)
-      shrinkFrameInParentWindow()
     }
   }
 

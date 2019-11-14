@@ -166,7 +166,6 @@ export default {
     right animation-duration(status, identicon) ease-out,
     width animation-duration(status, identicon) ease-out,
     border animation-duration(status, identicon) ease-out;
-  transition-delay: animation-duration(fade, leave);
 
   .opened & {
     transition-delay: 0s;
@@ -177,7 +176,6 @@ export default {
   transition: top animation-duration(status, identicon) ease-out,
     left animation-duration(status, identicon) ease-out,
     transform animation-duration(status, identicon) ease-out;
-  transition-delay: animation-duration(fade, leave);
 
   .opened & {
     transition-delay: 0s;

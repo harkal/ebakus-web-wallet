@@ -50,18 +50,23 @@ export default {
     this.$store.commit(MutationTypes.SET_OVERLAY_COLOR, 'black')
   },
   beforeDestroy() {
-    this.$store.commit(MutationTypes.CLEAR_DIALOG)
     this.$store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
   },
   methods: {
-    whitelistNewDapp: function() {
-      whitelistNewDappFunc()
-
-      exitDialog()
+    redirectBack: function() {
       const redirectFrom = this.$route.query.redirectFrom || RouteNames.HOME
       this.$router.push({ name: redirectFrom }, () => {})
     },
-    cancelWhitelistDapp: () => cancelWhitelistDappFunc(),
+    whitelistNewDapp: function() {
+      whitelistNewDappFunc()
+
+      this.redirectBack()
+      exitDialog()
+    },
+    cancelWhitelistDapp: function() {
+      this.redirectBack()
+      cancelWhitelistDappFunc()
+    },
   },
 }
 </script>

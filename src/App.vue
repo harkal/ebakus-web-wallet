@@ -9,7 +9,11 @@
         hasDialog: isDialog,
       }"
     >
-      <Status ref="status" @showWallet="showWallet" @hideWallet="hideWallet" />
+      <Status
+        ref="status"
+        @showWallet="showWallet"
+        @hideWallet="hideWalletUserTriggered"
+      />
 
       <transition name="fade-drawer-appear-transition">
         <div v-show="isDrawerActive" ref="main" class="main">
@@ -23,13 +27,9 @@
       </transition>
     </div>
 
-    <transition
-      name="overlay-transition"
-      :duration="styles.animationOverlay"
-      appear
-    >
+    <transition name="overlay-transition" appear>
       <div
-        v-if="overlayColor !== ''"
+        v-if="overlayColor && overlayColor !== ''"
         class="overlay"
         :class="{
           black: overlayColor == 'black',
@@ -82,6 +82,7 @@ export default {
   data() {
     return {
       isInitialRender: true,
+      userTriggeredAnimatingHideWallet: false,
       resizeFrameTimer: null,
       widthWhileAnimating: null,
     }
@@ -118,6 +119,7 @@ export default {
             this.loadWalletState()
           }
         }
+        this.restyleWallet()
       }
     },
     overlayColor: function(val, oldVal) {
@@ -126,13 +128,15 @@ export default {
           if (val) {
             expandOverlayFrameInParentWindow()
           } else {
-            shrinkOverlayFrameInParentWindow()
+            setTimeout(function() {
+              shrinkOverlayFrameInParentWindow()
+            }, styleAnimationVariables.animationOverlay)
           }
         }
       }
     },
     balance: function(val, oldVal) {
-      if (oldVal !== '0') {
+      if (!this.isDrawerActive && (val !== oldVal || oldVal !== '0')) {
         nextAnimationFrame(this.hideWalletAnimation)
       }
     },
@@ -162,12 +166,18 @@ export default {
 
     this.loadWalletState()
 
-    const self = this
-    this.$root.$on('restyleClosedWallet', () =>
-      nextAnimationFrame(self.hideWalletAnimation)
-    )
+    this.$root.$on('restyleWallet', this.restyleWallet)
   },
   methods: {
+    restyleWallet: async function() {
+      if (this.isDrawerActive) {
+        nextAnimationFrame(this.showWalletAnimation)
+      } else {
+        nextAnimationFrame(() => {
+          this.hideWalletAnimation()
+        })
+      }
+    },
     loadWalletState: function() {
       if (this.publicAddress !== null && !this.isLocked) {
         console.log('Wallet Loaded')
@@ -187,40 +197,62 @@ export default {
     showWallet: function() {
       nextAnimationFrame(this.showWalletAnimation)
     },
-    hideWallet: function() {
+    hideWalletUserTriggered: function() {
+      this.userTriggeredAnimatingHideWallet = true
       nextAnimationFrame(this.hideWalletAnimation)
     },
     showWalletAnimation: function() {
       const status = this.$refs.status.$el
-      const identiconWidget = this.$refs.status.$refs.identicon.$el
+      let identiconWidget
+      if (this.$refs.status.$refs.identicon) {
+        identiconWidget = this.$refs.status.$refs.identicon.$el
+      }
+
       status.style.width = 0
-      identiconWidget.style.right = getComputedStyle(identiconWidget).right
+      if (identiconWidget) {
+        identiconWidget.style.right = getComputedStyle(identiconWidget).right
+      }
 
       getComputedStyle(status).height
       nextAnimationFrame(() => {
         status.style.width = styleVariables.walletOpenedWidth
 
-        identiconWidget.style.left = 'auto'
-        identiconWidget.style.right = '126.5px'
+        if (identiconWidget) {
+          identiconWidget.style.left = 'auto'
+          identiconWidget.style.right = '126.5px'
+        }
       })
     },
     hideWalletAnimation: function() {
-      const status = this.$refs.status.$el
-      const identiconWidget = this.$refs.status.$refs.identicon.$el
+      let status, finalStatusWidth
+      if (this.$refs.status) {
+        status = this.$refs.status.$el
+      }
+      let identiconWidget
+      if (this.$refs.status.$refs.identicon) {
+        identiconWidget = this.$refs.status.$refs.identicon.$el
+      }
       const main = this.$refs.main
 
       const mainDisplay = main.style.display
       main.style.display = 'none'
 
-      status.style.width = 'auto'
-      const finalWidth = getComputedStyle(status).width
-      if (!this.isInitialRender) {
-        status.style.width = styleVariables.walletOpenedWidth
-      } else {
+      if (status) {
+        status.style.height = null // clears height from whitelisting status bar
+        status.style.width = 'auto'
+        finalStatusWidth = getComputedStyle(status).width
+
+        if (!this.isInitialRender && this.userTriggeredAnimatingHideWallet) {
+          status.style.width = styleVariables.walletOpenedWidth
+        }
+
         this.isInitialRender = false
+        this.userTriggeredAnimatingHideWallet = false
       }
 
-      identiconWidget.style.left = 'auto'
+      if (identiconWidget) {
+        identiconWidget.style.left = 'auto'
+      }
 
       main.style.display = mainDisplay
 
@@ -229,8 +261,14 @@ export default {
       getComputedStyle(status).width
 
       nextAnimationFrame(() => {
-        status.style.width = finalWidth
-        identiconWidget.style.right = `${parseInt(finalWidth, 10) - 33}px` // includes widget size + padding
+        if (status) {
+          status.style.width = finalStatusWidth
+        }
+
+        if (identiconWidget && finalStatusWidth) {
+          identiconWidget.style.right = `${parseInt(finalStatusWidth, 10) -
+            33}px` // includes widget size + padding
+        }
       })
     },
   },
