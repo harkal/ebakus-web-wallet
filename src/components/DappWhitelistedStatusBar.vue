@@ -120,7 +120,6 @@ export default {
       } else {
         this.stopCountdown()
         calcWorkAndSendTx(this.tx)
-        this.$root.$emit('restyleWallet')
       }
     },
     stopCountdown() {
@@ -147,8 +146,6 @@ export default {
       })
 
       activateDrawerIfClosed()
-
-      this.$root.$emit('restyleWallet')
     },
     animateWhitelisting: async function() {
       if (!this.isDrawerActive) {
@@ -156,16 +153,18 @@ export default {
 
         await resizeFrameWidthInParentWindow(400, 120)
 
-        status.style.width = null
-        status.style.height = null
-        const finalWidth = getComputedStyle(status).width
-        const finalHeight = getComputedStyle(status).height
-
-        resizeFrameWidthInParentWindow(finalWidth, finalHeight)
-
         nextAnimationFrame(() => {
-          status.style.width = finalWidth
-          status.style.height = finalHeight
+          status.style.width = null
+          status.style.height = null
+          const finalWidth = getComputedStyle(status).width
+          const finalHeight = getComputedStyle(status).height
+
+          resizeFrameWidthInParentWindow(finalWidth, finalHeight)
+
+          nextAnimationFrame(() => {
+            status.style.width = finalWidth
+            status.style.height = finalHeight
+          })
         })
       }
     },

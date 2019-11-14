@@ -108,37 +108,17 @@
       </div>
     </transition>
 
-    <!-- <transition
-      name="fade-transition"
-      :duration="{
-        enter: styles.animationFadeEnter,
-        leave: 0,
-      }"
-    > -->
     <transition name="fade-transition" appear>
       <p v-if="hasTitle" key="title" class="title">
         {{ dialog.title }}
       </p>
     </transition>
 
-    <!-- <transition
-      name="fade-transition"
-      :duration="{
-        enter: styles.animationFadeEnter,
-        leave: 0,
-      }"
-    > -->
     <transition name="fade-transition" appear>
       <Navigation v-if="hasNavigation" key="navigation" />
     </transition>
 
-    <!-- <transition
-      name="whitelist-transition"
-      :duration="{ enter: styles.animationStatusWhitelist, leave: 0 }"
-      appear
-    > -->
     <DappWhitelistedStatusBar v-if="showWhitelistingTimer" key="whitelist" />
-    <!-- </transition> -->
 
     <transition name="fade-drawer-appear-transition" appear>
       <div v-if="isDrawerActive" key="buttons" class="buttons">
@@ -199,11 +179,6 @@ const ButtonStates = {
 
 export default {
   components: { Identicon, Navigation, DappWhitelistedStatusBar },
-  data() {
-    return {
-      resizeFrameTimer: null,
-    }
-  },
   computed: {
     ...mapState({
       isDrawerActive: state => state.ui.isDrawerActive,
@@ -277,10 +252,6 @@ export default {
             )
           }, 800)
         }
-
-        if (!this.isDrawerActive && loadedInIframe()) {
-          this.$root.$emit('restyleWallet')
-        }
       }
     },
   },
@@ -292,10 +263,6 @@ export default {
   },
   methods: {
     showWallet: function() {
-      this.$emit('showWallet')
-
-      clearTimeout(this.resizeFrameTimer)
-
       if (loadedInIframe()) {
         expandFrameInParentWindow()
       }
@@ -303,9 +270,9 @@ export default {
       this.$store.commit(MutationTypes.ACTIVATE_DRAWER, true)
     },
     hideWallet: function() {
-      this.$emit('hideWallet')
-
+      this.$emit('hideWallet') // IMPORTANT: call before DEACTIVATE_DRAWER
       this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
+      this.$store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
 
       if (loadedInIframe()) {
         shrinkFrameInParentWindow()
@@ -442,6 +409,26 @@ export default {
 
 .btn-circle {
   position: absolute;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #333333;
+  background-repeat: no-repeat;
+  border-radius: 100%;
+  margin: 18px;
+  background-position: center;
+
+  &.exit {
+    background-image: url(../assets/img/ic_exit.png);
+    background-size: 11px;
+  }
+  &.close {
+    background-image: url(../assets/img/ic_close.png);
+    background-size: 6px 11px;
+  }
+  &.settings {
+    background-image: url(../assets/img/ic_settings.png);
+    background-size: 18px;
+  }
 
   &.settings,
   &.exit {

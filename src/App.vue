@@ -9,11 +9,7 @@
         hasDialog: isDialog,
       }"
     >
-      <Status
-        ref="status"
-        @showWallet="showWallet"
-        @hideWallet="hideWalletUserTriggered"
-      />
+      <Status ref="status" @hideWallet="hideWalletUserTriggered" />
 
       <transition name="fade-drawer-appear-transition">
         <div v-show="isDrawerActive" ref="main" class="main">
@@ -83,8 +79,7 @@ export default {
     return {
       isInitialRender: true,
       userTriggeredAnimatingHideWallet: false,
-      resizeFrameTimer: null,
-      widthWhileAnimating: null,
+      isAnimating: false,
     }
   },
   computed: {
@@ -119,6 +114,11 @@ export default {
             this.loadWalletState()
           }
         }
+        this.restyleWallet()
+      }
+    },
+    spinnerState: async function(val, oldVal) {
+      if (val !== oldVal && !this.isDrawerActive && loadedInIframe()) {
         this.restyleWallet()
       }
     },
@@ -194,17 +194,23 @@ export default {
       const vh = window.innerHeight * 0.01
       document.documentElement.style.setProperty('--vh', `${vh}px`)
     },
-    showWallet: function() {
-      nextAnimationFrame(this.showWalletAnimation)
-    },
     hideWalletUserTriggered: function() {
       this.userTriggeredAnimatingHideWallet = true
-      nextAnimationFrame(this.hideWalletAnimation)
     },
     showWalletAnimation: function() {
+      const self = this
+      if (this.isAnimating) {
+        return
+      }
+      this.isAnimating = true
+
       const status = this.$refs.status.$el
       let identiconWidget
-      if (this.$refs.status.$refs.identicon) {
+      if (
+        this.$refs.status.$refs.identicon &&
+        // check if element is visible
+        this.$refs.status.$refs.identicon.$el.offsetParent !== null
+      ) {
         identiconWidget = this.$refs.status.$refs.identicon.$el
       }
 
@@ -213,7 +219,6 @@ export default {
         identiconWidget.style.right = getComputedStyle(identiconWidget).right
       }
 
-      getComputedStyle(status).height
       nextAnimationFrame(() => {
         status.style.width = styleVariables.walletOpenedWidth
 
@@ -221,15 +226,26 @@ export default {
           identiconWidget.style.left = 'auto'
           identiconWidget.style.right = '126.5px'
         }
+
+        self.isAnimating = false
       })
     },
     hideWalletAnimation: function() {
-      let status, finalStatusWidth
+      const self = this
+      if (this.isAnimating) {
+        return
+      }
+      this.isAnimating = true
+
+      let status, finalStatusWidth, identiconWidget
       if (this.$refs.status) {
         status = this.$refs.status.$el
       }
-      let identiconWidget
-      if (this.$refs.status.$refs.identicon) {
+      if (
+        this.$refs.status.$refs.identicon &&
+        // check if element is visible
+        this.$refs.status.$refs.identicon.$el.offsetParent !== null
+      ) {
         identiconWidget = this.$refs.status.$refs.identicon.$el
       }
       const main = this.$refs.main
@@ -239,11 +255,15 @@ export default {
 
       if (status) {
         status.style.height = null // clears height from whitelisting status bar
+
+        const previousStatusWidth = getComputedStyle(status).width
         status.style.width = 'auto'
         finalStatusWidth = getComputedStyle(status).width
 
         if (!this.isInitialRender && this.userTriggeredAnimatingHideWallet) {
           status.style.width = styleVariables.walletOpenedWidth
+        } else {
+          status.style.width = previousStatusWidth
         }
 
         this.isInitialRender = false
@@ -256,10 +276,6 @@ export default {
 
       main.style.display = mainDisplay
 
-      // Force repaint to make sure the
-      // animation is triggered correctly.
-      getComputedStyle(status).width
-
       nextAnimationFrame(() => {
         if (status) {
           status.style.width = finalStatusWidth
@@ -269,6 +285,7 @@ export default {
           identiconWidget.style.right = `${parseInt(finalStatusWidth, 10) -
             33}px` // includes widget size + padding
         }
+        self.isAnimating = false
       })
     },
   },

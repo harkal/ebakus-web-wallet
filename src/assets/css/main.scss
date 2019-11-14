@@ -238,31 +238,6 @@ a {
   padding-top: 25px;
 }
 
-/* circular button ______________________________________________________*/
-
-.btn-circle {
-  width: 34px;
-  height: 34px;
-  border: 1px solid #333333;
-  background-repeat: no-repeat;
-  border-radius: 100%;
-  margin: 18px;
-  background-position: center;
-
-  &.exit {
-    background-image: url(../img/ic_exit.png);
-    background-size: 11px;
-  }
-  &.close {
-    background-image: url(../img/ic_close.png);
-    background-size: 6px 11px;
-  }
-  &.settings {
-    background-image: url(../img/ic_settings.png);
-    background-size: 18px;
-  }
-}
-
 /* buttons ____________________________________________________*/
 button {
   display: inline-block;
@@ -431,20 +406,6 @@ label {
   }
 }
 
-.status-buttons-transition-enter-active,
-.status-buttons-transition-leave-active {
-  transition: opacity animation-duration(status, buttons, enter) ease-in;
-}
-
-.status-buttons-transition-leave-active {
-  transition-duration: animation-duration(status, buttons, leave);
-}
-
-.status-buttons-transition-enter,
-.status-buttons-transition-leave-to {
-  opacity: 0;
-}
-
 .fade-transition-enter-active,
 .fade-transition-leave-active,
 .fade-drawer-appear-transition-enter-active,
@@ -474,27 +435,6 @@ label {
 .fade-drawer-appear-transition-leave-active {
   transition-duration: animation-duration(fade, leave);
   transition-delay: 0s;
-}
-
-.whitelist-transition-enter-to,
-.whitelist-transition-leave {
-  transform: translate3d(0, 0, 0);
-}
-
-.whitelist-transition-enter,
-.whitelist-transition-leave-to {
-  transform: translate3d(100%, 0, 0);
-  opacity: 0;
-}
-
-.whitelist-transition-enter-active,
-.whitelist-transition-leave-active {
-  position: relative;
-  transition: all animation-duration(status, whitelist) ease-in;
-}
-
-.whitelist-transition-leave-active {
-  transition-timing-function: ease-out;
 }
 
 .overlay-transition-enter-active,
