@@ -63,8 +63,10 @@ export default {
   },
   data() {
     return {
-      timer: null,
       remainingTime: 0,
+      progressWidth: 100,
+      countdownAnimationFrameStartTime: null,
+      countdownAnimationFrame: null,
       preTitle: '',
       amountTitle: '',
       emTitle: '',
@@ -88,8 +90,7 @@ export default {
     },
   },
   beforeDestroy() {
-    clearInterval(this.timer)
-    this.$root.$emit('restyleClosedWallet')
+    this.stopCountdown()
   },
   beforeMount() {
     this.remainingTime = this.getTimer
@@ -101,32 +102,42 @@ export default {
       await this.getTxInfo()
 
       nextAnimationFrame(this.animateWhitelisting)
-      this.countdown()
+      this.countdownAnimationFrame = nextAnimationFrame(this.countdown)
     }
   },
   methods: {
-    countdown() {
-      setTimeout(() => {
-        this.remainingTime -= 1000
-      }, 100)
+    countdown(timestamp) {
+      if (!this.countdownAnimationFrameStartTime) {
+        this.countdownAnimationFrameStartTime = timestamp
+      }
 
-      const self = this
-      this.timer = setInterval(() => {
-        if (self.remainingTime <= 0) {
-          clearInterval(self.timer)
-          calcWorkAndSendTx(self.tx)
-        }
-        self.remainingTime -= 1000
-      }, 1000)
+      let diff = timestamp - this.countdownAnimationFrameStartTime
+      this.countdownAnimationFrameStartTime = timestamp
+      this.remainingTime -= diff
+
+      if (this.remainingTime > 0) {
+        this.countdownAnimationFrame = nextAnimationFrame(this.countdown)
+      } else {
+        this.stopCountdown()
+        calcWorkAndSendTx(this.tx)
+        this.$root.$emit('restyleWallet')
+      }
+    },
+    stopCountdown() {
+      if (this.countdownAnimationFrame) {
+        cancelAnimationFrame(this.countdownAnimationFrame)
+        this.countdownAnimationFrameStartTime = null
+        this.countdownAnimationFrame = null
+      }
     },
     pause() {
-      clearInterval(this.timer)
+      this.stopCountdown()
     },
     unpause() {
-      this.countdown()
+      this.countdownAnimationFrame = nextAnimationFrame(this.countdown)
     },
     cancel() {
-      clearInterval(this.timer)
+      this.stopCountdown()
       this.$store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.NONE)
       removeDappFromWhitelist()
 
@@ -136,23 +147,27 @@ export default {
       })
 
       activateDrawerIfClosed()
+
+      this.$root.$emit('restyleWallet')
     },
     animateWhitelisting: async function() {
-      const status = this.$root.$children[0].$children[0].$el
+      if (!this.isDrawerActive) {
+        const status = this.$root.$children[0].$children[0].$el
 
-      await resizeFrameWidthInParentWindow(400, 120)
+        await resizeFrameWidthInParentWindow(400, 120)
 
-      status.style.width = null
-      status.style.height = null
-      const finalWidth = getComputedStyle(status).width
-      const finalHeight = getComputedStyle(status).height
+        status.style.width = null
+        status.style.height = null
+        const finalWidth = getComputedStyle(status).width
+        const finalHeight = getComputedStyle(status).height
 
-      resizeFrameWidthInParentWindow(finalWidth, finalHeight)
+        resizeFrameWidthInParentWindow(finalWidth, finalHeight)
 
-      nextAnimationFrame(() => {
-        status.style.width = finalWidth
-        status.style.height = finalHeight
-      })
+        nextAnimationFrame(() => {
+          status.style.width = finalWidth
+          status.style.height = finalHeight
+        })
+      }
     },
     async getTxInfo() {
       const tx = this.tx
@@ -309,8 +324,6 @@ h3 {
 
   .state {
     background: rgba(255, 255, 255, 0.3);
-    transition: 1s linear;
-    transition-property: width, background-color;
   }
 }
 
