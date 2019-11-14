@@ -126,52 +126,6 @@ a {
 
 /* Status bar ______________________________________________________*/
 
-.status-bar {
-  @include z-index(status);
-  @include accelerate(width, height);
-
-
-  min-height: $wallet-closed-height;
-  height: $wallet-closed-height;
-
-  background-color: rgb(10, 17, 31);
-
-  padding-left: $widget-size-base + 8px;
-  margin-left: auto !important;
-  // close animation
-  transition: width animation-duration(status, base) ease-out
-      animation-duration(fade, leave),
-    height animation-duration(status, base) ease-out
-      animation-duration(fade, leave);
-
-
-  #wallet:not(.opened) & {
-    width: fit-content;
-
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-width: 0;
-    border-right-width: 0;
-    border-bottom-left-radius: 5px;
-    box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
-  }
-
-  .opened & {
-    padding: 0;
-    overflow: hidden;
-    // transition-timing-function: ease-in, ease-in;
-
-    // open animation
-    transition: width animation-duration(status, base) ease-out 0s,
-      height animation-duration(status, base) ease-out 0s;
-
-  }
-
-  .whitelisted:not(.opened) & {
-    min-height: 74px;
-    height: auto;
-    padding: 12px 16px;
-  }
-}
 
 .main {
   @include z-index(main);
