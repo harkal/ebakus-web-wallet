@@ -2,6 +2,8 @@ import { SpinnerState } from '@/constants'
 
 import store from '@/store'
 
+import { nextAnimationFrame } from '@/utils'
+
 import {
   externalFrameHandler,
   externalPassiveFrameHandler,
@@ -198,8 +200,20 @@ const shrinkFrameInParentWindow = () => {
     resizeFrameWidthInParentWindow(400)
   }
 }
-const resizeFrameWidthInParentWindow = (width, height = 60) =>
+const resizeFrameWidthInParentWindow = async (width, height = 60) => {
   postMessage({ cmd: 'resize', width, height })
+
+  return new Promise(resolve => {
+    const checkSize = function() {
+      if (width > window.innerWidth || height > window.innerHeight) {
+        nextAnimationFrame(checkSize)
+      } else {
+        resolve()
+      }
+    }
+    checkSize()
+  })
+}
 const expandOverlayFrameInParentWindow = () =>
   postMessage({ cmd: 'withOverlay' })
 const shrinkOverlayFrameInParentWindow = () =>
