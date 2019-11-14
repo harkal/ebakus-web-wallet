@@ -288,18 +288,6 @@ export default {
                   this.$refs.statusBar.clientWidth + 2
                 )
               }, 800)
-            } else if (
-              [SpinnerState.TRANSACTION_WHITELISTED_TIMER].includes(val)
-            ) {
-              resizeFrameWidthInParentWindow(400, 120)
-
-              clearTimeout(this.resizeFrameTimer)
-              this.resizeFrameTimer = setTimeout(() => {
-                resizeFrameWidthInParentWindow(
-                  this.$refs.statusBar.clientWidth + 2,
-                  this.$refs.statusBar.clientHeight + 2
-                )
-              }, 800)
             }
           }
         }

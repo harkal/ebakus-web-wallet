@@ -16,7 +16,7 @@
         <span v-if="postTitle != ''"> {{ postTitle }}</span>
       </h2>
       <h3>
-        {{ to }}
+        {{ to | lowercase }}
       </h3>
 
       <div class="progress-bar">
@@ -51,8 +51,16 @@ import {
 import MutationTypes from '@/store/mutation-types'
 
 import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
+import { resizeFrameWidthInParentWindow } from '@/parentFrameMessenger/parentFrameMessenger'
+
+import { nextAnimationFrame } from '@/utils'
 
 export default {
+  filters: {
+    lowercase: function(val) {
+      return typeof val === 'string' ? val.toLowerCase() : val
+    },
+  },
   data() {
     return {
       timer: null,
@@ -81,15 +89,18 @@ export default {
   },
   beforeDestroy() {
     clearInterval(this.timer)
+    this.$root.$emit('restyleClosedWallet')
   },
   beforeMount() {
     this.remainingTime = this.getTimer
   },
-  mounted() {
+  async mounted() {
     if (!checkIfEnoughBalance()) {
       activateDrawerIfClosed()
     } else {
-      this.getTxInfo()
+      await this.getTxInfo()
+
+      nextAnimationFrame(this.animateWhitelisting)
       this.countdown()
     }
   },
@@ -125,6 +136,23 @@ export default {
       })
 
       activateDrawerIfClosed()
+    },
+    animateWhitelisting: async function() {
+      const status = this.$root.$children[0].$children[0].$el
+
+      await resizeFrameWidthInParentWindow(400, 120)
+
+      status.style.width = null
+      status.style.height = null
+      const finalWidth = getComputedStyle(status).width
+      const finalHeight = getComputedStyle(status).height
+
+      resizeFrameWidthInParentWindow(finalWidth, finalHeight)
+
+      nextAnimationFrame(() => {
+        status.style.width = finalWidth
+        status.style.height = finalHeight
+      })
     },
     async getTxInfo() {
       const tx = this.tx
@@ -185,7 +213,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '../assets/css/_variables.scss';
+@import '../assets/css/_variables';
 
 .status-bar-whitelisted {
   display: flex;
@@ -225,6 +253,7 @@ export default {
   flex: 1 1 auto;
   align-self: auto;
   margin-right: 16px;
+  max-width: 262px;
 }
 
 h2,
@@ -293,6 +322,7 @@ h3 {
   .info {
     flex-basis: 100%;
     margin-right: 0;
+    max-width: auto;
   }
 
   button {
