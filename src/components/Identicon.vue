@@ -181,4 +181,13 @@ export default {
     transition-delay: 0s;
   }
 }
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
 </style>

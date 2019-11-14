@@ -68,105 +68,7 @@ a {
   font-weight: 400;
 }
 
-#wallet {
-  @include z-index(wallet);
-  @include accelerate(height, box-shadow);
-
-  position: fixed;
-  right: 0;
-
-  width: auto;
-  height: auto;
-
-
-  // close animation
-  transition: height animation-duration(wallet)
-      cubic-bezier(0.25, 0.46, 0.45, 0.94) animation-duration(fade, leave),
-    box-shadow animation-duration(wallet) / 4 ease-out
-      animation-duration(fade, leave);
-
-  > div {
-    width: 100%;
-    margin: 0;
-  }
-
-  &:not(.opened) {
-    max-width: $wallet-opened-width;
-    border-bottom-left-radius: 5px;
-
-    &:not(.whitelisted) {
-      cursor: pointer;
-    }
-  }
-
-  &.whitelisted {
-    max-width: 400px;
-  }
-
-  &.opened {
-    width: $wallet-opened-width;
-    height: 105vh;
-    padding-bottom: 5vh;
-
-    // open animation
-    transition: height animation-duration(wallet)
-        cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s,
-      box-shadow animation-duration(wallet) / 2 ease-out
-        animation-duration(status, base);
-
-    > div {
-      width: $wallet-opened-width;
-    }
-
-    background: #ffffff;
-
-    box-shadow: -2px -20px 14px 0 rgba(0, 0, 0, 0.15);
-  }
-}
-
-/* Status bar ______________________________________________________*/
-
-
-.main {
-  @include z-index(main);
-  position: relative;
-  background-color: #fff;
-
-}
-
-// useful for transitioning between dialogs
-.dialog {
-  position: absolute;
-  top: 0;
-  z-index: 1;
-  overflow-x: hidden;
-
-  &:last-child {
-    z-index: 2;
-  }
-}
-
-.overlay {
-  &.red,
-  &.black {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    opacity: 0.8;
-    @include z-index(overlay);
-  }
-  &.red {
-    background: #fd315f;
-  }
-  &.black {
-    background: #000;
-  }
-}
-
-/* content area ______________________________________________________*/
+/* --- content area --- */
 .scroll-wrapper {
   position: absolute;
   width: 100%;
@@ -192,7 +94,7 @@ a {
   padding-top: 25px;
 }
 
-/* buttons ____________________________________________________*/
+/* --- buttons --- */
 button {
   display: inline-block;
 
@@ -261,7 +163,7 @@ button {
   }
 }
 
-/* dropdown ____________________________________________________*/
+/* --- dropdown --- */
 
 .dropdown-wrapper {
   position: relative;
@@ -325,7 +227,7 @@ select.dropdown {
   }
 }
 
-/* textbox ____________________________________________________*/
+/* --- textbox --- */
 
 input[type='text'],
 input[type='password'],
@@ -350,16 +252,7 @@ label {
   margin-top: 12px;
 }
 
-/* animations ____________________________________________________*/
-@keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(359deg);
-  }
-}
-
+/* --- animations --- */
 .fade-transition-enter-active,
 .fade-transition-leave-active,
 .fade-drawer-appear-transition-enter-active,
@@ -391,20 +284,6 @@ label {
   transition-delay: 0s;
 }
 
-.overlay-transition-enter-active,
-.overlay-transition-leave-active {
-  transition: opacity animation-duration(overlay, enter) ease-in animation-duration(wallet);
-}
-
-.overlay-transition-leave-active {
-  transition-timing-function: ease-out;
-  transition-duration: 0;
-}
-
-.overlay-transition-enter,
-.overlay-transition-leave-to {
-  opacity: 0 !important;
-}
 
 @keyframes contentGrowAnimation {
   0% {
@@ -414,25 +293,6 @@ label {
   1% {
     display: block;
     opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-.animate-fade-in-out {
-  animation: fadeInOutAnimation 0.5s infinite;
-}
-.animate-fade-in-out-slow {
-  animation: fadeInOutAnimation 1s infinite;
-}
-
-@keyframes fadeInOutAnimation {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
   }
   100% {
     opacity: 1;

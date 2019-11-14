@@ -407,7 +407,6 @@ export default {
   left: 0;
   width: 100%;
 }
-
 .btn-circle {
   position: absolute;
   width: 34px;
@@ -430,7 +429,6 @@ export default {
     background-image: url(../assets/img/ic_settings.png);
     background-size: 18px;
   }
-
   &.settings,
   &.exit {
     right: 0px;
@@ -445,7 +443,6 @@ export default {
   height: $wallet-closed-height;
 
   background-color: rgb(10, 17, 31);
-
   padding-left: $widget-size-base + 8px;
   margin-left: auto !important;
 
@@ -499,6 +496,25 @@ export default {
     min-height: 74px;
     height: auto;
     padding: 12px 16px;
+  }
+}
+
+.animate-fade-in-out {
+  animation: fadeInOutAnimation 0.5s infinite;
+}
+.animate-fade-in-out-slow {
+  animation: fadeInOutAnimation 1s infinite;
+}
+
+@keyframes fadeInOutAnimation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
   }
 }
 </style>

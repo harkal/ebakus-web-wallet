@@ -291,3 +291,106 @@ export default {
   },
 }
 </script>
+
+<style scoped lang="scss">
+@import 'assets/css/_variables';
+@import 'assets/css/_animations';
+@import 'assets/css/_z-index.scss';
+
+#wallet {
+  @include z-index(wallet);
+  @include accelerate(height, box-shadow);
+
+  position: fixed;
+  right: 0;
+
+  width: auto;
+  height: auto;
+
+  // close animation
+  transition: height animation-duration(wallet)
+      cubic-bezier(0.25, 0.46, 0.45, 0.94) animation-duration(fade, leave),
+    box-shadow animation-duration(wallet) / 4 ease-out
+      animation-duration(fade, leave);
+
+  > div {
+    width: 100%;
+    margin: 0;
+  }
+
+  &:not(.opened) {
+    max-width: $wallet-opened-width;
+    border-bottom-left-radius: 5px;
+
+    &:not(.whitelisted) {
+      cursor: pointer;
+    }
+  }
+
+  &.whitelisted {
+    max-width: 400px;
+  }
+
+  &.opened {
+    width: $wallet-opened-width;
+    height: 105vh;
+    padding-bottom: 5vh;
+
+    // open animation
+    transition: height animation-duration(wallet)
+        cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s,
+      box-shadow animation-duration(wallet) / 2 ease-out
+        animation-duration(status, base);
+
+    > div {
+      width: $wallet-opened-width;
+    }
+
+    background: #ffffff;
+
+    box-shadow: -2px -20px 14px 0 rgba(0, 0, 0, 0.15);
+  }
+}
+
+.main {
+  @include z-index(main);
+  position: relative;
+  background-color: #fff;
+}
+
+.overlay {
+  &.red,
+  &.black {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.8;
+    @include z-index(overlay);
+  }
+  &.red {
+    background: #fd315f;
+  }
+  &.black {
+    background: #000;
+  }
+}
+
+.overlay-transition-enter-active,
+.overlay-transition-leave-active {
+  transition: opacity animation-duration(overlay, enter) ease-in
+    animation-duration(wallet);
+}
+
+.overlay-transition-leave-active {
+  transition-timing-function: ease-out;
+  transition-duration: 0;
+}
+
+.overlay-transition-enter,
+.overlay-transition-leave-to {
+  opacity: 0 !important;
+}
+</style>
