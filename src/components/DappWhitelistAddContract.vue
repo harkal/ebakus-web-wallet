@@ -33,7 +33,6 @@ import { exitDialog } from '@/actions/wallet'
 import {
   getTargetOrigin,
   loadedInIframe,
-  shrinkFrameInParentWindow,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 
 import { RouteNames } from '@/router'
@@ -69,7 +68,6 @@ export default {
       if (loadedInIframe()) {
         if (!this.isDrawerActiveByUser) {
           this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
-          shrinkFrameInParentWindow()
         }
       }
 

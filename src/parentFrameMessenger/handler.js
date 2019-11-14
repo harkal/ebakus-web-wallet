@@ -10,7 +10,6 @@ import router, { RouteNames } from '@/router'
 
 import {
   replyToParentWindow,
-  expandFrameInParentWindow,
   frameEventConnectionStatusUpdated,
 } from './parentFrameMessenger'
 
@@ -106,7 +105,6 @@ const requiresUserAction = cmd => {
 
 const activateDrawerIfClosed = () => {
   if (!store.state.ui.isDrawerActive) {
-    expandFrameInParentWindow()
     store.commit(MutationTypes.ACTIVATE_DRAWER, false)
   }
 }

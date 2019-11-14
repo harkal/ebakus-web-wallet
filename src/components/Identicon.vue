@@ -4,7 +4,7 @@
       id="identicon"
       ref="identicon"
       class="identicon"
-      :class="{ placeholder: publicKey == '' }"
+      :class="{ placeholder: !publicKey || publicKey == '' }"
     />
   </div>
 </template>
@@ -161,23 +161,29 @@ export default {
 .widget,
 .widget::before,
 .identicon::v-deep > div {
+  // close animation
   transition: top animation-duration(status, identicon) ease-out,
     height animation-duration(status, identicon) ease-out,
     right animation-duration(status, identicon) ease-out,
     width animation-duration(status, identicon) ease-out,
     border animation-duration(status, identicon) ease-out;
+  transition-delay: animation-duration(fade, leave);
 
   .opened & {
+    // open animation
     transition-delay: 0s;
   }
 }
 
 .identicon::v-deep > div {
+  // close animation
   transition: top animation-duration(status, identicon) ease-out,
     left animation-duration(status, identicon) ease-out,
     transform animation-duration(status, identicon) ease-out;
+  transition-delay: animation-duration(fade, leave);
 
   .opened & {
+    // open animation
     transition-delay: 0s;
   }
 }

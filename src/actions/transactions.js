@@ -5,8 +5,6 @@ import { SpinnerState } from '@/constants'
 import {
   loadedInIframe,
   replyToParentWindow,
-  shrinkFrameInParentWindow,
-  expandFrameInParentWindow,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
@@ -68,7 +66,6 @@ const calcWork = async tx => {
 const calcWorkAndSendTx = async tx => {
   if (loadedInIframe() && !store.state.ui.isDrawerActiveByUser) {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
-    shrinkFrameInParentWindow()
   }
 
   const originalPendingTx = store.state.tx.object
@@ -214,7 +211,6 @@ const checkIfEnoughBalance = tx => {
 
   if (parseFloat(value) < 0 || parseFloat(value) > balance) {
     if (loadedInIframe()) {
-      expandFrameInParentWindow()
       activateDrawerIfClosed()
     }
 

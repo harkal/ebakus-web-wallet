@@ -43,4 +43,5 @@ $smooth-animation: cubic-bezier(0.17, 0.67, 0.48, 1.28);
 
 :export {
   animationOverlay: map-deep-get($animation-duration, overlay, enter);
+  animationWallet: map-deep-get($animation-duration, wallet);
 }

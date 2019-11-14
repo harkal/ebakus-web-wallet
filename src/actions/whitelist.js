@@ -10,7 +10,6 @@ import store from '@/store'
 import {
   getTargetOrigin,
   loadedInIframe,
-  shrinkFrameInParentWindow,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
@@ -160,7 +159,6 @@ const whitelistDappAddNewContract = () => {
 
   if (loadedInIframe() && !store.state.ui.isDrawerActiveByUser) {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
-    shrinkFrameInParentWindow()
   }
 }
 
@@ -200,7 +198,6 @@ const performWhitelistedAction = () => {
 
         if (loadedInIframe() && !store.state.ui.isDrawerActiveByUser) {
           store.commit(MutationTypes.DEACTIVATE_DRAWER)
-          shrinkFrameInParentWindow()
         }
         return
       }

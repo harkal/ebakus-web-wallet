@@ -158,12 +158,6 @@ import { isContractCall, isContractCallWhitelisted } from '@/actions/whitelist'
 
 import MutationTypes from '@/store/mutation-types'
 
-import {
-  loadedInIframe,
-  shrinkFrameInParentWindow,
-  expandFrameInParentWindow,
-} from '@/parentFrameMessenger/parentFrameMessenger'
-
 import Identicon from '@/components/Identicon'
 import DappWhitelistedStatusBar from '@/components/DappWhitelistedStatusBar'
 import Navigation from '@/components/Navigation'
@@ -263,28 +257,17 @@ export default {
   },
   methods: {
     showWallet: function() {
-      if (loadedInIframe()) {
-        expandFrameInParentWindow()
-      }
-
+      this.$emit('showWallet') // IMPORTANT: call before DEACTIVATE_DRAWER
       this.$store.commit(MutationTypes.ACTIVATE_DRAWER, true)
     },
     hideWallet: function() {
       this.$emit('hideWallet') // IMPORTANT: call before DEACTIVATE_DRAWER
       this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
       this.$store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
-
-      if (loadedInIframe()) {
-        shrinkFrameInParentWindow()
-      }
     },
     exit: function() {
       if (this.$route.name == RouteNames.NEW) {
         this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
-
-        if (loadedInIframe()) {
-          shrinkFrameInParentWindow()
-        }
       } else if (this.$route.name == RouteNames.IMPORT) {
         const redirectFrom = this.$route.query.redirectFrom || RouteNames.HOME
         this.$router.push({ name: redirectFrom }, () => {})
@@ -404,7 +387,7 @@ export default {
 .buttons {
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0;
   width: 100%;
 }
 .btn-circle {

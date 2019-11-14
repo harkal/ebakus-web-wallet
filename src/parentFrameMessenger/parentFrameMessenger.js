@@ -1,7 +1,3 @@
-import { SpinnerState } from '@/constants'
-
-import store from '@/store'
-
 import { nextAnimationFrame } from '@/utils'
 
 import {
@@ -188,17 +184,6 @@ const replyToParentWindow = (res, err, job) => {
 const expandFrameInParentWindow = () => postMessage({ cmd: 'active' })
 const shrinkFrameInParentWindow = () => {
   postMessage({ cmd: 'inactive' })
-
-  // expand parent width for better animations
-  if (
-    [
-      SpinnerState.CALC_POW,
-      SpinnerState.TRANSACTION_SENDING,
-      SpinnerState.NODE_CONNECT,
-    ].includes(store.state.ui.currentSpinnerState)
-  ) {
-    resizeFrameWidthInParentWindow(400)
-  }
 }
 const resizeFrameWidthInParentWindow = async (width, height = 60) => {
   postMessage({ cmd: 'resize', width, height })

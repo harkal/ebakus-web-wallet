@@ -12,7 +12,6 @@ import store from '@/store'
 import {
   loadedInIframe,
   frameEventBalanceUpdated,
-  shrinkFrameInParentWindow,
   frameEventConnectionStatusUpdated,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 
@@ -234,10 +233,6 @@ const exitDialog = () => {
     (routeName === RouteNames.NEW || component === DialogComponents.NO_FUNDS)
   ) {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
-
-    if (loadedInIframe()) {
-      shrinkFrameInParentWindow()
-    }
   }
 
   store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
