@@ -46,8 +46,6 @@ const calcWork = async tx => {
   // 2. for web3.js > beta.41, if possible
   tx.gasPrice = '0'
 
-  store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.CALC_POW)
-
   try {
     const difficulty = await web3.eth.suggestDifficulty(tx.from)
     const txWithPow = await web3.eth.calculateWorkForTransaction(
@@ -78,6 +76,8 @@ const calcWorkAndSendTx = async tx => {
 
   try {
     if (!tx.workNonce) {
+      store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.CALC_POW)
+
       tx = await calcWork(tx)
     }
 
