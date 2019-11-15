@@ -51,7 +51,6 @@ import {
 import MutationTypes from '@/store/mutation-types'
 
 import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
-import { resizeFrameWidthInParentWindow } from '@/parentFrameMessenger/parentFrameMessenger'
 
 import { nextAnimationFrame } from '@/utils'
 
@@ -101,7 +100,6 @@ export default {
     } else {
       await this.getTxInfo()
 
-      nextAnimationFrame(this.animateWhitelisting)
       this.countdownAnimationFrame = nextAnimationFrame(this.countdown)
     }
   },
@@ -144,29 +142,7 @@ export default {
         component: DialogComponents.SEND_TX,
         title: 'Send Confirmation',
       })
-
       activateDrawerIfClosed()
-    },
-    animateWhitelisting: async function() {
-      if (!this.isDrawerActive) {
-        const status = this.$root.$children[0].$children[0].$el
-
-        await resizeFrameWidthInParentWindow(400, 120)
-
-        nextAnimationFrame(() => {
-          status.style.width = null
-          status.style.height = null
-          const finalWidth = getComputedStyle(status).width
-          const finalHeight = getComputedStyle(status).height
-
-          resizeFrameWidthInParentWindow(finalWidth, finalHeight)
-
-          nextAnimationFrame(() => {
-            status.style.width = finalWidth
-            status.style.height = finalHeight
-          })
-        })
-      }
     },
     async getTxInfo() {
       const tx = this.tx
@@ -183,6 +159,8 @@ export default {
 
       if (value > 0) {
         this.amountTitle = `to spend ${value} EBK`
+      } else {
+        this.postTitle = '...' // for slow networks, where the await below takes too long
       }
 
       const isContractCreation = !tx.to || /^0x0+$/.test(tx.to)
@@ -195,6 +173,10 @@ export default {
           decodedData = decodeData(data)
         } else if (data) {
           decodedData = await decodeDataUsingAbi(tx.to, data)
+        }
+
+        if (this.postTitle === '...') {
+          this.postTitle = ''
         }
 
         if (decodedData) {
