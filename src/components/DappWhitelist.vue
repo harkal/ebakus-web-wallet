@@ -28,11 +28,15 @@ import {
 } from '@/actions/whitelist'
 import { exitDialog } from '@/actions/wallet'
 
+import { SpinnerState } from '@/constants'
+
 import { getTargetOrigin } from '@/parentFrameMessenger/parentFrameMessenger'
 
 import { RouteNames } from '@/router'
 
 import MutationTypes from '@/store/mutation-types'
+
+import { nextAnimationFrame } from '@/utils'
 
 export default {
   computed: {
@@ -58,10 +62,18 @@ export default {
       this.$router.push({ name: redirectFrom }, () => {})
     },
     whitelistNewDapp: function() {
+      const self = this
       whitelistNewDappFunc()
 
       this.redirectBack()
       exitDialog()
+
+      nextAnimationFrame(() => {
+        self.$store.commit(
+          MutationTypes.SET_SPINNER_STATE,
+          SpinnerState.TRANSACTION_WHITELISTED_TIMER
+        )
+      })
     },
     cancelWhitelistDapp: function() {
       this.redirectBack()

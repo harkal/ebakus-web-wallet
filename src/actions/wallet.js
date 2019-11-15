@@ -62,7 +62,7 @@ const getBalance = async () => {
       setTimeout(loadTxsInfoFromExplorer(), 2000)
     }
 
-    return wei
+    return Promise.resolve(wei)
   } catch (err) {
     store.dispatch(
       MutationTypes.SET_SPINNER_STATE,
@@ -228,6 +228,8 @@ const exitDialog = () => {
   const routeName = router.app.$route.name
   const { component } = store.state.ui.dialog
 
+  store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
+
   if (
     !store.state.ui.isDrawerActiveByUser &&
     (routeName === RouteNames.NEW || component === DialogComponents.NO_FUNDS)
@@ -235,7 +237,6 @@ const exitDialog = () => {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
   }
 
-  store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
   store.commit(MutationTypes.CLEAR_DIALOG)
 }
 

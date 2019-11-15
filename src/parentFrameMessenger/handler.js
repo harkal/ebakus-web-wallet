@@ -53,7 +53,7 @@ const getBalance = payload => {
 const sendTransaction = async payload => {
   const { id, req } = payload
 
-  store.commit(MutationTypes.SET_TX_JOB_ID, id)
+  store.dispatch(MutationTypes.SET_TX_JOB_ID, id)
 
   const pendingTx = await addPendingTx(req)
   calcWork(pendingTx)

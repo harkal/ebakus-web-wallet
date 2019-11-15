@@ -17,135 +17,129 @@
       :class="{ loading: isSpinnerActive }"
     />
 
-    <transition name="fade-transition" appear>
-      <div
+    <div
+      v-if="
+        !isDrawerActive &&
+          [
+            SpinnerState.CALC_POW,
+            SpinnerState.TRANSACTION_SENDING,
+            SpinnerState.TRANSACTION_SENT_SUCCESS,
+            SpinnerState.NODE_CONNECT,
+            SpinnerState.NODE_CONNECTED,
+            SpinnerState.NODE_DISCONNECTED,
+          ].includes(spinnerState)
+      "
+      key="closedState"
+      class="closed-state"
+    >
+      <span
         v-if="
-          !isDrawerActive &&
-            [
-              SpinnerState.CALC_POW,
-              SpinnerState.TRANSACTION_SENDING,
-              SpinnerState.TRANSACTION_SENT_SUCCESS,
-              SpinnerState.NODE_CONNECT,
-              SpinnerState.NODE_CONNECTED,
-              SpinnerState.NODE_DISCONNECTED,
-            ].includes(spinnerState)
+          [SpinnerState.CALC_POW, SpinnerState.TRANSACTION_SENDING].includes(
+            spinnerState
+          )
         "
-        key="closedState"
-        class="closed-state"
+        key="working"
+        class="animate-fade-in-out-slow"
       >
-        <span
-          v-if="
-            [SpinnerState.CALC_POW, SpinnerState.TRANSACTION_SENDING].includes(
-              spinnerState
-            )
+        Working...
+      </span>
+
+      <span
+        v-else-if="spinnerState === SpinnerState.TRANSACTION_SENT_SUCCESS"
+        key="sent"
+      >
+        Sent
+
+        <img src="@/assets/img/ic_sent.svg" width="13" height="7" />
+      </span>
+
+      <img
+        v-else-if="spinnerState === SpinnerState.NODE_CONNECT"
+        key="connecting"
+        src="@/assets/img/ic_connecting.svg"
+        width="16"
+        height="31"
+        class="animate-fade-in-out"
+      />
+      <img
+        v-else-if="spinnerState === SpinnerState.NODE_CONNECTED"
+        key="connected"
+        src="@/assets/img/ic_connected.svg"
+        width="16"
+        height="31"
+      />
+      <img
+        v-else-if="spinnerState === SpinnerState.NODE_DISCONNECTED"
+        key="disconnected"
+        src="@/assets/img/ic_disconnected.svg"
+        width="21"
+        height="31"
+        title="Connection lost try refreshing the page."
+      />
+    </div>
+
+    <div
+      v-else-if="!isDrawerActive && !showWhitelistingTimer"
+      key="balanceClosed"
+      class="balance balanceClosed"
+    >
+      {{ balance | toEtherFixed }}
+
+      <img
+        v-if="tokenSymbol == 'EBK'"
+        src="@/assets/img/ebakus_logo_small.svg"
+        width="14"
+        height="14"
+      />
+
+      <span v-else>{{ tokenSymbol }}</span>
+    </div>
+
+    <div
+      v-if="isDrawerActive && !isDialog"
+      key="balanceOpened"
+      class="balance balanceOpened"
+    >
+      {{ balance | toEtherFixed }}
+      <p>{{ tokenSymbol }}</p>
+    </div>
+
+    <p v-if="hasTitle" key="title" class="title">
+      {{ dialog.title }}
+    </p>
+
+    <Navigation v-if="hasNavigation" key="navigation" />
+
+    <DappWhitelistedStatusBar
+      v-if="showWhitelistingTimer"
+      ref="whitelist"
+      key="whitelist"
+    />
+
+    <div v-if="isDrawerActive" key="buttons" class="buttons">
+      <transition-group name="fade-transition">
+        <button
+          v-show="buttonState === ButtonStates.EXIT"
+          key="exit"
+          class="btn-circle exit"
+          @click.stop="exit"
+        />
+        <button
+          v-show="buttonState === ButtonStates.MAIN"
+          key="settings"
+          class="btn-circle settings"
+          @click.stop="showSettings"
+        />
+        <button
+          v-show="
+            [ButtonStates.UNLOCK, ButtonStates.MAIN].includes(buttonState)
           "
-          key="working"
-          class="animate-fade-in-out-slow"
-        >
-          Working...
-        </span>
-
-        <span
-          v-else-if="spinnerState === SpinnerState.TRANSACTION_SENT_SUCCESS"
-          key="sent"
-        >
-          Sent
-
-          <img src="@/assets/img/ic_sent.svg" width="13" height="7" />
-        </span>
-
-        <img
-          v-else-if="spinnerState === SpinnerState.NODE_CONNECT"
-          key="connecting"
-          src="@/assets/img/ic_connecting.svg"
-          width="16"
-          height="31"
-          class="animate-fade-in-out"
+          key="close"
+          class="btn-circle close"
+          @click.stop="hideWallet"
         />
-        <img
-          v-else-if="spinnerState === SpinnerState.NODE_CONNECTED"
-          key="connected"
-          src="@/assets/img/ic_connected.svg"
-          width="16"
-          height="31"
-        />
-        <img
-          v-else-if="spinnerState === SpinnerState.NODE_DISCONNECTED"
-          key="disconnected"
-          src="@/assets/img/ic_disconnected.svg"
-          width="21"
-          height="31"
-          title="Connection lost try refreshing the page."
-        />
-      </div>
-
-      <div
-        v-else-if="!isDrawerActive && !showWhitelistingTimer"
-        key="balanceClosed"
-        class="balance balanceClosed"
-      >
-        {{ balance | toEtherFixed }}
-
-        <img
-          v-if="tokenSymbol == 'EBK'"
-          src="@/assets/img/ebakus_logo_small.svg"
-          width="14"
-          height="14"
-        />
-
-        <span v-else>{{ tokenSymbol }}</span>
-      </div>
-    </transition>
-
-    <transition name="fade-transition" appear>
-      <div
-        v-if="isDrawerActive && !isDialog"
-        key="balanceOpened"
-        class="balance balanceOpened"
-      >
-        {{ balance | toEtherFixed }}
-        <p>{{ tokenSymbol }}</p>
-      </div>
-    </transition>
-
-    <transition name="fade-transition" appear>
-      <p v-if="hasTitle" key="title" class="title">
-        {{ dialog.title }}
-      </p>
-    </transition>
-
-    <transition name="fade-transition" appear>
-      <Navigation v-if="hasNavigation" key="navigation" />
-    </transition>
-
-    <DappWhitelistedStatusBar v-if="showWhitelistingTimer" key="whitelist" />
-
-    <transition name="fade-drawer-appear-transition" appear>
-      <div v-if="isDrawerActive" key="buttons" class="buttons">
-        <transition-group name="fade-transition">
-          <button
-            v-show="buttonState === ButtonStates.EXIT"
-            key="exit"
-            class="btn-circle exit"
-            @click.stop="exit"
-          />
-          <button
-            v-show="buttonState === ButtonStates.MAIN"
-            key="settings"
-            class="btn-circle settings"
-            @click.stop="showSettings"
-          />
-          <button
-            v-show="
-              [ButtonStates.UNLOCK, ButtonStates.MAIN].includes(buttonState)
-            "
-            key="close"
-            class="btn-circle close"
-            @click.stop="hideWallet"
-          />
-        </transition-group>
-      </div>
-    </transition>
+      </transition-group>
+    </div>
   </div>
 </template>
 
@@ -184,7 +178,8 @@ export default {
       publicAddress: state => state.wallet.address,
       balance: state => state.wallet.balance,
       tokenSymbol: state => state.wallet.token,
-      isTxFromParentFrame: state => state.tx.jobId,
+      isTxFromParentFrame: state => !!state.tx.jobId,
+      isTxWhitelistAnimationReady: state => state.tx.whitelistAnimationReady,
     }),
 
     SpinnerState: () => SpinnerState,
@@ -193,12 +188,10 @@ export default {
     buttonState: function() {
       if (this.$route.name == RouteNames.UNLOCK) {
         return ButtonStates.UNLOCK
+      } else if (this.$route.name == RouteNames.WHITELIST_DAPP) {
+        return ButtonStates.NONE
       } else if (this.isDialog) {
-        if (
-          [DialogComponents.SEND_TX, DialogComponents.WHITELIST_DAPP].includes(
-            this.dialog.component
-          )
-        ) {
+        if ([DialogComponents.SEND_TX].includes(this.dialog.component)) {
           return ButtonStates.NONE
         } else {
           return ButtonStates.EXIT
@@ -223,30 +216,12 @@ export default {
     showWhitelistingTimer: function() {
       return (
         this.isTxFromParentFrame &&
+        this.isTxWhitelistAnimationReady &&
         isContractCall() &&
         isContractCallWhitelisted() &&
         this.$route.name !== RouteNames.UNLOCK &&
         this.dialog.component !== DialogComponents.NO_FUNDS
       )
-    },
-  },
-  watch: {
-    spinnerState: async function(val, oldVal) {
-      if (val !== oldVal) {
-        if (
-          [
-            SpinnerState.TRANSACTION_SENT_SUCCESS,
-            SpinnerState.NODE_CONNECTED,
-          ].includes(val)
-        ) {
-          setTimeout(() => {
-            this.$store.commit(
-              MutationTypes.SET_SPINNER_STATE,
-              SpinnerState.SUCCESS
-            )
-          }, 800)
-        }
-      }
     },
   },
   mounted() {
@@ -257,7 +232,6 @@ export default {
   },
   methods: {
     showWallet: function() {
-      this.$emit('showWallet') // IMPORTANT: call before DEACTIVATE_DRAWER
       this.$store.commit(MutationTypes.ACTIVATE_DRAWER, true)
     },
     hideWallet: function() {
@@ -433,6 +407,8 @@ export default {
   transition: width animation-duration(status, base) ease-out
       animation-duration(fade, leave),
     height animation-duration(status, base) ease-out
+      animation-duration(fade, leave),
+    border animation-duration(status, base) ease-out
       animation-duration(fade, leave);
 
   #wallet:not(.opened) & {
@@ -445,6 +421,22 @@ export default {
     box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
   }
 
+  #wallet.whitelisted:not(.opened) & {
+    min-height: 96px;
+    height: auto;
+    padding-left: 0;
+
+    @media only screen and (max-width: $status-bar-whitelist-mobile-breakpoint) {
+      width: 100vw !important;
+      border-left: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    .buttons {
+      display: none;
+    }
+  }
+
   .opened & {
     height: $widget-opened-top + $widget-size-opened + ($status-bar-padding * 2);
     padding: 0;
@@ -452,7 +444,8 @@ export default {
 
     // open animation
     transition: width animation-duration(status, base) ease-out 0s,
-      height animation-duration(status, base) ease-out 0s;
+      height animation-duration(status, base) ease-out 0s,
+      border animation-duration(status, base) ease-out 0s;
 
     &.hasBalance {
       height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
@@ -473,12 +466,6 @@ export default {
       height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
         $status-balance-height + $status-bar-padding + $status-navigation-height;
     }
-  }
-
-  .whitelisted:not(.opened) & {
-    min-height: 74px;
-    height: auto;
-    padding: 12px 16px;
   }
 }
 

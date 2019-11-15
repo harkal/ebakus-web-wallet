@@ -55,6 +55,7 @@ const calcWork = async tx => {
 
     return txWithPow
   } catch (err) {
+    store.dispatch(MutationTypes.CLEAR_TX)
     store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
 
     if (loadedInIframe()) {
@@ -65,15 +66,15 @@ const calcWork = async tx => {
 
 const calcWorkAndSendTx = async tx => {
   if (loadedInIframe() && !store.state.ui.isDrawerActiveByUser) {
-    store.commit(MutationTypes.DEACTIVATE_DRAWER)
+    store.dispatch(MutationTypes.DEACTIVATE_DRAWER)
   }
 
   const originalPendingTx = store.state.tx.object
-  store.commit(MutationTypes.CLEAR_TX)
+  store.dispatch(MutationTypes.CLEAR_TX)
 
   try {
     if (!tx.workNonce) {
-      store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.CALC_POW)
+      store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.CALC_POW)
 
       tx = await calcWork(tx)
     }
@@ -85,14 +86,14 @@ const calcWorkAndSendTx = async tx => {
 
     const receipt = await web3.eth.sendTransaction(tx)
 
-    if (loadedInIframe()) {
-      replyToParentWindow(receipt)
-    }
-
     store.dispatch(
       MutationTypes.SET_SPINNER_STATE,
       SpinnerState.TRANSACTION_SENT_SUCCESS
     )
+
+    if (loadedInIframe()) {
+      replyToParentWindow(receipt)
+    }
 
     const log = await getTxLogInfo({
       ...originalPendingTx,
@@ -120,6 +121,7 @@ const cancelPendingTx = () => {
     replyToParentWindow(null, 'Transaction cancelled by user')
 
     if (!store.state.ui.isDrawerActiveByUser) {
+      store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
       store.commit(MutationTypes.DEACTIVATE_DRAWER)
     }
   }

@@ -3,6 +3,7 @@ $wallet-closed-height: 44px;
 $wallet-opened-min-height: 115px;
 
 $status-bar-padding: 16px;
+$status-bar-whitelist-mobile-breakpoint: 353px;
 
 $status-balance-height: 47px;
 $status-title-height: 13px;
@@ -18,4 +19,5 @@ $widget-blades-offset: 4px;
   walletOpenedWidth: $wallet-opened-width;
   walletClosedHeight: $wallet-closed-height;
   walletOpenedMinHeight: $wallet-opened-min-height;
+  statusBarWhitelistMobileBreakpoint: $status-bar-whitelist-mobile-breakpoint;
 }

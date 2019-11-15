@@ -32,6 +32,12 @@ export default {
   [MutationTypes.SET_TX_OBJECT](context, tx) {
     context.commit(MutationTypes.SET_TX_OBJECT, tx)
   },
+  [MutationTypes.SET_TX_JOB_ID](context, jobId) {
+    context.commit(MutationTypes.SET_TX_JOB_ID, jobId)
+  },
+  [MutationTypes.CLEAR_TX](context) {
+    context.commit(MutationTypes.CLEAR_TX)
+  },
 
   [MutationTypes.SHOW_DIALOG](context, data) {
     context.commit(MutationTypes.SHOW_DIALOG, data)

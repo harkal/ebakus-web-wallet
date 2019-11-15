@@ -186,12 +186,26 @@ const shrinkFrameInParentWindow = () => {
   postMessage({ cmd: 'inactive' })
 }
 const resizeFrameWidthInParentWindow = async (width, height = 60) => {
+  width = parseInt(width, 10) > window.outerWidth ? window.outerWidth : width
+
   postMessage({ cmd: 'resize', width, height })
 
   return new Promise(resolve => {
-    const checkSize = function() {
-      if (width > window.innerWidth || height > window.innerHeight) {
+    let retries = 0,
+      startTime
+
+    const checkSize = function(timestamp) {
+      if (!startTime) {
+        startTime = timestamp
+      }
+
+      const diff = timestamp - startTime
+
+      if (diff > 1000 || retries >= 10) {
+        resolve()
+      } else if (width > window.innerWidth || height > window.innerHeight) {
         nextAnimationFrame(checkSize)
+        retries++
       } else {
         resolve()
       }

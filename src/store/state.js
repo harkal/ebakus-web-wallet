@@ -9,6 +9,7 @@ const initialState = {
   tx: {
     object: {},
     jobId: null, // parentFrame handler id
+    whitelistAnimationReady: false, // hack for blocking ui animations
   },
 
   // netwrok preferences

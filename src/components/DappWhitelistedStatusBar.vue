@@ -1,6 +1,7 @@
 <template>
   <div
     v-if="preTitle || to"
+    ref="whitelistStatusBar"
     class="status-bar-whitelisted"
     :class="{ popup: isDrawerActive }"
     @mouseover="pause"
@@ -52,7 +53,7 @@ import MutationTypes from '@/store/mutation-types'
 
 import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
-import { nextAnimationFrame } from '@/utils'
+import { nextAnimationFrame, cancelAnimationFrame } from '@/utils'
 
 export default {
   filters: {
@@ -94,11 +95,15 @@ export default {
   beforeMount() {
     this.remainingTime = this.getTimer
   },
-  async mounted() {
+  mounted() {
     if (!checkIfEnoughBalance()) {
       activateDrawerIfClosed()
     } else {
-      await this.getTxInfo()
+      this.getTxInfo()
+
+      if (this.isDrawerActive) {
+        nextAnimationFrame(this.openedWalletEntranceAnimation)
+      }
 
       this.countdownAnimationFrame = nextAnimationFrame(this.countdown)
     }
@@ -143,6 +148,11 @@ export default {
         title: 'Send Confirmation',
       })
       activateDrawerIfClosed()
+    },
+    openedWalletEntranceAnimation() {
+      const whitelistStatusBar = this.$refs.whitelistStatusBar
+      whitelistStatusBar.style.display = 'flex'
+      whitelistStatusBar.style.opacity = 1
     },
     async getTxInfo() {
       const tx = this.tx
@@ -210,20 +220,29 @@ export default {
 
 <style scoped lang="scss">
 @import '../assets/css/_variables';
+@import '../assets/css/_animations';
+
+$button-width: 50px;
 
 .status-bar-whitelisted {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: stretch;
-  align-content: stretch;
-  align-items: stretch;
-  padding-right: 0;
-  max-width: $wallet-opened-width;
+  justify-content: center;
+  align-items: center;
+
+  position: relative;
+  min-width: 263px;
+  max-width: 370px;
+  padding: 12px 16px;
+
+  transition: opacity animation-duration(fade, enter) ease-in;
+
+  // display and opacity are set in App.js by animation handler
+  display: none;
+  opacity: 0;
 }
 
 .popup {
-  flex-wrap: wrap;
   position: absolute;
   right: 10px;
   top: 58px;
@@ -235,21 +254,17 @@ export default {
   border-radius: 6px;
   text-align: center;
 
-  .info {
-    margin-right: 0;
-  }
-
   .cancel {
+    margin-bottom: 0;
     padding-top: 10px;
     padding-bottom: 6px;
+    width: 100%;
   }
 }
 
 .info {
-  flex: 1 1 auto;
-  align-self: auto;
-  margin-right: 16px;
-  max-width: 262px;
+  min-width: 262px;
+  width: min-content;
 }
 
 h2,
@@ -275,12 +290,10 @@ h3 {
 }
 
 .cancel {
-  display: block;
-  flex: 1 1 auto;
-  align-self: center;
-  width: auto;
-  height: 100%;
-  margin: auto 0;
+  width: $button-width;
+  margin: 0;
+  margin-left: $status-bar-padding;
+
   background-color: transparent;
   border: transparent;
   font-weight: 700;
@@ -308,20 +321,18 @@ h3 {
   }
 }
 
-@media only screen and (max-width: 353px) {
+@media only screen and (max-width: $status-bar-whitelist-mobile-breakpoint) {
   .status-bar-whitelisted {
-    flex-wrap: wrap;
+    flex-direction: column;
+    width: 100vw;
   }
-
   .info {
-    flex-basis: 100%;
-    margin-right: 0;
-    max-width: auto;
+    width: 100%;
   }
 
-  button {
-    padding-top: 10px;
-    padding-bottom: 6px;
+  .cancel {
+    margin: 10px 0;
+    padding: 0;
   }
 }
 </style>

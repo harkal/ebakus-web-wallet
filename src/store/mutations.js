@@ -66,6 +66,15 @@ export default {
   },
 
   [MutationTypes.SET_SPINNER_STATE](state, spinnerState) {
+    // hack for blocking display of whitelist status bar, till animation happens
+    // hack placed in here as spinnerState watcher is used for animations
+    if (
+      !state.tx.whitelistAnimationReady &&
+      spinnerState == SpinnerState.TRANSACTION_WHITELISTED_TIMER
+    ) {
+      state.tx.whitelistAnimationReady = true
+    }
+
     state.ui.currentSpinnerState = spinnerState
     state.ui.isSpinnerActive = !!(spinnerState & SpinnerState.SPINNER_RUNNING)
   },
