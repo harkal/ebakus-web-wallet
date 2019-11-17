@@ -135,8 +135,6 @@ const whitelistNewDapp = () => {
   const origin = getTargetOrigin()
   if (origin) {
     const { to } = store.state.tx.object
-    console.log('origin', origin, 'contractAddress', to)
-
     store.commit(MutationTypes.SET_DAPP_WHITELIST, {
       origin,
       contractAddress: to,
@@ -149,7 +147,6 @@ const whitelistDappAddNewContract = () => {
   const origin = getTargetOrigin()
   if (origin) {
     const { to } = store.state.tx.object
-    console.log('origin', origin, 'contractAddress', to)
 
     store.commit(MutationTypes.ADD_CONTRACT_TO_DAPP_WHITELIST, {
       origin,

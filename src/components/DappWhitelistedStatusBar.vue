@@ -65,13 +65,14 @@ export default {
     return {
       remainingTime: 0,
       progressWidth: 100,
-      countdownAnimationFrameStartTime: null,
-      countdownAnimationFrame: null,
       preTitle: '',
       amountTitle: '',
       emTitle: '',
       postTitle: '',
       to: '',
+      countdownAnimationFrameStartTime: null,
+      countdownAnimationFrame: null,
+      countdownStopped: false, // handle edge cases where countdown doesn't stop because of race conditions
     }
   },
   computed: {
@@ -110,6 +111,10 @@ export default {
   },
   methods: {
     countdown(timestamp) {
+      if (this.countdownStopped) {
+        return
+      }
+
       if (!this.countdownAnimationFrameStartTime) {
         this.countdownAnimationFrameStartTime = timestamp
       }
@@ -139,6 +144,7 @@ export default {
       this.countdownAnimationFrame = nextAnimationFrame(this.countdown)
     },
     cancel() {
+      this.countdownStopped = true
       this.stopCountdown()
       this.$store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.NONE)
       removeDappFromWhitelist()
@@ -256,9 +262,12 @@ $button-width: 50px;
 
   .cancel {
     margin-bottom: 0;
-    padding-top: 10px;
-    padding-bottom: 6px;
+    padding: 10px 0;
     width: 100%;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.3);
+    }
   }
 }
 
@@ -333,6 +342,7 @@ h3 {
   .cancel {
     margin: 10px 0;
     padding: 0;
+    width: 100%;
   }
 }
 </style>

@@ -37,6 +37,7 @@ const defaultAddress = payload => {
       desc: 'No account found in wallet',
     }
     replyToParentWindow(null, err, payload)
+    activateDrawerIfClosed()
   }
 }
 

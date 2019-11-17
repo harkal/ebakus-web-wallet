@@ -240,7 +240,7 @@ export default {
     },
     loadWalletState: function() {
       if (this.publicAddress !== null && !this.isLocked) {
-        console.log('Wallet Loaded')
+        console.log('Wallet is loaded')
         // console.log('Wallet Locked')
       } else if (this.publicAddress !== null && this.isLocked) {
         this.$router.push({ name: RouteNames.UNLOCK }, () => {})
@@ -360,6 +360,11 @@ export default {
         finalStatusWidth = getComputedStyle(status).width
         finalStatusHeight = getComputedStyle(status).height
 
+        //  there is no reason for status bar to be totally hidden
+        if (parseInt(finalStatusWidth, 10) <= 0) {
+          finalStatusWidth = previousStatusWidth
+        }
+
         // check that element size is smaller than parent window size
         finalStatusWidth =
           parseInt(finalStatusWidth, 10) > window.outerWidth
@@ -470,6 +475,7 @@ export default {
   }
 
   &.opened {
+    // width: $wallet-opened-width; // handle in JS animation
     height: 105vh;
     padding-bottom: 5vh;
 
