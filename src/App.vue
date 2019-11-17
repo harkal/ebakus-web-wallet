@@ -8,7 +8,11 @@
         whitelisted: showWhitelistingTimer,
       }"
     >
-      <Status ref="status" @hideWallet="enableUserTriggeredAnimation" />
+      <Status
+        ref="status"
+        :show-whitelisting-timer="showWhitelistingTimer"
+        @hideWallet="enableUserTriggeredAnimation"
+      />
 
       <transition name="fade-drawer-appear-transition">
         <div v-show="isDrawerActive" ref="main" class="main">
@@ -41,7 +45,11 @@ import { mapState } from 'vuex'
 
 import { checkNodeConnection } from '@/actions/providers'
 import { getBalance } from '@/actions/wallet'
-import { isContractCall, isContractCallWhitelisted } from '@/actions/whitelist'
+import {
+  isContractCall,
+  isContractCallWhitelisted,
+  getWhitelistDappTimer,
+} from '@/actions/whitelist'
 
 import { SpinnerState, DialogComponents } from '@/constants'
 
@@ -103,13 +111,19 @@ export default {
       isDialog: state => state.ui.dialog.active,
       dialog: state => state.ui.dialog,
       networkStatus: state => state.network.status,
+      isTxFromParentFrame: state => !!state.tx.jobId,
+      isTxWhitelistAnimationReady: state => state.tx.whitelistAnimationReady,
     }),
     SpinnerState: () => SpinnerState,
     styles: () => styleAnimationVariables,
     showWhitelistingTimer: function() {
       return (
+        this.isTxFromParentFrame &&
+        this.isTxWhitelistAnimationReady &&
+        // this.spinnerState === SpinnerState.TRANSACTION_WHITELISTED_TIMER &&
         isContractCall() &&
         isContractCallWhitelisted() &&
+        getWhitelistDappTimer() > 0 &&
         this.$route.name !== RouteNames.UNLOCK &&
         this.dialog.component !== DialogComponents.NO_FUNDS
       )

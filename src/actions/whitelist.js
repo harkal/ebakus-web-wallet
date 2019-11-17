@@ -41,7 +41,7 @@ const isDappWhitelisted = () => {
   return (
     dapp &&
     typeof dapp.all !== 'undefined' &&
-    dapp.all.timer &&
+    typeof dapp.all.timer !== 'undefined' &&
     typeof dapp.contracts !== 'undefined'
   )
 }

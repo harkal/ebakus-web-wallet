@@ -1,5 +1,5 @@
 <template>
-  <div class="settings">
+  <div class="settings scroll-wrapper">
     <div v-if="activePane == Panes.MAIN" key="main" class="wrapper">
       <!-- <h2>Slow network?</h2>
       <h3>
@@ -86,7 +86,7 @@
           <input
             type="range"
             class="whitelist-slider"
-            min="1"
+            min="0"
             :max="maxWhitelistDelay"
             step="1"
             :value="getWhitelistDelay"

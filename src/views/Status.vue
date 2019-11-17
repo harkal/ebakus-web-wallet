@@ -148,8 +148,6 @@ import { mapState } from 'vuex'
 
 import { SpinnerState, DialogComponents } from '@/constants'
 
-import { isContractCall, isContractCallWhitelisted } from '@/actions/whitelist'
-
 import MutationTypes from '@/store/mutation-types'
 
 import Identicon from '@/components/Identicon'
@@ -167,6 +165,12 @@ const ButtonStates = {
 
 export default {
   components: { Identicon, Navigation, DappWhitelistedStatusBar },
+  props: {
+    showWhitelistingTimer: {
+      type: Boolean,
+      default: false,
+    },
+  },
   computed: {
     ...mapState({
       isDrawerActive: state => state.ui.isDrawerActive,
@@ -178,8 +182,6 @@ export default {
       publicAddress: state => state.wallet.address,
       balance: state => state.wallet.balance,
       tokenSymbol: state => state.wallet.token,
-      isTxFromParentFrame: state => !!state.tx.jobId,
-      isTxWhitelistAnimationReady: state => state.tx.whitelistAnimationReady,
     }),
 
     SpinnerState: () => SpinnerState,
@@ -211,17 +213,6 @@ export default {
     },
     hasNavigation: function() {
       return this.isDrawerActive && !this.isDialog && !this.isLocked
-    },
-
-    showWhitelistingTimer: function() {
-      return (
-        this.isTxFromParentFrame &&
-        this.isTxWhitelistAnimationReady &&
-        isContractCall() &&
-        isContractCallWhitelisted() &&
-        this.$route.name !== RouteNames.UNLOCK &&
-        this.dialog.component !== DialogComponents.NO_FUNDS
-      )
     },
   },
   mounted() {
