@@ -156,6 +156,8 @@ import Navigation from '@/components/Navigation'
 
 import { RouteNames } from '@/router'
 
+import styleAnimationVariables from '@/assets/css/_animations.scss'
+
 const ButtonStates = {
   NONE: 'NONE',
   MAIN: 'MAIN',
@@ -248,15 +250,19 @@ export default {
       this.$router.push({ name: RouteNames.SETTINGS }, () => {})
     },
     updateInnerHeight: function() {
+      const self = this
+
       // handle "iOS viewport scroll bug", https://css-tricks.com/the-trick-to-viewport-units-on-mobile/
       // set the value in the --status-bar-vh custom property to the root of the document
-      this.$nextTick(() => {
-        const height = this.$refs.statusBar.clientHeight * 0.01
-        document.documentElement.style.setProperty(
-          '--status-bar-vh',
-          `${height}px`
-        )
-      })
+      setTimeout(() => {
+        self.$nextTick(() => {
+          const height = self.$refs.statusBar.clientHeight * 0.01
+          document.documentElement.style.setProperty(
+            '--status-bar-vh',
+            `${height}px`
+          )
+        })
+      }, styleAnimationVariables.animationStatusBase)
     },
   },
 }
