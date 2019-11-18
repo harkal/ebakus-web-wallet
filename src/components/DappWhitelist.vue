@@ -22,6 +22,7 @@
 <script>
 import { mapState } from 'vuex'
 
+import { checkIfEnoughBalance } from '@/actions/transactions'
 import {
   whitelistNewDapp as whitelistNewDappFunc,
   cancelWhitelistDapp as cancelWhitelistDappFunc,
@@ -53,7 +54,10 @@ export default {
   },
   methods: {
     redirectBack: function() {
-      const redirectFrom = this.$route.query.redirectFrom || RouteNames.HOME
+      let redirectFrom = this.$route.query.redirectFrom || RouteNames.HOME
+      if (redirectFrom === RouteNames.NEW) {
+        redirectFrom = RouteNames.HOME
+      }
       this.$router.push({ name: redirectFrom }, () => {})
     },
     whitelistNewDapp: function() {
@@ -62,13 +66,16 @@ export default {
       this.redirectBack()
       exitDialog()
 
-      if (!this.isDrawerActiveByUser) {
-        this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
+      if (checkIfEnoughBalance()) {
+        if (!this.isDrawerActiveByUser) {
+          this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
+        }
+
+        this.$store.commit(
+          MutationTypes.SET_SPINNER_STATE,
+          SpinnerState.TRANSACTION_WHITELISTED_TIMER
+        )
       }
-      this.$store.commit(
-        MutationTypes.SET_SPINNER_STATE,
-        SpinnerState.TRANSACTION_WHITELISTED_TIMER
-      )
     },
     cancelWhitelistDapp: function() {
       this.redirectBack()

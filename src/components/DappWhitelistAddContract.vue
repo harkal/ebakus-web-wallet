@@ -24,6 +24,7 @@
 <script>
 import { mapState } from 'vuex'
 
+import { checkIfEnoughBalance } from '@/actions/transactions'
 import {
   whitelistDappAddNewContract as whitelistDappAddNewContractFunc,
   cancelWhitelistDapp as cancelWhitelistDappFunc,
@@ -71,13 +72,16 @@ export default {
       this.redirectBack()
       exitDialog()
 
-      if (!this.isDrawerActiveByUser) {
-        this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
+      if (checkIfEnoughBalance()) {
+        if (!this.isDrawerActiveByUser) {
+          this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
+        }
+
+        this.$store.commit(
+          MutationTypes.SET_SPINNER_STATE,
+          SpinnerState.TRANSACTION_WHITELISTED_TIMER
+        )
       }
-      this.$store.commit(
-        MutationTypes.SET_SPINNER_STATE,
-        SpinnerState.TRANSACTION_WHITELISTED_TIMER
-      )
     },
     cancelWhitelistDapp: function() {
       this.redirectBack()

@@ -168,6 +168,8 @@ export default {
       this.activePane = Panes.FINISH
 
       setTimeout(() => {
+        self.$router.push({ name: RouteNames.HOME })
+
         const pendingTx = self.$store.state.tx.object
         if (
           loadedInIframe() &&
@@ -180,8 +182,6 @@ export default {
           }
           return
         }
-
-        self.$router.push({ name: RouteNames.HOME })
       }, 1200)
     },
   },

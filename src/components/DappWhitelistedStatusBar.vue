@@ -97,9 +97,7 @@ export default {
     this.remainingTime = this.getTimer
   },
   mounted() {
-    if (!checkIfEnoughBalance()) {
-      activateDrawerIfClosed()
-    } else {
+    if (checkIfEnoughBalance()) {
       this.getTxInfo()
 
       if (this.isDrawerActive) {
