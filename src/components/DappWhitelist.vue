@@ -51,9 +51,6 @@ export default {
     })
     this.$store.commit(MutationTypes.SET_OVERLAY_COLOR, 'black')
   },
-  beforeDestroy() {
-    this.$store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
-  },
   methods: {
     redirectBack: function() {
       const redirectFrom = this.$route.query.redirectFrom || RouteNames.HOME

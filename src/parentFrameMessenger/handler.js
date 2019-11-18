@@ -37,7 +37,6 @@ const defaultAddress = payload => {
       desc: 'No account found in wallet',
     }
     replyToParentWindow(null, err, payload)
-    store.commit(MutationTypes.ACTIVATE_DRAWER)
   }
 }
 

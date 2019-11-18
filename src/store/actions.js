@@ -1,6 +1,9 @@
 import MutationTypes from './mutation-types'
 
 export default {
+  [MutationTypes.ACTIVATE_DRAWER](context) {
+    context.commit(MutationTypes.ACTIVATE_DRAWER)
+  },
   [MutationTypes.DEACTIVATE_DRAWER](context) {
     context.commit(MutationTypes.DEACTIVATE_DRAWER)
   },
