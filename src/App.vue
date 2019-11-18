@@ -320,6 +320,11 @@ export default {
       const wallet = self.$refs.wallet
       const main = self.$refs.main
 
+      if (!self.closeWalletAfterAnimation) {
+        wallet.className += ' animating-closed-state'
+        wallet.offsetHeight
+      }
+
       if (self.$refs.status) {
         status = self.$refs.status.$el
 
@@ -426,6 +431,11 @@ export default {
             self.closeWalletAfterAnimation = false
             shrinkFrameInParentWindow()
           }
+
+          wallet.className = wallet.className.replace(
+            /\s?\banimating-closed-state\b/g,
+            ''
+          )
 
           animationQueue.next()
         }, styleAnimationVariables.animationWallet)

@@ -68,7 +68,6 @@ export default {
   pointer-events: initial;
 
   transform-origin: center;
-  // transition: all animation-duration(status, identicon) linear;
 
   &::before {
     display: block;
@@ -87,7 +86,6 @@ export default {
     opacity: 0;
     transform: translateZ(0);
     animation: rotation 1s infinite linear;
-    // transition: all animation-duration(status, identicon) linear;
   }
 
   &:hover {
@@ -127,8 +125,6 @@ export default {
   height: calc(var(--widget-size) - #{$widget-border-width * 2});
   border-radius: var(--widget-size);
 
-  // transition: all 150ms ease-in-out;
-
   &.placeholder::after {
     content: '';
     display: block;
@@ -148,7 +144,6 @@ export default {
     transform: translateZ(0);
     transform-origin: 0 0;
     transform: scale(0.25);
-    // transition: all animation-duration(status, identicon) linear;
 
     .opened & {
       top: ($widget-border-width * 3);
@@ -162,12 +157,18 @@ export default {
 .widget::before,
 .identicon::v-deep > div {
   // close animation
-  transition: top animation-duration(status, identicon) ease-out,
+  transition: top animation-duration(status, base) ease-out,
+    right animation-duration(status, base) ease-out,
     height animation-duration(status, identicon) ease-out,
-    right animation-duration(status, identicon) ease-out,
     width animation-duration(status, identicon) ease-out,
     border animation-duration(status, identicon) ease-out;
   transition-delay: animation-duration(fade, leave);
+
+  .animating-closed-state & {
+    transition: top animation-duration(status, base) / 3 ease-out,
+      right animation-duration(status, base) / 3 ease-out;
+    transition-delay: 0s;
+  }
 
   .opened & {
     // open animation
@@ -177,10 +178,16 @@ export default {
 
 .identicon::v-deep > div {
   // close animation
-  transition: top animation-duration(status, identicon) ease-out,
-    left animation-duration(status, identicon) ease-out,
+  transition: top animation-duration(status, base) ease-out,
+    left animation-duration(status, base) ease-out,
     transform animation-duration(status, identicon) ease-out;
   transition-delay: animation-duration(fade, leave);
+
+  .animating-closed-state & {
+    transition: top animation-duration(status, base) / 3 ease-out,
+      left animation-duration(status, base) / 3 ease-out;
+    transition-delay: 0s;
+  }
 
   .opened & {
     // open animation
