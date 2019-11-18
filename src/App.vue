@@ -93,6 +93,7 @@ export default {
     return {
       isInitialRender: true,
       userTriggeredAnimatingWallet: false,
+      parentOverlayShrinkTimeout: null,
       successTimeout: null,
       lastAnimationReason: null,
       closeWalletAfterAnimation: false,
@@ -184,14 +185,20 @@ export default {
       }
     },
     overlayColor: function(val, oldVal) {
+      const self = this
       if (loadedInIframe() && val !== oldVal) {
         if (val) {
+          if (self.parentOverlayShrinkTimeout) {
+            clearTimeout(self.parentOverlayShrinkTimeout)
+            self.parentOverlayShrinkTimeout = null
+          }
           expandOverlayFrameInParentWindow()
         } else {
-          nextAnimationFrame(() =>
-            setTimeout(function() {
-              shrinkOverlayFrameInParentWindow()
-            }, styleAnimationVariables.animationOverlayLeave)
+          nextAnimationFrame(
+            () =>
+              (self.parentOverlayShrinkTimeout = setTimeout(function() {
+                shrinkOverlayFrameInParentWindow()
+              }, styleAnimationVariables.animationOverlayLeave))
           )
         }
       }
