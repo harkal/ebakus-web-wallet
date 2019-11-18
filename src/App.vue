@@ -95,7 +95,6 @@ export default {
       userTriggeredAnimatingWallet: false,
       parentOverlayShrinkTimeout: null,
       successTimeout: null,
-      lastAnimationReason: null,
       closeWalletAfterAnimation: false,
     }
   },
@@ -136,10 +135,6 @@ export default {
           if (this.isDrawerActive && this.$route.name != RouteNames.NEW) {
             this.loadWalletState()
           }
-
-          if (loadedInIframe()) {
-            expandFrameInParentWindow()
-          }
         }
 
         // set the wallet to shrink parent frame after animations ends
@@ -147,11 +142,14 @@ export default {
           this.closeWalletAfterAnimation = true
         }
 
-        if (this.spinnerState !== SpinnerState.TRANSACTION_WHITELISTED_TIMER) {
-          // reset lastAnimationReason, as this state is needed only for spinnerState watcher
-          this.lastAnimationReason = null
-          this.restyleWallet()
+        // skip UI update from this watcher as it is handled in spinnerState watcher
+        if (
+          !val &&
+          this.spinnerState === SpinnerState.TRANSACTION_WHITELISTED_TIMER
+        ) {
+          return
         }
+        this.restyleWallet()
       }
     },
     spinnerState: async function(val, oldVal) {
@@ -270,8 +268,15 @@ export default {
       if (!self.isDrawerActive) {
         return
       }
+
+      if (loadedInIframe()) {
+        expandFrameInParentWindow()
+      }
+
       const wallet = this.$refs.wallet
       const status = this.$refs.status.$el
+      const main = self.$refs.main
+
       let identiconWidget
       if (
         this.$refs.status.$refs.identicon &&
@@ -288,6 +293,9 @@ export default {
 
       wallet.style.width = getComputedStyle(status).width
       wallet.style.height = getComputedStyle(wallet).height
+
+      main.style.display = null
+
       nextAnimationFrame(() => {
         wallet.style.width = styleVariables.walletOpenedWidth
         wallet.style.height = '105vh'
@@ -305,10 +313,11 @@ export default {
     },
     hideWalletAnimation: async function() {
       const self = this
-      if (self.isDrawerActive) {
+      const closeWalletAfterAnimation = self.closeWalletAfterAnimation
+
+      if (self.isDrawerActive && !self.closeWalletAfterAnimation) {
         return
       }
-      self.lastAnimationReason = self.spinnerState
 
       let waitForParentUpdate = false
       if (
@@ -327,9 +336,9 @@ export default {
       const wallet = self.$refs.wallet
       const main = self.$refs.main
 
-      if (!self.closeWalletAfterAnimation) {
+      if (!closeWalletAfterAnimation) {
         wallet.className += ' animating-closed-state'
-        wallet.offsetHeight
+        wallet.offsetHeight // force repaint
       }
 
       if (self.$refs.status) {
@@ -407,7 +416,7 @@ export default {
         identiconWidget.style.left = 'auto'
       }
 
-      if (!self.closeWalletAfterAnimation) {
+      if (!closeWalletAfterAnimation) {
         main.style.display = mainDisplay
       }
 
@@ -433,19 +442,22 @@ export default {
           }
         }
 
-        setTimeout(() => {
-          if (self.closeWalletAfterAnimation) {
-            self.closeWalletAfterAnimation = false
+        // wait for animations to finish
+        await timeout(styleAnimationVariables.animationWallet)
+
+        if (closeWalletAfterAnimation) {
+          self.closeWalletAfterAnimation = false
+          if (loadedInIframe()) {
             shrinkFrameInParentWindow()
           }
+        }
 
-          wallet.className = wallet.className.replace(
-            /\s?\banimating-closed-state\b/g,
-            ''
-          )
+        wallet.className = wallet.className.replace(
+          /\s?\banimating-closed-state\b/g,
+          ''
+        )
 
-          animationQueue.next()
-        }, styleAnimationVariables.animationWallet)
+        animationQueue.next()
       })
     },
   },
