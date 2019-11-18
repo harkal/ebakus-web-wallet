@@ -17,7 +17,7 @@ const unlockWallet = () => {
   const routeName = router.app.$route.name
 
   if ([RouteNames.NEW, RouteNames.UNLOCK].includes(routeName)) {
-    store.commit(MutationTypes.ACTIVATE_DRAWER)
+    activateDrawerIfClosed()
   }
 }
 
@@ -65,7 +65,7 @@ const sendTransaction = async payload => {
     return
   }
 
-  store.dispatch(MutationTypes.ACTIVATE_DRAWER)
+  activateDrawerIfClosed()
 }
 
 const externalFrameHandler = payload => {
@@ -103,4 +103,15 @@ const requiresUserAction = cmd => {
   return ['unlockWallet', 'sendTransaction'].includes(cmd)
 }
 
-export { externalFrameHandler, externalPassiveFrameHandler, requiresUserAction }
+const activateDrawerIfClosed = () => {
+  if (!store.state.ui.isDrawerActive) {
+    store.commit(MutationTypes.ACTIVATE_DRAWER, false)
+  }
+}
+
+export {
+  externalFrameHandler,
+  externalPassiveFrameHandler,
+  requiresUserAction,
+  activateDrawerIfClosed,
+}
