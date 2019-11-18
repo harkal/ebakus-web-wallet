@@ -6,7 +6,6 @@ import {
   loadedInIframe,
   replyToParentWindow,
 } from '@/parentFrameMessenger/parentFrameMessenger'
-import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
@@ -213,7 +212,7 @@ const checkIfEnoughBalance = tx => {
 
   if (parseFloat(value) < 0 || parseFloat(value) > balance) {
     if (loadedInIframe()) {
-      activateDrawerIfClosed()
+      store.commit(MutationTypes.ACTIVATE_DRAWER)
     }
 
     store.commit(MutationTypes.SHOW_DIALOG, {

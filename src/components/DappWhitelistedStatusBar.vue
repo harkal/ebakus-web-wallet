@@ -51,8 +51,6 @@ import {
 
 import MutationTypes from '@/store/mutation-types'
 
-import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
-
 import { nextAnimationFrame, cancelAnimationFrame } from '@/utils'
 
 export default {
@@ -98,7 +96,7 @@ export default {
   },
   mounted() {
     if (!checkIfEnoughBalance()) {
-      activateDrawerIfClosed()
+      this.$store.commit(MutationTypes.ACTIVATE_DRAWER)
     } else {
       this.getTxInfo()
 
@@ -153,7 +151,8 @@ export default {
         component: DialogComponents.SEND_TX,
         title: 'Send Confirmation',
       })
-      activateDrawerIfClosed()
+
+      this.$store.commit(MutationTypes.ACTIVATE_DRAWER)
     },
     openedWalletEntranceAnimation() {
       const whitelistStatusBar = this.$refs.whitelistStatusBar

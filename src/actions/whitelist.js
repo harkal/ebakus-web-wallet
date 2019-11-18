@@ -11,7 +11,6 @@ import {
   getTargetOrigin,
   loadedInIframe,
 } from '@/parentFrameMessenger/parentFrameMessenger'
-import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
 import router, { RouteNames } from '@/router'
 
@@ -204,7 +203,7 @@ const performWhitelistedAction = () => {
   }
 
   if (loadedInIframe()) {
-    activateDrawerIfClosed()
+    store.commit(MutationTypes.ACTIVATE_DRAWER)
   }
 }
 

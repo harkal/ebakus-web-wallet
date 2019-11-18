@@ -1,10 +1,12 @@
 import { nextAnimationFrame } from '@/utils'
 
+import MutationTypes from '@/store/mutation-types'
+import store from '@/store'
+
 import {
   externalFrameHandler,
   externalPassiveFrameHandler,
   requiresUserAction,
-  activateDrawerIfClosed,
 } from './handler'
 
 let _target, _targetOrigin, jobQueue
@@ -90,7 +92,7 @@ const receivedMessage = ev => {
   // open it so as user handles any previous requests
   const currentJob = jobQueue.current()
   if (currentJob && requiresUserAction()) {
-    activateDrawerIfClosed()
+    store.commit(MutationTypes.ACTIVATE_DRAWER)
   }
 
   jobQueue.add(data, _target, _targetOrigin)

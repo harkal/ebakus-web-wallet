@@ -57,9 +57,9 @@ export default {
     this.replaceState(newState)
   },
 
-  [MutationTypes.ACTIVATE_DRAWER](state, userAction) {
+  [MutationTypes.ACTIVATE_DRAWER](state, userAction = false) {
     state.ui.isDrawerActive = true
-    state.ui.isDrawerActiveByUser = userAction === false ? false : true // default: true
+    state.ui.isDrawerActiveByUser = !!userAction
   },
   [MutationTypes.DEACTIVATE_DRAWER](state) {
     state.ui.isDrawerActive = false
