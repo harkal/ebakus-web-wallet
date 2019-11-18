@@ -143,7 +143,7 @@ import { RouteNames } from '@/router'
 
 import Backup from './Backup'
 
-const MAX_WHITELIST_DELAY = 30
+const MAX_WHITELIST_DELAY = 10
 
 const Panes = {
   MAIN: 'MAIN',
@@ -387,7 +387,7 @@ hr {
 
   &::after {
     right: 0;
-    content: '30 sec';
+    content: '10 sec';
   }
 }
 
