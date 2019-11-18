@@ -419,7 +419,6 @@ export default {
   }
 
   #wallet.whitelisted:not(.opened) & {
-    min-height: 96px;
     height: auto;
     padding-left: 0;
 

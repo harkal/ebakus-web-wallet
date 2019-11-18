@@ -235,7 +235,6 @@ $button-width: 50px;
   justify-content: center;
   align-items: center;
 
-  position: relative;
   min-width: 263px;
   max-width: 370px;
   padding: 12px 16px;
@@ -245,6 +244,10 @@ $button-width: 50px;
   // display and opacity are set in App.js by animation handler
   display: none;
   opacity: 0;
+
+  #wallet.whitelisted:not(.opened) & {
+    min-height: 92px;
+  }
 }
 
 .popup {
@@ -268,6 +271,10 @@ $button-width: 50px;
       background-color: rgba(0, 0, 0, 0.3);
     }
   }
+
+  h3 {
+    color: #bec2c9;
+  }
 }
 
 .info {
@@ -285,6 +292,7 @@ h3 {
 
 h2 {
   font-size: 1em;
+  min-height: 44px;
 }
 
 h2 .caution {
@@ -294,7 +302,7 @@ h2 .caution {
 h3 {
   font-size: 0.7em;
   letter-spacing: 0.3px;
-  opacity: 0.7;
+  color: #b6b8bc;
 }
 
 .cancel {
