@@ -53,6 +53,10 @@ AnimationQueue.prototype.current = function() {
   return this.activeAnimation
 }
 
+AnimationQueue.prototype.isAnimating = function() {
+  return typeof this.activeAnimation === 'function'
+}
+
 const animationQueue = new AnimationQueue()
 
 export { nextAnimationFrame, cancelAnimationFrame, animationQueue }

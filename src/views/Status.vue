@@ -156,6 +156,8 @@ import Navigation from '@/components/Navigation'
 
 import { RouteNames } from '@/router'
 
+import { animationQueue } from '@/utils'
+
 import styleAnimationVariables from '@/assets/css/_animations.scss'
 
 const ButtonStates = {
@@ -224,10 +226,23 @@ export default {
     this.updateInnerHeight()
   },
   methods: {
+    isAnimating: function() {
+      return (
+        animationQueue.isAnimating() || this.spinnerState === 0
+      ) /* isAnimating or new page load */
+    },
     showWallet: function() {
+      if (this.isAnimating()) {
+        return
+      }
+
       this.$store.commit(MutationTypes.ACTIVATE_DRAWER, true)
     },
     hideWallet: function() {
+      if (this.isAnimating()) {
+        return
+      }
+
       this.$emit('hideWallet') // IMPORTANT: call before DEACTIVATE_DRAWER
       this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
       this.$store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
@@ -416,6 +431,8 @@ export default {
     border-right-width: 0;
     border-bottom-left-radius: 5px;
     box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
+
+    user-select: none;
   }
 
   #wallet.whitelisted:not(.opened) & {

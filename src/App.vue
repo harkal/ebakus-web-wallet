@@ -220,12 +220,13 @@ export default {
     )
   },
   mounted() {
+    const self = this
     this.$store.commit(
       MutationTypes.SET_SPINNER_STATE,
       SpinnerState.NODE_CONNECT
     )
 
-    nextAnimationFrame(this.hideWalletAnimation)
+    animationQueue.add(() => nextAnimationFrame(self.hideWalletAnimation))
 
     checkNodeConnection(true)
 
@@ -265,9 +266,6 @@ export default {
     },
     showWalletAnimation: function() {
       const self = this
-      if (!self.isDrawerActive) {
-        return
-      }
 
       if (loadedInIframe()) {
         expandFrameInParentWindow()
@@ -315,7 +313,7 @@ export default {
       const self = this
       const closeWalletAfterAnimation = self.closeWalletAfterAnimation
 
-      if (self.isDrawerActive && !self.closeWalletAfterAnimation) {
+      if (self.isDrawerActive && !closeWalletAfterAnimation) {
         return
       }
 
@@ -368,6 +366,10 @@ export default {
         const previousStatusWidth = getComputedStyle(status).width
         status.style.width = 'auto'
 
+        if (closeWalletAfterAnimation) {
+          status.style.height = 'auto'
+        }
+
         // fixes safari issues with animation, try to remove it
         if (waitForParentUpdate) {
           status.style.minWidth = previousStatusWidth
@@ -410,6 +412,10 @@ export default {
 
         self.isInitialRender = false
         self.userTriggeredAnimatingWallet = false
+
+        if (closeWalletAfterAnimation) {
+          status.style.height = null
+        }
       }
 
       if (identiconWidget) {
