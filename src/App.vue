@@ -69,7 +69,7 @@ import MutationTypes from '@/store/mutation-types'
 import SendTx from '@/components/dialogs/SendTx.vue'
 import Status from '@/views/Status'
 
-import { nextAnimationFrame } from '@/utils'
+import { nextAnimationFrame, animationQueue } from '@/utils'
 
 import styleVariables from '@/assets/css/_variables.scss'
 import styleAnimationVariables from '@/assets/css/_animations.scss'
@@ -93,7 +93,6 @@ export default {
     return {
       isInitialRender: true,
       userTriggeredAnimatingWallet: false,
-      isAnimating: false,
       successTimeout: null,
       lastAnimationReason: null,
       closeWalletAfterAnimation: false,
@@ -198,9 +197,10 @@ export default {
       }
     },
     balance: function(val, oldVal) {
-      if (!this.isDrawerActive && (val !== oldVal || oldVal !== '0')) {
+      const self = this
+      if (!self.isDrawerActive && (val !== oldVal || oldVal !== '0')) {
         setTimeout(() => {
-          nextAnimationFrame(this.hideWalletAnimation)
+          animationQueue.add(() => nextAnimationFrame(self.hideWalletAnimation))
         }, styleAnimationVariables.animationFadeEnter)
       }
     },
@@ -232,10 +232,11 @@ export default {
   },
   methods: {
     restyleWallet: function() {
+      const self = this
       if (this.isDrawerActive) {
-        nextAnimationFrame(this.showWalletAnimation)
+        animationQueue.add(() => nextAnimationFrame(self.showWalletAnimation))
       } else {
-        nextAnimationFrame(this.hideWalletAnimation)
+        animationQueue.add(() => nextAnimationFrame(self.hideWalletAnimation))
       }
     },
     loadWalletState: function() {
@@ -259,10 +260,9 @@ export default {
     },
     showWalletAnimation: function() {
       const self = this
-      if (this.isAnimating) {
+      if (!self.isDrawerActive) {
         return
       }
-      this.isAnimating = true
       const wallet = this.$refs.wallet
       const status = this.$refs.status.$el
       let identiconWidget
@@ -290,15 +290,17 @@ export default {
           identiconWidget.style.left = 'auto'
           identiconWidget.style.right = '126.5px'
         }
-        self.isAnimating = false
+
+        setTimeout(() => {
+          animationQueue.next()
+        }, styleAnimationVariables.animationWallet)
       })
     },
     hideWalletAnimation: async function() {
       const self = this
-      if (self.isAnimating || self.lastAnimationReason == self.spinnerState) {
+      if (self.isDrawerActive) {
         return
       }
-      self.isAnimating = true
       self.lastAnimationReason = self.spinnerState
 
       let waitForParentUpdate = false
@@ -419,15 +421,14 @@ export default {
           }
         }
 
-        if (self.closeWalletAfterAnimation) {
-          setTimeout(() => {
+        setTimeout(() => {
+          if (self.closeWalletAfterAnimation) {
             self.closeWalletAfterAnimation = false
             shrinkFrameInParentWindow()
-            self.isAnimating = false
-          }, styleAnimationVariables.animationWallet)
-        } else {
-          self.isAnimating = false
-        }
+          }
+
+          animationQueue.next()
+        }, styleAnimationVariables.animationWallet)
       })
     },
   },
@@ -488,6 +489,17 @@ export default {
     background: #fff;
 
     box-shadow: -2px -20px 14px 0 rgba(0, 0, 0, 0.15);
+  }
+
+  &.animating-closed-state {
+    transition: width animation-duration(status, base) / 3 ease-out 0s,
+      height animation-duration(wallet) / 3 cubic-bezier(0.25, 0.46, 0.45, 0.94)
+        0s,
+      box-shadow animation-duration(overlay, leave) / 3 ease-out 0s;
+
+    * {
+      transition-delay: 0s !important;
+    }
   }
 }
 
