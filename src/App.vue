@@ -314,6 +314,7 @@ export default {
       const closeWalletAfterAnimation = self.closeWalletAfterAnimation
 
       if (self.isDrawerActive && !closeWalletAfterAnimation) {
+        animationQueue.next()
         return
       }
 

@@ -22,6 +22,8 @@ const cancelAnimationFrame =
     window.clearTimeout(requestID)
   }
 
+let activeAnimationTimeout = null
+
 /**
  * Manages the jobs arriving from the parent frame
  * that loads the wallet in an iFrame
@@ -40,12 +42,24 @@ AnimationQueue.prototype.add = function(animation) {
 }
 
 AnimationQueue.prototype.next = function() {
+  if (activeAnimationTimeout) {
+    clearTimeout(activeAnimationTimeout)
+    activeAnimationTimeout = null
+  }
+
   // pick next job from list
   this.activeAnimation = this.animations.shift()
 
   // if a job found then call the handler
   if (typeof this.activeAnimation === 'function') {
     this.activeAnimation()
+
+    const self = this
+
+    // don't block interaction for more than a second
+    activeAnimationTimeout = setTimeout(() => {
+      self.next()
+    }, 1000)
   }
 }
 
