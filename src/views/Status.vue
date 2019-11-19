@@ -322,6 +322,7 @@ export default {
     margin: 0;
     font-size: 13px;
     line-height: 13px;
+    white-space: pre;
   }
 
   img {

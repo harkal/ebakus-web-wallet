@@ -27,12 +27,12 @@ const getBalanceCatchUpdateNetworkTimeouts = []
 const loadConfirmTxMsg = async () => {}
 
 const getBalance = async () => {
-  const { address, token: symbol } = store.state.wallet
+  const { address, tokenSymbol } = store.state.wallet
   if (!address) {
     return Promise.reject('No wallet created')
   }
 
-  const tokenInfo = getTokenInfoForSymbol(symbol)
+  const tokenInfo = getTokenInfoForSymbol(tokenSymbol)
 
   try {
     let wei
@@ -42,7 +42,7 @@ const getBalance = async () => {
       wei = await web3.eth.getBalance(address)
     }
 
-    if (symbol !== store.state.wallet.tokenSymbol) {
+    if (tokenSymbol !== store.state.wallet.tokenSymbol) {
       return Promise.reject('User changed selected token')
     }
 
