@@ -140,6 +140,8 @@
         />
       </transition-group>
     </div>
+
+    <div class="testnet">test-network</div>
   </div>
 </template>
 
@@ -376,6 +378,7 @@ export default {
   right: 0;
   width: 100%;
 }
+
 .btn-circle {
   position: absolute;
   width: 34px;
@@ -402,6 +405,33 @@ export default {
   &.exit {
     right: 0px;
   }
+}
+
+.testnet {
+  position: absolute;
+  top: 2px;
+  right: 14px;
+
+  color: #f3067c;
+
+  font-family: sans-serif;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-align: center;
+
+  user-select: none;
+}
+
+%testnet-opened {
+  top: 8px;
+
+  width: 88px;
+  border: solid 1px #f3067c;
+  border-radius: 2rem;
+
+  font-size: 11px;
+  font-weight: 400;
 }
 
 .status-bar {
@@ -448,6 +478,10 @@ export default {
     .buttons {
       display: none;
     }
+
+    .testnet {
+      @extend %testnet-opened;
+    }
   }
 
   .opened & {
@@ -478,6 +512,13 @@ export default {
     &.hasBalance.hasNavigation {
       height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
         $status-balance-height + $status-bar-padding + $status-navigation-height;
+    }
+
+    .testnet {
+      @extend %testnet-opened;
+
+      right: 50%;
+      transform: translateX(50%);
     }
   }
 }
