@@ -88,8 +88,8 @@ export default {
   [MutationTypes.SET_WALLET_BALANCE](state, balance) {
     state.wallet.balance = balance
   },
-  [MutationTypes.SET_ACTIVE_TOKEN](state, token = DefaultToken) {
-    state.wallet.token = token
+  [MutationTypes.SET_ACTIVE_TOKEN](state, tokenSymbol = DefaultToken) {
+    state.wallet.tokenSymbol = tokenSymbol
   },
 
   [MutationTypes.DELETE_WALLET](state) {

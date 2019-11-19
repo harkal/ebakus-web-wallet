@@ -86,13 +86,13 @@
       {{ balance | toEtherFixed }}
 
       <img
-        v-if="tokenSymbol == 'EBK'"
+        v-if="!network.isTestnet && tokenSymbol == 'EBK'"
         src="@/assets/img/ebakus_logo_small.svg"
         width="14"
         height="14"
       />
 
-      <span v-else>{{ tokenSymbol }}</span>
+      <span v-else> {{ tokenSymbol }}</span>
     </div>
 
     <div
@@ -187,7 +187,7 @@ export default {
       isLocked: state => state.wallet.locked,
       publicAddress: state => state.wallet.address,
       balance: state => state.wallet.balance,
-      tokenSymbol: state => state.wallet.token,
+      tokenSymbol: state => state.wallet.tokenSymbol,
     }),
 
     SpinnerState: () => SpinnerState,

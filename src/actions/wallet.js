@@ -42,7 +42,7 @@ const getBalance = async () => {
       wei = await web3.eth.getBalance(address)
     }
 
-    if (symbol !== store.state.wallet.token) {
+    if (symbol !== store.state.wallet.tokenSymbol) {
       return Promise.reject('User changed selected token')
     }
 

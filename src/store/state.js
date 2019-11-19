@@ -42,7 +42,7 @@ const initialState = {
     locked: true,
     address: null, // TODO: add getter that gives the checksumAddress
     balance: '0', // TODO: add getters for getting balanceInEther, etc
-    token: DefaultToken, // FIXME: rename to tokenSymbol
+    tokenSymbol: DefaultToken,
   },
 
   // transaction history, each entry will have a timestamp (sort)

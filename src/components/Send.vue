@@ -88,7 +88,7 @@ export default {
     ...mapState({
       isDrawerActive: state => state.ui.isDrawerActive,
       tokens: state => state.tokens,
-      tokenSymbol: state => state.wallet.token,
+      tokenSymbol: state => state.wallet.tokenSymbol,
       tx: state => state.tx.object,
     }),
     visible: function() {
