@@ -16,7 +16,11 @@
       <button class="full" :class="{ active: justCopied }" @click="doCopy">
         {{ btnLabel }}
       </button>
-      <VueQRCodeComponent :text="publicAddress" class="qrcode" size="240" />
+      <VueQRCodeComponent
+        :text="publicAddress"
+        class="qrcode"
+        :size="Number(240)"
+      />
       <GetFaucet />
     </div>
   </div>
