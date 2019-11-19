@@ -412,7 +412,7 @@ export default {
 .testnet {
   position: absolute;
   top: 2px;
-  right: 14px;
+  right: 12px;
 
   color: #f3067c;
 
@@ -422,18 +422,11 @@ export default {
   letter-spacing: 0.3px;
   text-align: center;
 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
   user-select: none;
-}
-
-%testnet-opened {
-  top: 8px;
-
-  width: 88px;
-  border: solid 1px #f3067c;
-  border-radius: 2rem;
-
-  font-size: 11px;
-  font-weight: 400;
 }
 
 .status-bar {
@@ -480,10 +473,6 @@ export default {
     .buttons {
       display: none;
     }
-
-    .testnet {
-      @extend %testnet-opened;
-    }
   }
 
   .opened & {
@@ -517,10 +506,16 @@ export default {
     }
 
     .testnet {
-      @extend %testnet-opened;
-
+      top: 8px;
       right: 50%;
       transform: translateX(50%);
+
+      width: 88px;
+      border: solid 1px #f3067c;
+      border-radius: 2rem;
+
+      font-size: 11px;
+      font-weight: 400;
     }
   }
 }
