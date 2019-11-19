@@ -42,7 +42,7 @@ const Networks = {
    * }
    * */
 
-  0: {
+  101: {
     name: 'Ebakus Testnet',
     testnet: true,
     provider: () => new Web3.providers.WebsocketProvider(process.env.NODE_URL),
@@ -50,7 +50,7 @@ const Networks = {
 }
 
 if (process.env.NODE_ENV === 'development') {
-  Networks[1] = {
+  Networks[1337] = {
     name: 'Ebakus Local node',
     testnet: true,
     provider: () => new Web3.providers.WebsocketProvider('ws://127.0.0.1:8546'),

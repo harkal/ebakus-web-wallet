@@ -1,7 +1,7 @@
 <template>
   <div class="receive scroll-wrapper">
     <div class="wrapper">
-      <div class="testnet">
+      <div v-if="network.isTestnet" class="testnet">
         <h2>
           Important!
         </h2>
@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import VueQRCodeComponent from 'vue-qrcode-component'
 import GetFaucet from './GetFaucet'
 
@@ -39,6 +39,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['network']),
     ...mapState({
       isDrawerActive: state => state.ui.isDrawerActive,
       publicAddress: state => state.wallet.address,

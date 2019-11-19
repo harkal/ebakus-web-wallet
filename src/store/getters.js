@@ -1,10 +1,21 @@
 import orderBy from 'lodash/orderBy'
 
+import { Networks } from '@/constants'
+
 export default {
   network(state) {
+    const networkId =
+      typeof state.network.networkId !== 'undefined'
+        ? state.network.networkId
+        : process.env.DEFAULT_NETWORK_ID
+
+    const networkOpts = Networks[networkId]
+    const isTestnet = networkOpts && networkOpts.testnet
+
     return {
-      networkId: state.network.network_id || process.env.DEFAULT_NETWORK_ID,
-      nodeAddress: state.network.node_address,
+      networkId,
+      isTestnet,
+      nodeAddress: state.network.nodeAddress,
       status: state.network.status,
     }
   },

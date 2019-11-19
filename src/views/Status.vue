@@ -141,12 +141,12 @@
       </transition-group>
     </div>
 
-    <div class="testnet">test-network</div>
+    <div v-if="network.isTestnet" class="testnet">test-network</div>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import { SpinnerState, DialogComponents } from '@/constants'
 
@@ -178,6 +178,7 @@ export default {
     },
   },
   computed: {
+    ...mapGetters(['network']),
     ...mapState({
       isDrawerActive: state => state.ui.isDrawerActive,
       isSpinnerActive: state => state.ui.isSpinnerActive,

@@ -141,8 +141,8 @@ export default {
   [MutationTypes.SET_NETWORK](state, data) {
     const { networkId, nodeAddress } = data
     state.network = {
-      network_id: networkId,
-      node_address: networkId == '-1' ? nodeAddress : '',
+      networkId: networkId,
+      nodeAddress: networkId == '-1' ? nodeAddress : '',
       status: NetworkStatus.DISCONNECTED,
     }
   },
