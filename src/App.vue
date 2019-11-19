@@ -365,6 +365,7 @@ export default {
         status.style.height = null // clears height from whitelisting status bar
 
         const previousStatusWidth = getComputedStyle(status).width
+        const previousStatusHeight = getComputedStyle(status).height
         status.style.width = 'auto'
 
         if (closeWalletAfterAnimation) {
@@ -415,7 +416,7 @@ export default {
         self.userTriggeredAnimatingWallet = false
 
         if (closeWalletAfterAnimation) {
-          status.style.height = null
+          status.style.height = previousStatusHeight
         }
       }
 
@@ -435,6 +436,10 @@ export default {
 
           wallet.style.height = finalStatusHeight
           status.style.width = finalStatusWidth
+
+          if (closeWalletAfterAnimation) {
+            status.style.height = null
+          }
 
           if (identiconWidget && finalStatusWidth) {
             identiconWidget.style.right = `${parseInt(finalStatusWidth, 10) -
