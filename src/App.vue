@@ -491,10 +491,14 @@ export default {
   width: auto;
   height: auto;
 
+  background-color: transparent;
+
   // close animation
   transition: width animation-duration(status, base) ease-out
       animation-duration(fade, leave),
-    height animation-duration(wallet) cubic-bezier(0.25, 0.46, 0.45, 0.94)
+    height animation-duration(wallet) / 2 cubic-bezier(0.25, 0.46, 0.45, 0.94)
+      animation-duration(fade, leave),
+    background-color animation-duration(overlay, leave) ease-out
       animation-duration(fade, leave),
     box-shadow animation-duration(overlay, leave) ease-out
       animation-duration(fade, leave);
@@ -521,15 +525,16 @@ export default {
     height: 105vh;
     padding-bottom: 5vh;
 
+    background: #fff;
+    box-shadow: -2px -20px 14px 0 rgba(0, 0, 0, 0.15);
+
     // open animation
     transition: width animation-duration(status, base) ease-out 0s,
       height animation-duration(wallet) cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s,
+      background-color animation-duration(overlay, enter) ease-out
+        animation-duration(status, base),
       box-shadow animation-duration(overlay, enter) ease-out
         animation-duration(status, base);
-
-    background: #fff;
-
-    box-shadow: -2px -20px 14px 0 rgba(0, 0, 0, 0.15);
   }
 
   &.animating-closed-state {
