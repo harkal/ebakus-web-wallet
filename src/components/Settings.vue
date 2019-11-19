@@ -367,7 +367,6 @@ hr {
     background: #fcfcfc;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.28),
       inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
-    box-shadow: -100vw 0 0 100vw dodgerblue;
     border-radius: 100%;
     border: 1px solid transparent;
   }
@@ -428,7 +427,6 @@ hr {
     background: #fcfcfc;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.28),
       inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
-    box-shadow: -100vw 0 0 100vw dodgerblue;
     border-radius: 100%;
     border: 1px solid transparent;
   }
