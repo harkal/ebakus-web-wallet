@@ -69,7 +69,6 @@ const calcWorkAndSendTx = async tx => {
     store.dispatch(MutationTypes.DEACTIVATE_DRAWER)
   }
 
-  const originalPendingTx = store.state.tx.object
   store.dispatch(MutationTypes.CLEAR_TX)
 
   try {
@@ -94,13 +93,6 @@ const calcWorkAndSendTx = async tx => {
     if (loadedInIframe()) {
       replyToParentWindow(receipt)
     }
-
-    const log = await getTxLogInfo({
-      ...originalPendingTx,
-      ...receipt,
-      hash: receipt.transactionHash,
-    })
-    store.dispatch(MutationTypes.ADD_LOCAL_LOG, log)
   } catch (err) {
     console.log('calcWorkAndSendTx err', err)
 
