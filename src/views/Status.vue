@@ -195,7 +195,11 @@ export default {
     ButtonStates: () => ButtonStates,
 
     buttonState: function() {
-      if (this.$route.name == RouteNames.UNLOCK) {
+      if (
+        [RouteNames.UNLOCK, RouteNames.SAFARI_WARNING].includes(
+          this.$route.name
+        )
+      ) {
         return ButtonStates.UNLOCK
       } else if (this.$route.name == RouteNames.WHITELIST_DAPP) {
         return ButtonStates.NONE
