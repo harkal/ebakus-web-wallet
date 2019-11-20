@@ -74,9 +74,7 @@ import { nextAnimationFrame, animationQueue } from '@/utils'
 import styleVariables from '@/assets/css/_variables.scss'
 import styleAnimationVariables from '@/assets/css/_animations.scss'
 
-function timeout(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
+const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 export default {
   components: {
@@ -175,8 +173,7 @@ export default {
 
         if (
           !self.isDrawerActive &&
-          !(val & SpinnerState.SKIP_WALLET_ANIMATIONS) &&
-          loadedInIframe()
+          !(val & SpinnerState.SKIP_WALLET_ANIMATIONS)
         ) {
           self.restyleWallet()
         }
@@ -204,9 +201,7 @@ export default {
     balance: function(val, oldVal) {
       const self = this
       if (!self.isDrawerActive && (val !== oldVal || oldVal !== '0')) {
-        setTimeout(() => {
-          animationQueue.add(() => nextAnimationFrame(self.hideWalletAnimation))
-        }, styleAnimationVariables.animationFadeEnter)
+        animationQueue.add(() => nextAnimationFrame(self.hideWalletAnimation))
       }
     },
   },
