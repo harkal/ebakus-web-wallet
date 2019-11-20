@@ -69,6 +69,7 @@ const initialState = {
       active: false,
       component: '',
       title: '',
+      data: null,
     },
   },
 

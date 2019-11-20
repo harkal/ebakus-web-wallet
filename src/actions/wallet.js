@@ -148,6 +148,8 @@ const secureWallet = pass => {
     if (newAcc) {
       resolve(newAcc)
     } else {
+      store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
+
       reject(new Error('account already encrypted'))
     }
   })
@@ -244,7 +246,9 @@ const exitDialog = () => {
   if (
     !store.state.ui.isDrawerActiveByUser &&
     ([RouteNames.NEW, RouteNames.SAFARI_WARNING].includes(routeName) ||
-      component === DialogComponents.NO_FUNDS)
+      [DialogComponents.FAILED_TX, DialogComponents.NO_FUNDS].includes(
+        component
+      ))
   ) {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
   }

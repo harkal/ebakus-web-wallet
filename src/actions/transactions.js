@@ -69,6 +69,9 @@ const calcWorkAndSendTx = async tx => {
     store.dispatch(MutationTypes.DEACTIVATE_DRAWER)
   }
 
+  const originalPendingTxJobId = store.state.tx.jobId
+  const originalPendingTx = store.state.tx.object
+
   store.dispatch(MutationTypes.CLEAR_TX)
 
   try {
@@ -85,22 +88,40 @@ const calcWorkAndSendTx = async tx => {
 
     const receipt = await web3.eth.sendTransaction(tx)
 
+    if (!receipt.status) {
+      throw new Error('Transaction failed')
+    }
+
     store.dispatch(
       MutationTypes.SET_SPINNER_STATE,
       SpinnerState.TRANSACTION_SENT_SUCCESS
     )
 
-    if (loadedInIframe()) {
+    if (loadedInIframe() && originalPendingTxJobId) {
       replyToParentWindow(receipt)
     }
+
+    loadTxsInfoFromExplorer()
   } catch (err) {
     console.log('calcWorkAndSendTx err', err)
 
     store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
 
-    if (loadedInIframe()) {
+    activateDrawerIfClosed()
+
+    store.commit(MutationTypes.SHOW_DIALOG, {
+      component: DialogComponents.FAILED_TX,
+      title: 'Transaction Failed',
+      data: {
+        ...originalPendingTx,
+      },
+    })
+
+    if (loadedInIframe() && originalPendingTxJobId) {
       replyToParentWindow(null, err.message)
     }
+
+    loadTxsInfoFromExplorer()
   }
 }
 

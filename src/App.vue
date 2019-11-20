@@ -79,13 +79,17 @@ const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 export default {
   components: {
     Status,
+    SendTx,
+    FailedTx: () =>
+      import(
+        /* webpackChunkName: "failed-tx" */ './components/dialogs/FailedTx'
+      ),
     DeleteWallet: () =>
       import(
         /* webpackChunkName: "delete-wallet" */ './components/dialogs/DeleteWallet'
       ),
     NoFunds: () =>
       import(/* webpackChunkName: "no-funds" */ './components/dialogs/NoFunds'),
-    SendTx,
   },
   data() {
     return {
