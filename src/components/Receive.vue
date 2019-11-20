@@ -88,10 +88,6 @@ export default {
   padding: 10px 0px;
 }
 
-.scroll-wrapper {
-  overflow-y: auto;
-}
-
 .testnet {
   margin: -20px -39px 0;
   padding: 20px 39px;

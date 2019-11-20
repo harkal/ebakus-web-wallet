@@ -4,7 +4,9 @@
 
 * {
   box-sizing: border-box;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html,
@@ -77,6 +79,7 @@ a {
   ); /* --vh is set at App.vue and --status-bar-vh at Status.vue */
   opacity: 1;
   // animation: contentGrowAnimation animation-duration(scrollWrapper) ease-out;
+  overflow-x: hidden;
   overflow-y: auto;
 
   @media only screen and (max-width: 600px) {
