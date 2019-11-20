@@ -4,7 +4,7 @@ const DefaultToken = 'EBK'
 const DefaultDappWhitelistTimer = 3 * 1000
 
 const SPINNER_RUNNING = 1 << 8
-const SKIP_WALLET_ANIMATIONS = 1 << 16
+const SKIP_WALLET_ANIMATIONS = 1 << 9
 const SpinnerState = {
   SPINNER_RUNNING,
   SKIP_WALLET_ANIMATIONS,
