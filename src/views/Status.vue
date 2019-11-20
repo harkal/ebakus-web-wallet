@@ -92,7 +92,9 @@
         height="14"
       />
 
-      <span v-else> {{ tokenSymbol }}</span>
+      <span v-else>{{
+        network.isTestnet ? ` t${tokenSymbol}` : ` ${tokenSymbol}`
+      }}</span>
     </div>
 
     <div
@@ -101,7 +103,7 @@
       class="balance balanceOpened"
     >
       {{ balance | toEtherFixed }}
-      <p>{{ tokenSymbol }}</p>
+      <p><span v-if="network.isTestnet">t</span>{{ tokenSymbol }}</p>
     </div>
 
     <p v-if="hasTitle" key="title" class="title">
@@ -141,7 +143,19 @@
       </transition-group>
     </div>
 
-    <div v-if="network.isTestnet" class="testnet">test-network</div>
+    <div
+      v-if="
+        network.isTestnet &&
+          ![
+            SpinnerState.NODE_CONNECT,
+            SpinnerState.NODE_CONNECTED,
+            SpinnerState.NODE_DISCONNECTED,
+          ].includes(spinnerState)
+      "
+      class="testnet"
+    >
+      test-network
+    </div>
   </div>
 </template>
 
@@ -326,7 +340,6 @@ export default {
     margin: 0;
     font-size: 13px;
     line-height: 13px;
-    white-space: pre;
   }
 
   img {
@@ -344,6 +357,10 @@ export default {
   justify-content: flex-end;
 
   margin: 0 8px;
+
+  span {
+    white-space: pre;
+  }
 }
 
 .balanceOpened {
@@ -416,7 +433,7 @@ export default {
 .testnet {
   position: absolute;
   top: 2px;
-  right: 12px;
+  right: 8px;
 
   color: #f3067c;
 
