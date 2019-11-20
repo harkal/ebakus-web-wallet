@@ -106,6 +106,7 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   if (
     isSafari &&
+    from.name !== null && // check that it is not initial render
     to.name !== RouteNames.SAFARI_WARNING &&
     !store.state.isSafariAllowed
   ) {
