@@ -13,6 +13,10 @@ import Settings from '@/components/Settings.vue'
 
 import store from '@/store'
 
+import { isSafari } from '@/utils'
+
+import styleAnimationVariables from '@/assets/css/_animations.scss'
+
 Vue.use(Router)
 
 const RouteNames = {
@@ -29,6 +33,8 @@ const RouteNames = {
   WHITELIST_CONTRACT_FOR_DAPP: 'whitelist_CONTRACT_FOR_dapp',
 
   SETTINGS: 'settings',
+
+  SAFARI_WARNING: 'safari_warning',
 }
 
 const router = new Router({
@@ -85,12 +91,37 @@ const router = new Router({
       name: RouteNames.SETTINGS,
       component: Settings,
     },
+
+    {
+      path: '/safari-warning',
+      name: RouteNames.SAFARI_WARNING,
+      component: () =>
+        import(
+          /* webpackChunkName: "safari-warning" */ '@/components/SafariWarning'
+        ),
+    },
   ],
 })
 
 router.beforeEach((to, from, next) => {
   if (
-    ![RouteNames.NEW, RouteNames.IMPORT, RouteNames.UNLOCK].includes(to.name) &&
+    isSafari &&
+    to.name !== RouteNames.SAFARI_WARNING &&
+    !store.state.isSafariAllowed
+  ) {
+    setTimeout(() => {
+      next({
+        name: RouteNames.SAFARI_WARNING,
+        query: { redirectFrom: to.name },
+      })
+    }, styleAnimationVariables.animationWallet)
+  } else if (
+    ![
+      RouteNames.NEW,
+      RouteNames.IMPORT,
+      RouteNames.UNLOCK,
+      RouteNames.SAFARI_WARNING,
+    ].includes(to.name) &&
     store.state.wallet.locked
   ) {
     next({ name: RouteNames.UNLOCK, query: { redirectFrom: to.name } })

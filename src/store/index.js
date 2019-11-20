@@ -29,6 +29,7 @@ store.subscribe(({ type }, state) => {
       MutationTypes.SET_DAPP_WHITELIST_TIMER,
       MutationTypes.ADD_CONTRACT_TO_DAPP_WHITELIST,
       MutationTypes.REMOVE_DAPP_FROM_WHITELIST,
+      MutationTypes.GRANT_SAFARI_ACCESS,
     ].includes(type)
   ) {
     return
@@ -38,6 +39,7 @@ store.subscribe(({ type }, state) => {
     version: state.version,
     network: state.network,
     whitelist: state.whitelist,
+    isSafariAllowed: state.isSafariAllowed,
   }
 
   if (typeof store.network.status !== 'undefined') {

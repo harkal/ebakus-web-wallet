@@ -71,6 +71,8 @@ const initialState = {
       title: '',
     },
   },
+
+  isSafariAllowed: false, // warn users that dapps doesn't share same wallet on behalf of privacy
 }
 
 export default () => ({

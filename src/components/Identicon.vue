@@ -6,11 +6,24 @@
       class="identicon"
       :class="{ placeholder: !publicKey || publicKey == '' }"
     />
+
+    <img
+      v-if="showSafariIdenticon"
+      src="@/assets/img/ic-safari-disabled.png"
+      srcset="
+        @/assets/img/ic-safari-disabled@2x.png 2x,
+        @/assets/img/ic-safari-disabled@3x.png 3x
+      "
+      class="safari"
+    />
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import jazzicon from 'jazzicon'
+
+import { isSafari } from '@/utils'
 
 export default {
   props: {
@@ -19,6 +32,17 @@ export default {
       default: '',
     },
   },
+  computed: {
+    ...mapState({
+      isDrawerActive: state => state.ui.isDrawerActive,
+      isSafariAllowed: state => state.isSafariAllowed,
+    }),
+
+    showSafariIdenticon: function() {
+      return isSafari && !this.isSafariAllowed && this.isDrawerActive
+    },
+  },
+
   watch: {
     publicKey() {
       this.init()
@@ -48,8 +72,11 @@ export default {
 <style scoped lang="scss">
 @import '../assets/css/variables';
 @import '../assets/css/animations';
+@import '../assets/css/z-index';
 
 .widget {
+  @include z-index(widget);
+
   --widget-size: #{$widget-size-base};
 
   position: absolute;
@@ -64,7 +91,6 @@ export default {
   border: $widget-border-width solid transparent;
   border-radius: $widget-size-opened;
   box-shadow: 0 2px 14px 0 rgba(0, 0, 0, 0.15);
-  z-index: 9999;
   pointer-events: initial;
 
   transform-origin: center;
@@ -117,6 +143,8 @@ export default {
 }
 
 .identicon {
+  @include z-index(widgetIdenticon);
+
   position: relative;
   top: -$widget-border-width;
   // left: -$widget-border-width;
@@ -153,8 +181,21 @@ export default {
   }
 }
 
+.safari {
+  @include z-index(widgetSafariIdenticon);
+
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 80px;
+  height: 80px;
+
+  object-fit: contain;
+}
+
 .widget,
 .widget::before,
+.identicon.placeholder::after,
 .identicon::v-deep > div {
   // close animation
   transition: top animation-duration(status, base) ease-out,

@@ -232,7 +232,8 @@ const exitDialog = () => {
 
   if (
     !store.state.ui.isDrawerActiveByUser &&
-    (routeName === RouteNames.NEW || component === DialogComponents.NO_FUNDS)
+    ([RouteNames.NEW, RouteNames.SAFARI_WARNING].includes(routeName) ||
+      component === DialogComponents.NO_FUNDS)
   ) {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
   }

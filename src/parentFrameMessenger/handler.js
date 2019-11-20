@@ -16,7 +16,11 @@ import {
 const unlockWallet = () => {
   const routeName = router.app.$route.name
 
-  if ([RouteNames.NEW, RouteNames.UNLOCK].includes(routeName)) {
+  if (
+    [RouteNames.NEW, RouteNames.UNLOCK, RouteNames.SAFARI_WARNING].includes(
+      routeName
+    )
+  ) {
     activateDrawerIfClosed()
   }
 }
@@ -60,7 +64,11 @@ const sendTransaction = async payload => {
 
   const routeName = router.app.$route.name
 
-  if (![RouteNames.NEW, RouteNames.UNLOCK].includes(routeName)) {
+  if (
+    ![RouteNames.NEW, RouteNames.UNLOCK, RouteNames.SAFARI_WARNING].includes(
+      routeName
+    )
+  ) {
     performWhitelistedAction()
     return
   }

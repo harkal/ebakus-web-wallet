@@ -1,3 +1,7 @@
+const isSafari = /^((?!chrome|android).)*safari/i.test(
+  navigator.userAgent || navigator.vendor || window.opera
+)
+
 const nextAnimationFrame =
   window.requestAnimationFrame ||
   window.webkitRequestAnimationFrame ||
@@ -73,4 +77,4 @@ AnimationQueue.prototype.isAnimating = function() {
 
 const animationQueue = new AnimationQueue()
 
-export { nextAnimationFrame, cancelAnimationFrame, animationQueue }
+export { isSafari, nextAnimationFrame, cancelAnimationFrame, animationQueue }

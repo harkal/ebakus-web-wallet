@@ -236,4 +236,8 @@ export default {
     delete state.whitelist[origin]
     state.whitelist = { ...state.whitelist }
   },
+
+  [MutationTypes.GRANT_SAFARI_ACCESS](state) {
+    state.isSafariAllowed = true
+  },
 }
