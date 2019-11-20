@@ -32,7 +32,7 @@ const loadConfirmTxMsg = async () => {}
 const getBalance = async () => {
   const { address, tokenSymbol } = store.state.wallet
   if (!address) {
-    return Promise.reject('No wallet created')
+    return Promise.reject(new Error('No wallet has been created'))
   }
 
   const tokenInfo = getTokenInfoForSymbol(tokenSymbol)
@@ -46,7 +46,7 @@ const getBalance = async () => {
     }
 
     if (tokenSymbol !== store.state.wallet.tokenSymbol) {
-      return Promise.reject('User changed selected token')
+      return Promise.reject(new Error('User changed selected token'))
     }
 
     if (getBalanceCatchUpdateNetworkTimeouts.length > 0) {

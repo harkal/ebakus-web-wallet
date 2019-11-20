@@ -44,7 +44,14 @@ const getBalance = payload => {
       replyToParentWindow(balance, null, payload)
     })
     .catch(err => {
-      replyToParentWindow(null, err, payload)
+      replyToParentWindow(
+        null,
+        {
+          code: 'balance_updater_failure',
+          msg: err.message,
+        },
+        payload
+      )
     })
 }
 

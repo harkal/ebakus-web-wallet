@@ -59,7 +59,10 @@ const calcWork = async tx => {
     store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
 
     if (loadedInIframe()) {
-      replyToParentWindow(null, err.message)
+      replyToParentWindow(null, {
+        code: 'calc_pow_failure',
+        msg: err.message,
+      })
     }
   }
 }
@@ -118,7 +121,10 @@ const calcWorkAndSendTx = async tx => {
     })
 
     if (loadedInIframe() && originalPendingTxJobId) {
-      replyToParentWindow(null, err.message)
+      replyToParentWindow(null, {
+        code: 'send_tx_failure',
+        msg: err.message,
+      })
     }
 
     loadTxsInfoFromExplorer()
@@ -135,7 +141,10 @@ const cancelPendingTx = () => {
   store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.CANCEL)
 
   if (loadedInIframe()) {
-    replyToParentWindow(null, 'Transaction cancelled by user')
+    replyToParentWindow(null, {
+      code: 'send_tx_cancel',
+      msg: 'Transaction cancelled by user',
+    })
 
     if (!store.state.ui.isDrawerActiveByUser) {
       store.commit(MutationTypes.UNSET_OVERLAY_COLOR)

@@ -49,7 +49,10 @@ export default {
     this.$store.commit(MutationTypes.SET_OVERLAY_COLOR, 'red')
 
     if (loadedInIframe()) {
-      replyToParentWindow(null, 'no_funds')
+      replyToParentWindow(null, {
+        code: 'no_funds',
+        msg: 'Account has not enough balance',
+      })
     }
 
     const balance = parseFloat(web3.utils.fromWei(this.balance))
