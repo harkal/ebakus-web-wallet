@@ -181,7 +181,18 @@ const replyToParentWindow = (res, err, job) => {
   if (err) {
     payload.err = err
   }
-  postMessage(payload)
+
+  let target, targetOrigin
+  if (typeof payload.target !== 'undefined') {
+    target = payload.target
+    delete payload.target
+  }
+  if (typeof payload.targetOrigin !== 'undefined') {
+    targetOrigin = payload.targetOrigin
+    delete payload.targetOrigin
+  }
+
+  postMessage(payload, target, targetOrigin)
 }
 const expandFrameInParentWindow = () => postMessage({ cmd: 'active' })
 const shrinkFrameInParentWindow = () => {
