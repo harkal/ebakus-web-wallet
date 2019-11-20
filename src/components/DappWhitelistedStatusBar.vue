@@ -40,7 +40,11 @@ import {
 } from '@/actions/whitelist'
 import { getTokenInfoForContractAddress, decodeData } from '@/actions/tokens'
 
-import { checkIfEnoughBalance, calcWorkAndSendTx } from '@/actions/transactions'
+import {
+  checkIfEnoughBalance,
+  calcWorkAndSendTx,
+  getTokenSymbolPrefix,
+} from '@/actions/transactions'
 import { web3 } from '@/actions/web3ebakus'
 
 import {
@@ -165,6 +169,7 @@ export default {
       let value = tx.value || '0'
       value = Vue.options.filters.toEther(value)
 
+      const tokenSymbolPrefix = getTokenSymbolPrefix(tx.chainId)
       let data = tx.data || tx.input
 
       let decodedData
@@ -172,7 +177,7 @@ export default {
       this.preTitle = 'You are about'
 
       if (value > 0) {
-        this.amountTitle = `to spend ${value} EBK`
+        this.amountTitle = `to spend ${value} ${tokenSymbolPrefix}EBK`
       } else {
         this.postTitle = '...' // for slow networks, where the await below takes too long
       }
@@ -205,7 +210,7 @@ export default {
               String(tokenValue)
             )} ${token.symbol}`
           } else if (name === 'getWei') {
-            this.emTitle = 'to request 1 EBK'
+            this.emTitle = `to request 1 ${tokenSymbolPrefix}EBK`
             this.postTitle = 'from faucet'
           } else {
             this.emTitle = `to call ${name}`
