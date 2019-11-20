@@ -163,6 +163,8 @@ const getTargetOrigin = () => {
   return _targetOrigin
 }
 
+const getParentWindowCurrentJob = () => jobQueue.current()
+
 const replyToParentWindow = (res, err, job) => {
   if (!job || !job.id) {
     const { data: { id: currentJobId } = {} } = jobQueue.current() || {}
@@ -248,6 +250,7 @@ export default init
 export {
   getTargetOrigin,
   loadedInIframe,
+  getParentWindowCurrentJob,
   replyToParentWindow,
   expandFrameInParentWindow,
   shrinkFrameInParentWindow,

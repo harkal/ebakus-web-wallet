@@ -9,8 +9,11 @@ import {
 } from '@/constants'
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
+
 import {
   loadedInIframe,
+  getParentWindowCurrentJob,
+  replyToParentWindow,
   frameEventBalanceUpdated,
   frameEventConnectionStatusUpdated,
 } from '@/parentFrameMessenger/parentFrameMessenger'
@@ -100,6 +103,14 @@ const generateWallet = () => {
     web3.eth.accounts.wallet.add(newAcc)
 
     store.dispatch(MutationTypes.SET_WALLET_ADDRESS, newAcc.address)
+
+    if (loadedInIframe()) {
+      const currentJob = getParentWindowCurrentJob()
+      const { data: { cmd } = {} } = currentJob || {}
+      if (cmd === 'defaultAddress') {
+        replyToParentWindow(newAcc.address, null, currentJob)
+      }
+    }
 
     // Add to log
     const newAccLog = {

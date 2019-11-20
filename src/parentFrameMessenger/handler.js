@@ -35,12 +35,6 @@ const defaultAddress = payload => {
 
   if (localAddr) {
     replyToParentWindow(localAddr, null, payload)
-  } else {
-    const err = {
-      code: 'noAccountFound',
-      desc: 'No account found in wallet',
-    }
-    replyToParentWindow(null, err, payload)
   }
 }
 
