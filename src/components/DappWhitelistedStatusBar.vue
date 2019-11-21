@@ -215,6 +215,8 @@ export default {
           } else {
             this.emTitle = `to call ${name}`
           }
+        } else {
+          this.emTitle = `to call a contract method`
         }
       }
 
