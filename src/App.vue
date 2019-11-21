@@ -442,7 +442,7 @@ export default {
 
           if (identiconWidget && finalStatusWidth) {
             identiconWidget.style.right = `${parseInt(finalStatusWidth, 10) -
-              33}px` // includes widget size + padding
+              35}px` // includes widget size + padding
           }
 
           if (loadedInIframe()) {

@@ -1,20 +1,10 @@
 <template>
-  <div class="widget">
+  <div class="widget" :class="{ safari: showSafariIdenticon }">
     <div
       id="identicon"
       ref="identicon"
       class="identicon"
       :class="{ placeholder: !publicKey || publicKey == '' }"
-    />
-
-    <img
-      v-if="showSafariIdenticon"
-      src="@/assets/img/ic-safari-disabled.png"
-      srcset="
-        @/assets/img/ic-safari-disabled@2x.png 2x,
-        @/assets/img/ic-safari-disabled@3x.png 3x
-      "
-      class="safari"
     />
   </div>
 </template>
@@ -84,6 +74,10 @@ export default {
   top: 8px;
   left: 8px;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   width: var(--widget-size) !important;
   height: var(--widget-size);
 
@@ -110,7 +104,6 @@ export default {
     border-radius: 100%;
     box-sizing: border-box;
     opacity: 0;
-    transform: translateZ(0);
     animation: rotation 1s infinite linear;
   }
 
@@ -140,63 +133,67 @@ export default {
     background-color: #121212;
     border-color: #fff;
   }
+
+  &.safari {
+    border-color: transparent;
+    border-radius: 0;
+    background-image: url(../assets/img/ic-safari-disabled.png);
+    background-image: image-set(
+      url(../assets/img/ic-safari-disabled.png) 1x,
+      url(../assets/img/ic-safari-disabled@2x.png) 2x,
+      url(../assets/img/ic-safari-disabled@3x.png) 3x
+    );
+    background-repeat: no-repeat;
+
+    background-position: center center;
+    background-size: var(--widget-size);
+
+    .opened & {
+      background-position: -7px -5px;
+      background-size: calc(var(--widget-size) + 8px);
+    }
+
+    &::before {
+      display: none;
+    }
+
+    .identicon ::v-deep > div {
+      display: none !important;
+    }
+  }
 }
 
 .identicon {
   @include z-index(widgetIdenticon);
 
-  position: relative;
-  top: -$widget-border-width;
-  // left: -$widget-border-width;
-  right: 0;
-  width: calc(var(--widget-size) - #{$widget-border-width * 2});
-  height: calc(var(--widget-size) - #{$widget-border-width * 2});
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
   border-radius: var(--widget-size);
 
   &.placeholder::after {
     content: '';
     display: block;
-    position: absolute;
-    top: $widget-border-width;
-    left: 0;
-    bottom: -$widget-border-width;
-    right: 0;
+    width: 86%;
+    height: 86%;
     border-radius: var(--widget-size);
     background-color: rgba(251, 251, 251, 0.15);
   }
 
   ::v-deep > div {
-    position: relative;
-    top: 0;
-    left: -($widget-border-width * 1);
-    transform: translateZ(0);
-    transform-origin: 0 0;
-    transform: scale(0.25);
+    transform: scale(0.26);
+    flex: 1 0 auto;
 
     .opened & {
-      top: ($widget-border-width * 3);
-      left: ($widget-border-width * 2);
-      transform: scale(0.55);
+      transform: scale(0.56);
     }
   }
 }
 
-.safari {
-  @include z-index(widgetSafariIdenticon);
-
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 80px;
-  height: 80px;
-
-  object-fit: contain;
-}
-
-.widget,
-.widget::before,
-.identicon.placeholder::after,
-.identicon::v-deep > div {
+.widget {
   // close animation
   transition: top animation-duration(status, base) ease-out,
     right animation-duration(status, base) ease-out,
@@ -217,18 +214,22 @@ export default {
   }
 }
 
-.identicon::v-deep > div {
+.widget::before {
   // close animation
-  transition: top animation-duration(status, base) ease-out,
-    left animation-duration(status, base) ease-out,
-    transform animation-duration(status, identicon) ease-out;
+  transition: width animation-duration(status, identicon) ease-out,
+    height animation-duration(status, identicon) ease-out;
   transition-delay: animation-duration(fade, leave);
 
-  .animating-closed-state & {
-    transition: top animation-duration(status, base) / 3 ease-out,
-      left animation-duration(status, base) / 3 ease-out;
+  .opened & {
+    // open animation
     transition-delay: 0s;
   }
+}
+
+.identicon::v-deep > div {
+  // close animation
+  transition: transform animation-duration(status, identicon) ease-out;
+  transition-delay: animation-duration(fade, leave);
 
   .opened & {
     // open animation
