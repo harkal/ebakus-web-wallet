@@ -320,9 +320,15 @@ export default {
       let waitForParentUpdate = false
       if (
         self.spinnerState == SpinnerState.TRANSACTION_WHITELISTED_TIMER &&
-        window.outerWidth >= 400
+        window.outerWidth >=
+          parseInt(styleVariables.statusBarWhitelistMobileBreakpoint, 10)
       ) {
-        await resizeFrameWidthInParentWindow(400, 120)
+        const width =
+          window.outerWidth >=
+          parseInt(styleVariables.statusBarWhitelistMobileBreakpoint, 10)
+            ? 400
+            : window.outerWidth
+        await resizeFrameWidthInParentWindow(width, 120)
         waitForParentUpdate = true
       }
 
@@ -446,9 +452,10 @@ export default {
           }
 
           if (loadedInIframe()) {
+            const extraShadowSize = whitelistStatusBar ? 13 : 0
             await resizeFrameWidthInParentWindow(
-              finalStatusWidth,
-              finalStatusHeight
+              Math.ceil(parseFloat(finalStatusWidth)) + extraShadowSize,
+              Math.ceil(parseFloat(finalStatusHeight)) + extraShadowSize
             )
           }
         }
