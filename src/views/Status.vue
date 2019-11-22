@@ -56,7 +56,7 @@
       <img
         v-else-if="spinnerState === SpinnerState.NODE_CONNECT"
         key="connecting"
-        src="@/assets/img/ic_connecting.svg"
+        :src="require('!!url-loader?limit=true!@/assets/img/ic_connecting.svg')"
         width="16"
         height="31"
         class="animate-fade-in-out"
@@ -71,7 +71,9 @@
       <img
         v-else-if="spinnerState === SpinnerState.NODE_DISCONNECTED"
         key="disconnected"
-        src="@/assets/img/ic_disconnected.svg"
+        :src="
+          require('!!url-loader?limit=true!@/assets/img/ic_disconnected.svg')
+        "
         width="21"
         height="31"
         title="Connection lost try refreshing the page."
