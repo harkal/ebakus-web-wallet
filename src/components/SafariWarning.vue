@@ -6,8 +6,8 @@ import { exitDialog } from '../actions/wallet';
         Hey There!
       </h1>
       <h2>
-        Unfortunately the ebakus web wallet does not support safari at this
-        time.
+        Unfortunately the ebakus web wallet does not support use accross
+        different dApps on safari based browsers at this time.
       </h2>
 
       <h3>
