@@ -1,4 +1,5 @@
 import Web3 from 'web3'
+import merge from 'lodash/merge'
 
 import { version } from '../../package.json'
 
@@ -24,9 +25,8 @@ export default {
       // check the version stored against current
       // If different, don't load the cached version
       if (store.version == version) {
-        newState = { ...newState, ...store }
+        newState = merge({}, newState, store)
       } else {
-        // TODO: maybe we can deep merge
         newState.version = version
       }
     }
