@@ -1,6 +1,55 @@
+import Web3 from 'web3'
+
+import { localStorageGetFromParent } from '@/parentFrameMessenger/parentFrameMessenger'
+import { StorageNames } from '@/constants'
+
 import MutationTypes from './mutation-types'
 
 export default {
+  async [MutationTypes.INITIALISE_REMOTE_STORE](context) {
+    let newState = {}
+
+    // preload store from remote localStorage
+    const walletStore = await localStorageGetFromParent(
+      StorageNames.WALLET_STORE
+    )
+    if (walletStore) {
+      let store = JSON.parse(walletStore)
+      newState = { ...store }
+    }
+
+    const logs = await localStorageGetFromParent(StorageNames.LOGS)
+    if (logs) {
+      let parsedLogs = JSON.parse(logs)
+      newState = {
+        ...newState,
+        history: {
+          local: { ...parsedLogs },
+        },
+      }
+    }
+
+    const web3data = await localStorageGetFromParent(StorageNames.WEB3_WALLET)
+    if (web3data) {
+      localStorage.setItem(StorageNames.WEB3_WALLET, web3data)
+
+      let parsedWeb3data = JSON.parse(web3data)
+      const tempWeb3 = new Web3()
+      const address = tempWeb3.utils.toChecksumAddress(
+        parsedWeb3data[0].address
+      )
+      newState = {
+        ...newState,
+        wallet: { address: address },
+      }
+    }
+
+    if (Object.keys(newState).length > 0) {
+      context.commit(MutationTypes.MERGE_REMOTE_STORE, newState)
+    }
+
+    context.commit(MutationTypes.STORE_LOADED)
+  },
   [MutationTypes.ACTIVATE_DRAWER](context) {
     context.commit(MutationTypes.ACTIVATE_DRAWER)
   },

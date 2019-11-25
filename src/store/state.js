@@ -5,6 +5,8 @@ import { DefaultToken, NetworkStatus } from '@/constants'
 const initialState = {
   version,
 
+  isStateLoaded: false,
+
   // current operating transaction at wallet
   tx: {
     object: {},

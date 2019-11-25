@@ -16,7 +16,7 @@ import MutationTypes from './mutation-types'
 
 export default {
   [MutationTypes.INITIALISE_STORE](state) {
-    let newState = { ...state }
+    let newState = { ...state, isStateLoaded: true }
 
     // preload store from localStorage
     if (localStorage.getItem(StorageNames.WALLET_STORE)) {
@@ -55,6 +55,23 @@ export default {
     }
 
     this.replaceState(newState)
+  },
+
+  [MutationTypes.MERGE_REMOTE_STORE](state, remoteState) {
+    let newState = { ...state }
+
+    if (remoteState) {
+      if (remoteState.version == version) {
+        newState = merge({}, newState, remoteState)
+      } else {
+        newState.version = version
+      }
+    }
+
+    this.replaceState(newState)
+  },
+  [MutationTypes.STORE_LOADED](state) {
+    state.isStateLoaded = true
   },
 
   [MutationTypes.ACTIVATE_DRAWER](state, userAction = false) {
@@ -114,14 +131,6 @@ export default {
     }
 
     state.history.local.unshift(data)
-
-    let logs = []
-    if (localStorage.getItem(StorageNames.LOGS)) {
-      logs = JSON.parse(localStorage.getItem(StorageNames.LOGS))
-    }
-    logs.unshift(data)
-
-    localStorage.setItem(StorageNames.LOGS, JSON.stringify(logs))
   },
   [MutationTypes.RESET_LOGS](state) {
     state.history = { ...initialState().history }

@@ -361,7 +361,7 @@ export default {
   margin: 0 8px;
 
   span {
-    white-space: pre;
+    margin-left: 2px;
   }
 }
 
