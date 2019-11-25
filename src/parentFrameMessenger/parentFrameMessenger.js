@@ -8,6 +8,36 @@ import {
 } from './handler'
 
 let _target, _targetOrigin, jobQueue
+const promisableResponseCallbacks = {}
+
+const getUniqueJobId = () => {
+  const generateId = () =>
+    Math.random()
+      .toString(36)
+      .slice(2)
+
+  let id = generateId()
+  while (id in promisableResponseCallbacks) {
+    console.log('responseCallbacks: ', id)
+    id = generateId()
+  }
+
+  return id
+}
+
+const ensureParentConnection = () => {
+  function waitForParentConnection(resolve) {
+    if (!_target) {
+      setTimeout(() => waitForParentConnection(resolve), 2000)
+    } else {
+      resolve()
+    }
+  }
+
+  return new Promise(resolve => {
+    waitForParentConnection(resolve)
+  })
+}
 
 /**
  * Manages the jobs arriving from the parent frame
@@ -80,8 +110,11 @@ const receivedMessage = ev => {
   _target = ev.source
   _targetOrigin = ev.origin
 
-  const { passive } = data
-  if (passive) {
+  const { id, passive } = data
+  if (id && promisableResponseCallbacks[id]) {
+    promisableResponseCallbacks[id](data)
+    return
+  } else if (passive) {
     externalPassiveFrameHandler(data)
     return
   }
@@ -142,6 +175,44 @@ const postMessage = (
   }
 }
 
+const postMessagePromise = async (payload = {}) => {
+  await ensureParentConnection()
+
+  payload.id = getUniqueJobId()
+
+  const handler = (resolve, reject) => {
+    console.log(
+      'Wallet request from parent -',
+      payload.cmd,
+      'payload: ',
+      payload
+    )
+
+    const callback = response => {
+      delete promisableResponseCallbacks[response.id]
+
+      if (response.cmd !== payload.cmd) {
+        reject(new Error('Parent response is not for this request'))
+      }
+
+      const { res } = response
+      resolve(res)
+    }
+
+    promisableResponseCallbacks[payload.id] = callback
+
+    try {
+      _target.postMessage(JSON.stringify(payload), _targetOrigin)
+    } catch (err) {
+      console.error('Parent response for', payload.cmd, 'err: ', err)
+
+      delete promisableResponseCallbacks[payload.id]
+    }
+  }
+
+  return new Promise(handler)
+}
+
 /* helper functions */
 const getOriginFromUrl = path => {
   // If the path is empty
@@ -194,6 +265,14 @@ const replyToParentWindow = (res, err, job) => {
 
   postMessage(payload, target, targetOrigin)
 }
+
+const localStorageSetToParent = (key, data) =>
+  postMessage({ cmd: 'localStorageSet', req: { key, data } })
+const localStorageGetFromParent = key =>
+  postMessagePromise({ cmd: 'localStorageGet', req: { key } })
+const localStorageRemoveFromParent = key =>
+  postMessage({ cmd: 'localStorageRemove', req: { key } })
+
 const expandFrameInParentWindow = () => postMessage({ cmd: 'active' })
 const shrinkFrameInParentWindow = () => {
   postMessage({ cmd: 'inactive' })
@@ -263,6 +342,9 @@ export {
   loadedInIframe,
   getParentWindowCurrentJob,
   replyToParentWindow,
+  localStorageSetToParent,
+  localStorageGetFromParent,
+  localStorageRemoveFromParent,
   expandFrameInParentWindow,
   shrinkFrameInParentWindow,
   resizeFrameWidthInParentWindow,
