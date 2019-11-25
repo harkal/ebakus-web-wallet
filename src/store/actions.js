@@ -1,6 +1,9 @@
 import MutationTypes from './mutation-types'
 
 export default {
+  [MutationTypes.ACTIVATE_DRAWER](context) {
+    context.commit(MutationTypes.ACTIVATE_DRAWER)
+  },
   [MutationTypes.DEACTIVATE_DRAWER](context) {
     context.commit(MutationTypes.DEACTIVATE_DRAWER)
   },
@@ -31,6 +34,12 @@ export default {
 
   [MutationTypes.SET_TX_OBJECT](context, tx) {
     context.commit(MutationTypes.SET_TX_OBJECT, tx)
+  },
+  [MutationTypes.SET_TX_JOB_ID](context, jobId) {
+    context.commit(MutationTypes.SET_TX_JOB_ID, jobId)
+  },
+  [MutationTypes.CLEAR_TX](context) {
+    context.commit(MutationTypes.CLEAR_TX)
   },
 
   [MutationTypes.SHOW_DIALOG](context, data) {

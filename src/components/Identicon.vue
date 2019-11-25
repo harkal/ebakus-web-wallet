@@ -1,16 +1,19 @@
 <template>
-  <div class="widget">
+  <div class="widget" :class="{ safari: showSafariIdenticon }">
     <div
       id="identicon"
       ref="identicon"
       class="identicon"
-      :class="{ placeholder: publicKey == '' }"
+      :class="{ placeholder: !publicKey || publicKey == '' }"
     />
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import jazzicon from 'jazzicon'
+
+import { isSafari } from '@/utils'
 
 export default {
   props: {
@@ -19,6 +22,17 @@ export default {
       default: '',
     },
   },
+  computed: {
+    ...mapState({
+      isDrawerActive: state => state.ui.isDrawerActive,
+      isSafariAllowed: state => state.isSafariAllowed,
+    }),
+
+    showSafariIdenticon: function() {
+      return isSafari && !this.isSafariAllowed && this.isDrawerActive
+    },
+  },
+
   watch: {
     publicKey() {
       this.init()
@@ -48,30 +62,32 @@ export default {
 <style scoped lang="scss">
 @import '../assets/css/variables';
 @import '../assets/css/animations';
+@import '../assets/css/z-index';
 
 .widget {
-  --widget-size: #{$widget-size-base};
+  @include z-index(widget);
 
-  flex-grow: 0;
-  flex-shrink: 0;
+  --widget-size: #{$widget-size-base};
 
   position: absolute;
   margin: 0;
   top: 8px;
-  right: calc(100% - #{$widget-size-base + 8px});
+  left: 8px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   width: var(--widget-size) !important;
   height: var(--widget-size);
 
   background: transparent;
   border: $widget-border-width solid transparent;
-  border-radius: var(--widget-size);
+  border-radius: $widget-size-opened;
   box-shadow: 0 2px 14px 0 rgba(0, 0, 0, 0.15);
-  z-index: 9999;
   pointer-events: initial;
 
   transform-origin: center;
-  transition: all animation-duration(status, identicon) linear;
 
   &::before {
     display: block;
@@ -89,7 +105,6 @@ export default {
     box-sizing: border-box;
     opacity: 0;
     animation: rotation 1s infinite linear;
-    transition: all animation-duration(status, identicon) linear;
   }
 
   &:hover {
@@ -114,50 +129,120 @@ export default {
   .opened & {
     --widget-size: #{$widget-size-opened};
 
-    top: 32px;
-    right: (320px / 2) - ($widget-size-opened / 2);
+    top: $widget-opened-top;
     background-color: #121212;
     border-color: #fff;
+  }
+
+  &.safari {
+    border-color: transparent;
+    border-radius: 0;
+    background-image: url(../assets/img/ic-safari-disabled.png);
+    background-image: image-set(
+      url(../assets/img/ic-safari-disabled.png) 1x,
+      url(../assets/img/ic-safari-disabled@2x.png) 2x,
+      url(../assets/img/ic-safari-disabled@3x.png) 3x
+    );
+    background-repeat: no-repeat;
+
+    background-position: center center;
+    background-size: var(--widget-size);
+
+    .opened & {
+      background-position: -7px -5px;
+      background-size: calc(var(--widget-size) + 8px);
+    }
+
+    &::before {
+      display: none;
+    }
+
+    .identicon ::v-deep > div {
+      display: none !important;
+    }
   }
 }
 
 .identicon {
-  position: relative;
-  top: -$widget-border-width;
-  // left: -$widget-border-width;
-  right: 0;
-  width: calc(var(--widget-size) - #{$widget-border-width * 2});
-  height: calc(var(--widget-size) - #{$widget-border-width * 2});
-  border-radius: var(--widget-size);
+  @include z-index(widgetIdenticon);
 
-  // transition: all 150ms ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+  border-radius: var(--widget-size);
 
   &.placeholder::after {
     content: '';
     display: block;
-    position: absolute;
-    top: $widget-border-width;
-    left: 0;
-    bottom: -$widget-border-width;
-    right: 0;
+    width: 86%;
+    height: 86%;
     border-radius: var(--widget-size);
     background-color: rgba(251, 251, 251, 0.15);
   }
 
   ::v-deep > div {
-    position: relative;
-    top: 0;
-    left: -($widget-border-width * 1);
-    transform: translateZ(0);
-    transform-origin: 0 0;
-    transform: scale(0.25);
-    transition: all animation-duration(status, identicon) linear;
+    transform: scale(0.26);
+    flex: 1 0 auto;
 
     .opened & {
-      top: ($widget-border-width * 3);
-      left: ($widget-border-width * 2);
-      transform: scale(0.47);
+      transform: scale(0.56);
     }
+  }
+}
+
+.widget {
+  // close animation
+  transition: top animation-duration(status, base) ease-out,
+    right animation-duration(status, base) ease-out,
+    height animation-duration(status, identicon) ease-out,
+    width animation-duration(status, identicon) ease-out,
+    border animation-duration(status, identicon) ease-out;
+  transition-delay: animation-duration(fade, leave);
+
+  .animating-closed-state & {
+    transition: top animation-duration(status, base) / 3 ease-out,
+      right animation-duration(status, base) / 3 ease-out;
+    transition-delay: 0s;
+  }
+
+  .opened & {
+    // open animation
+    transition-delay: 0s;
+  }
+}
+
+.widget::before {
+  // close animation
+  transition: width animation-duration(status, identicon) ease-out,
+    height animation-duration(status, identicon) ease-out;
+  transition-delay: animation-duration(fade, leave);
+
+  .opened & {
+    // open animation
+    transition-delay: 0s;
+  }
+}
+
+.identicon::v-deep > div {
+  // close animation
+  transition: transform animation-duration(status, identicon) ease-out;
+  transition-delay: animation-duration(fade, leave);
+
+  .opened & {
+    // open animation
+    transition-delay: 0s;
+  }
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
   }
 }
 </style>

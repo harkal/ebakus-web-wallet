@@ -13,6 +13,7 @@ import router from '@/router'
 import parentFrameMessenger from '@/parentFrameMessenger/parentFrameMessenger'
 
 import App from '@/App.vue'
+
 import '@/assets/css/main.scss'
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production'

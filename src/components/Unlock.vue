@@ -26,10 +26,7 @@ import { RouteNames } from '@/router'
 
 import MutationTypes from '@/store/mutation-types'
 
-import {
-  loadedInIframe,
-  shrinkFrameInParentWindow,
-} from '@/parentFrameMessenger/parentFrameMessenger'
+import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger'
 
 export default {
   data: function() {
@@ -88,7 +85,6 @@ export default {
               performWhitelistedAction()
             } else if (!self.isDrawerActiveByUser) {
               self.$store.dispatch(MutationTypes.DEACTIVATE_DRAWER)
-              shrinkFrameInParentWindow()
             }
           }
         })

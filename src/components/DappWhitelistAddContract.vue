@@ -24,17 +24,16 @@
 <script>
 import { mapState } from 'vuex'
 
+import { checkIfEnoughBalance } from '@/actions/transactions'
 import {
   whitelistDappAddNewContract as whitelistDappAddNewContractFunc,
   cancelWhitelistDapp as cancelWhitelistDappFunc,
 } from '@/actions/whitelist'
 import { exitDialog } from '@/actions/wallet'
 
-import {
-  getTargetOrigin,
-  loadedInIframe,
-  shrinkFrameInParentWindow,
-} from '@/parentFrameMessenger/parentFrameMessenger'
+import { SpinnerState } from '@/constants'
+
+import { getTargetOrigin } from '@/parentFrameMessenger/parentFrameMessenger'
 
 import { RouteNames } from '@/router'
 
@@ -63,21 +62,31 @@ export default {
     this.$store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
   },
   methods: {
-    whitelistDappAddNewContract: function() {
-      whitelistDappAddNewContractFunc()
-
-      if (loadedInIframe()) {
-        if (!this.isDrawerActiveByUser) {
-          this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
-          shrinkFrameInParentWindow()
-        }
-      }
-
-      exitDialog()
+    redirectBack: function() {
       const redirectFrom = this.$route.query.redirectFrom || RouteNames.HOME
       this.$router.push({ name: redirectFrom }, () => {})
     },
-    cancelWhitelistDapp: () => cancelWhitelistDappFunc(),
+    whitelistDappAddNewContract: function() {
+      whitelistDappAddNewContractFunc()
+
+      this.redirectBack()
+      exitDialog()
+
+      if (checkIfEnoughBalance()) {
+        if (!this.isDrawerActiveByUser) {
+          this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
+        }
+
+        this.$store.commit(
+          MutationTypes.SET_SPINNER_STATE,
+          SpinnerState.TRANSACTION_WHITELISTED_TIMER
+        )
+      }
+    },
+    cancelWhitelistDapp: function() {
+      this.redirectBack()
+      cancelWhitelistDappFunc()
+    },
   },
 }
 </script>

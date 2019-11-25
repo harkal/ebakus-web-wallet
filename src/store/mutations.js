@@ -1,4 +1,5 @@
 import Web3 from 'web3'
+import merge from 'lodash/merge'
 
 import { version } from '../../package.json'
 
@@ -24,9 +25,8 @@ export default {
       // check the version stored against current
       // If different, don't load the cached version
       if (store.version == version) {
-        newState = { ...newState, ...store }
+        newState = merge({}, newState, store)
       } else {
-        // TODO: maybe we can deep merge
         newState.version = version
       }
     }
@@ -57,15 +57,24 @@ export default {
     this.replaceState(newState)
   },
 
-  [MutationTypes.ACTIVATE_DRAWER](state, userAction) {
+  [MutationTypes.ACTIVATE_DRAWER](state, userAction = false) {
     state.ui.isDrawerActive = true
-    state.ui.isDrawerActiveByUser = userAction === false ? false : true // default: true
+    state.ui.isDrawerActiveByUser = !!userAction
   },
   [MutationTypes.DEACTIVATE_DRAWER](state) {
     state.ui.isDrawerActive = false
   },
 
   [MutationTypes.SET_SPINNER_STATE](state, spinnerState) {
+    // hack for blocking display of whitelist status bar, till animation happens
+    // hack placed in here as spinnerState watcher is used for animations
+    if (
+      !state.tx.whitelistAnimationReady &&
+      spinnerState == SpinnerState.TRANSACTION_WHITELISTED_TIMER
+    ) {
+      state.tx.whitelistAnimationReady = true
+    }
+
     state.ui.currentSpinnerState = spinnerState
     state.ui.isSpinnerActive = !!(spinnerState & SpinnerState.SPINNER_RUNNING)
   },
@@ -79,8 +88,8 @@ export default {
   [MutationTypes.SET_WALLET_BALANCE](state, balance) {
     state.wallet.balance = balance
   },
-  [MutationTypes.SET_ACTIVE_TOKEN](state, token = DefaultToken) {
-    state.wallet.token = token
+  [MutationTypes.SET_ACTIVE_TOKEN](state, tokenSymbol = DefaultToken) {
+    state.wallet.tokenSymbol = tokenSymbol
   },
 
   [MutationTypes.DELETE_WALLET](state) {
@@ -132,8 +141,8 @@ export default {
   [MutationTypes.SET_NETWORK](state, data) {
     const { networkId, nodeAddress } = data
     state.network = {
-      network_id: networkId,
-      node_address: networkId == '-1' ? nodeAddress : '',
+      networkId: networkId,
+      nodeAddress: networkId == '-1' ? nodeAddress : '',
       status: NetworkStatus.DISCONNECTED,
     }
   },
@@ -226,5 +235,9 @@ export default {
   [MutationTypes.REMOVE_DAPP_FROM_WHITELIST](state, origin) {
     delete state.whitelist[origin]
     state.whitelist = { ...state.whitelist }
+  },
+
+  [MutationTypes.GRANT_SAFARI_ACCESS](state) {
+    state.isSafariAllowed = true
   },
 }

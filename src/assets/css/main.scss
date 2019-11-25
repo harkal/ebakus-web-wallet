@@ -4,7 +4,9 @@
 
 * {
   box-sizing: border-box;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html,
@@ -68,182 +70,7 @@ a {
   font-weight: 400;
 }
 
-#wallet {
-  @include z-index(wallet);
-
-  position: fixed;
-  right: 0;
-  overflow: hidden;
-
-  height: auto;
-
-  display: flex;
-  flex-wrap: nowrap;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-end;
-  align-content: flex-end;
-
-  transform: translateZ(0);
-
-  > div {
-    flex: 0 0 auto;
-
-    width: 100%;
-    margin: 0;
-  }
-
-  &:not(.opened) {
-    max-width: $wallet-opened-width;
-    border-bottom-left-radius: 5px;
-
-    &:not(.whitelisted) {
-      cursor: pointer;
-    }
-  }
-
-  &.whitelisted {
-    max-width: 400px;
-  }
-
-  &.opened {
-    width: $wallet-opened-width;
-    height: 100vh;
-
-    > div {
-      width: $wallet-opened-width;
-    }
-
-    background: #ffffff;
-
-    box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
-  }
-}
-
-@keyframes wallet-animation {
-  0% {
-    height: 100vh;
-  }
-  50% {
-    width: 320px;
-  }
-  100% {
-    box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
-  }
-}
-
-/* Status bar ______________________________________________________*/
-
-$status-bar-padding: 16px;
-
-.status-bar {
-  @include z-index(status);
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-  align-items: center;
-  align-content: center;
-  justify-content: flex-end;
-
-  min-height: $wallet-closed-height;
-
-  background-color: rgb(10, 17, 31);
-
-  padding-left: $widget-size-base + 8px;
-  transition: all animation-duration(status,base) ease-out;
-  > div,
-  > p {
-    margin: 0 8px;
-  }
-
-  #wallet:not(.opened) & {
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-width: 0;
-    border-right-width: 0;
-    border-bottom-left-radius: 5px;
-    box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
-  }
-
-  .opened & {
-    flex-wrap: wrap;
-
-    height: 252px;
-    min-height: 252px;
-    padding: $status-bar-padding;
-    padding-top: $status-bar-padding + $widget-size-opened + 32px;
-
-    transition-timing-function: ease-in, ease-in;
-
-    @at-root .opened.has-dialog .status-bar {
-      min-height: 130px;
-      height: auto;
-    }
-
-    > div,
-    > p {
-      margin: 8px auto;
-
-      width: 100%;
-    }
-
-    .navigation {
-      margin-top: 8px;
-      margin-right: -$status-bar-padding;
-      margin-bottom: -$status-bar-padding;
-      margin-left: -$status-bar-padding;
-      width: calc(100% + #{$status-bar-padding * 2});
-      flex-basis: calc(100% + #{$status-bar-padding * 2});
-    }
-  }
-
-  .whitelisted:not(.opened) & {
-    min-height: 74px;
-    padding: 12px 16px;
-  }
-}
-
-.main {
-  @include z-index(main);
-  position: relative;
-  background-color: #fff;
-}
-
-// useful for transitioning between dialogs
-.dialog {
-  position: absolute;
-  top: 0;
-  z-index: 1;
-  overflow-x: hidden;
-
-  &:last-child {
-    z-index: 2;
-  }
-}
-
-.overlay {
-  display: none;
-
-  &.red,
-  &.black {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    opacity: 0.8;
-    @include z-index(overlay);
-  }
-  &.red {
-    background: #fd315f;
-  }
-  &.black {
-    background: #000;
-  }
-}
-
-/* content area ______________________________________________________*/
+/* --- content area --- */
 .scroll-wrapper {
   position: absolute;
   width: 100%;
@@ -251,7 +78,8 @@ $status-bar-padding: 16px;
     (var(--vh, 1vh) * 100) - (var(--status-bar-vh, 1vh) * 100)
   ); /* --vh is set at App.vue and --status-bar-vh at Status.vue */
   opacity: 1;
-  animation: contentGrowAnimation animation-duration(scrollWrapper) ease-out;
+  // animation: contentGrowAnimation animation-duration(scrollWrapper) ease-out;
+  overflow-x: hidden;
   overflow-y: auto;
 
   @media only screen and (max-width: 600px) {
@@ -269,32 +97,7 @@ $status-bar-padding: 16px;
   padding-top: 25px;
 }
 
-/* circular button ______________________________________________________*/
-
-.btn-circle {
-  width: 34px;
-  height: 34px;
-  border: 1px solid #333333;
-  background-repeat: no-repeat;
-  border-radius: 100%;
-  margin: 18px;
-  background-position: center;
-
-  &.exit {
-    background-image: url(../img/ic_exit.png);
-    background-size: 11px;
-  }
-  &.close {
-    background-image: url(../img/ic_close.png);
-    background-size: 6px 11px;
-  }
-  &.settings {
-    background-image: url(../img/ic_settings.png);
-    background-size: 18px;
-  }
-}
-
-/* buttons ____________________________________________________*/
+/* --- buttons --- */
 button {
   display: inline-block;
 
@@ -363,7 +166,7 @@ button {
   }
 }
 
-/* dropdown ____________________________________________________*/
+/* --- dropdown --- */
 
 .dropdown-wrapper {
   position: relative;
@@ -427,7 +230,7 @@ select.dropdown {
   }
 }
 
-/* textbox ____________________________________________________*/
+/* --- textbox --- */
 
 input[type='text'],
 input[type='password'],
@@ -452,79 +255,38 @@ label {
   margin-top: 12px;
 }
 
-/* animations ____________________________________________________*/
-@keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(359deg);
-  }
-}
-
-.status-buttons-transition-enter-active,
-.status-buttons-transition-leave-active {
-  transition: opacity animation-duration(status, buttons, enter) ease-in;
-}
-
-.status-buttons-transition-leave-active {
-  transition-duration: animation-duration(status, buttons, leave);
-}
-
-.status-buttons-transition-enter,
-.status-buttons-transition-leave-to {
-  opacity: 0;
-}
-
+/* --- animations --- */
 .fade-transition-enter-active,
-.fade-transition-leave-active {
+.fade-transition-leave-active,
+.fade-drawer-appear-transition-enter-active,
+.fade-drawer-appear-transition-leave-active {
   transition: opacity animation-duration(fade, enter) ease-in;
 }
 
-.fade-transition-leave-active {
+.fade-transition-leave-active,
+.fade-drawer-appear-transition-leave-active {
   transition-timing-function: ease-out;
   transition-duration: animation-duration(fade, leave);
+  transition-delay: 0s;
 }
 
 .fade-transition-enter,
-.fade-transition-leave-to {
+.fade-drawer-appear-transition-enter,
+.fade-transition-leave-to,
+.fade-drawer-appear-transition-leave-to {
   opacity: 0;
 }
 
-.whitelist-transition-enter-to,
-.whitelist-transition-leave {
-  transform: translate3d(0, 0, 0);
+.fade-drawer-appear-transition-enter-active,
+.fade-drawer-appear-transition-leave-active {
+  transition-delay: animation-duration(wallet);
 }
 
-.whitelist-transition-enter,
-.whitelist-transition-leave-to {
-  transform: translate3d(100%, 0, 0);
-  opacity: 0;
+.fade-drawer-appear-transition-leave-active {
+  transition-duration: animation-duration(fade, leave);
+  transition-delay: 0s;
 }
 
-.whitelist-transition-enter-active,
-.whitelist-transition-leave-active {
-  position: relative;
-  transition: all animation-duration(status, whitelist) ease-in;
-}
-
-.whitelist-transition-leave-active {
-  transition-timing-function: ease-out;
-}
-
-.overlay-transition-enter-active,
-.overlay-transition-leave-active {
-  transition: opacity animation-duration(overlay) ease-in;
-}
-
-.overlay-transition-leave-active {
-  transition-timing-function: ease-out;
-}
-
-.overlay-transition-enter,
-.overlay-transition-leave-to {
-  opacity: 0;
-}
 
 @keyframes contentGrowAnimation {
   0% {
@@ -534,25 +296,6 @@ label {
   1% {
     display: block;
     opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-.animate-fade-in-out {
-  animation: fadeInOutAnimation 0.5s infinite;
-}
-.animate-fade-in-out-slow {
-  animation: fadeInOutAnimation 1s infinite;
-}
-
-@keyframes fadeInOutAnimation {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
   }
   100% {
     opacity: 1;

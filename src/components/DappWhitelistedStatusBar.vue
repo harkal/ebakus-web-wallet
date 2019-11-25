@@ -1,6 +1,7 @@
 <template>
   <div
     v-if="preTitle || to"
+    ref="whitelistStatusBar"
     class="status-bar-whitelisted"
     :class="{ popup: isDrawerActive }"
     @mouseover="pause"
@@ -16,7 +17,7 @@
         <span v-if="postTitle != ''"> {{ postTitle }}</span>
       </h2>
       <h3>
-        {{ to }}
+        {{ to | lowercase }}
       </h3>
 
       <div class="progress-bar">
@@ -39,7 +40,11 @@ import {
 } from '@/actions/whitelist'
 import { getTokenInfoForContractAddress, decodeData } from '@/actions/tokens'
 
-import { checkIfEnoughBalance, calcWorkAndSendTx } from '@/actions/transactions'
+import {
+  checkIfEnoughBalance,
+  calcWorkAndSendTx,
+  getTokenSymbolPrefix,
+} from '@/actions/transactions'
 import { web3 } from '@/actions/web3ebakus'
 
 import {
@@ -52,16 +57,26 @@ import MutationTypes from '@/store/mutation-types'
 
 import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
+import { nextAnimationFrame, cancelAnimationFrame } from '@/utils'
+
 export default {
+  filters: {
+    lowercase: function(val) {
+      return typeof val === 'string' ? val.toLowerCase() : val
+    },
+  },
   data() {
     return {
-      timer: null,
       remainingTime: 0,
+      progressWidth: 100,
       preTitle: '',
       amountTitle: '',
       emTitle: '',
       postTitle: '',
       to: '',
+      countdownAnimationFrameStartTime: null,
+      countdownAnimationFrame: null,
+      countdownStopped: false, // handle edge cases where countdown doesn't stop because of race conditions
     }
   },
   computed: {
@@ -80,42 +95,59 @@ export default {
     },
   },
   beforeDestroy() {
-    clearInterval(this.timer)
+    this.stopCountdown()
   },
   beforeMount() {
     this.remainingTime = this.getTimer
   },
   mounted() {
-    if (!checkIfEnoughBalance()) {
-      activateDrawerIfClosed()
-    } else {
+    if (checkIfEnoughBalance()) {
       this.getTxInfo()
-      this.countdown()
+
+      if (this.isDrawerActive) {
+        nextAnimationFrame(this.openedWalletEntranceAnimation)
+      }
+
+      this.countdownAnimationFrame = nextAnimationFrame(this.countdown)
     }
   },
   methods: {
-    countdown() {
-      setTimeout(() => {
-        this.remainingTime -= 1000
-      }, 100)
+    countdown(timestamp) {
+      if (this.countdownStopped) {
+        return
+      }
 
-      const self = this
-      this.timer = setInterval(() => {
-        if (self.remainingTime <= 0) {
-          clearInterval(self.timer)
-          calcWorkAndSendTx(self.tx)
-        }
-        self.remainingTime -= 1000
-      }, 1000)
+      if (!this.countdownAnimationFrameStartTime) {
+        this.countdownAnimationFrameStartTime = timestamp
+      }
+
+      let diff = timestamp - this.countdownAnimationFrameStartTime
+      this.countdownAnimationFrameStartTime = timestamp
+      this.remainingTime -= diff
+
+      if (this.remainingTime > 0) {
+        this.countdownAnimationFrame = nextAnimationFrame(this.countdown)
+      } else {
+        this.stopCountdown()
+        calcWorkAndSendTx(this.tx)
+      }
+    },
+    stopCountdown() {
+      if (this.countdownAnimationFrame) {
+        cancelAnimationFrame(this.countdownAnimationFrame)
+        this.countdownAnimationFrameStartTime = null
+        this.countdownAnimationFrame = null
+      }
     },
     pause() {
-      clearInterval(this.timer)
+      this.stopCountdown()
     },
     unpause() {
-      this.countdown()
+      this.countdownAnimationFrame = nextAnimationFrame(this.countdown)
     },
     cancel() {
-      clearInterval(this.timer)
+      this.countdownStopped = true
+      this.stopCountdown()
       this.$store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.NONE)
       removeDappFromWhitelist()
 
@@ -123,8 +155,12 @@ export default {
         component: DialogComponents.SEND_TX,
         title: 'Send Confirmation',
       })
-
       activateDrawerIfClosed()
+    },
+    openedWalletEntranceAnimation() {
+      const whitelistStatusBar = this.$refs.whitelistStatusBar
+      whitelistStatusBar.style.display = 'flex'
+      whitelistStatusBar.style.opacity = 1
     },
     async getTxInfo() {
       const tx = this.tx
@@ -133,6 +169,7 @@ export default {
       let value = tx.value || '0'
       value = Vue.options.filters.toEther(value)
 
+      const tokenSymbolPrefix = getTokenSymbolPrefix(tx.chainId)
       let data = tx.data || tx.input
 
       let decodedData
@@ -140,7 +177,9 @@ export default {
       this.preTitle = 'You are about'
 
       if (value > 0) {
-        this.amountTitle = `to spend ${value} EBK`
+        this.amountTitle = `to spend ${value} ${tokenSymbolPrefix}EBK`
+      } else {
+        this.postTitle = '...' // for slow networks, where the await below takes too long
       }
 
       const isContractCreation = !tx.to || /^0x0+$/.test(tx.to)
@@ -155,6 +194,10 @@ export default {
           decodedData = await decodeDataUsingAbi(tx.to, data)
         }
 
+        if (this.postTitle === '...') {
+          this.postTitle = ''
+        }
+
         if (decodedData) {
           const { name, params } = decodedData
           data = params
@@ -167,11 +210,13 @@ export default {
               String(tokenValue)
             )} ${token.symbol}`
           } else if (name === 'getWei') {
-            this.emTitle = 'to request 1 EBK'
+            this.emTitle = `to request 1 ${tokenSymbolPrefix}EBK`
             this.postTitle = 'from faucet'
           } else {
             this.emTitle = `to call ${name}`
           }
+        } else {
+          this.emTitle = `to call a contract method`
         }
       }
 
@@ -185,21 +230,33 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '../assets/css/_variables.scss';
+@import '../assets/css/_variables';
+@import '../assets/css/_animations';
+
+$button-width: 50px;
 
 .status-bar-whitelisted {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: stretch;
-  align-content: stretch;
-  align-items: stretch;
-  padding-right: 0;
-  max-width: $wallet-opened-width;
+  justify-content: center;
+  align-items: center;
+
+  min-width: 263px;
+  max-width: 370px;
+  padding: 12px 16px;
+
+  transition: opacity animation-duration(fade, enter) ease-in;
+
+  // display and opacity are set in App.js by animation handler
+  display: none;
+  opacity: 0;
+
+  #wallet.whitelisted:not(.opened) & {
+    min-height: 92px;
+  }
 }
 
 .popup {
-  flex-wrap: wrap;
   position: absolute;
   right: 10px;
   top: 58px;
@@ -211,20 +268,24 @@ export default {
   border-radius: 6px;
   text-align: center;
 
-  .info {
-    margin-right: 0;
+  .cancel {
+    margin-bottom: 0;
+    padding: 10px 0;
+    width: 100%;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.3);
+    }
   }
 
-  .cancel {
-    padding-top: 10px;
-    padding-bottom: 6px;
+  h3 {
+    color: #bec2c9;
   }
 }
 
 .info {
-  flex: 1 1 auto;
-  align-self: auto;
-  margin-right: 16px;
+  min-width: 262px;
+  width: min-content;
 }
 
 h2,
@@ -237,6 +298,7 @@ h3 {
 
 h2 {
   font-size: 1em;
+  min-height: 44px;
 }
 
 h2 .caution {
@@ -246,16 +308,14 @@ h2 .caution {
 h3 {
   font-size: 0.7em;
   letter-spacing: 0.3px;
-  opacity: 0.7;
+  color: #b6b8bc;
 }
 
 .cancel {
-  display: block;
-  flex: 1 1 auto;
-  align-self: center;
-  width: auto;
-  height: 100%;
-  margin: auto 0;
+  width: $button-width;
+  margin: 0;
+  margin-left: $status-bar-padding;
+
   background-color: transparent;
   border: transparent;
   font-weight: 700;
@@ -280,24 +340,22 @@ h3 {
 
   .state {
     background: rgba(255, 255, 255, 0.3);
-    transition: 1s linear;
-    transition-property: width, background-color;
   }
 }
 
-@media only screen and (max-width: 353px) {
+@media only screen and (max-width: $status-bar-whitelist-mobile-breakpoint) {
   .status-bar-whitelisted {
-    flex-wrap: wrap;
+    flex-direction: column;
+    width: 100vw;
   }
-
   .info {
-    flex-basis: 100%;
-    margin-right: 0;
+    width: 100%;
   }
 
-  button {
-    padding-top: 10px;
-    padding-bottom: 6px;
+  .cancel {
+    margin: 10px 0;
+    padding: 0;
+    width: 100%;
   }
 }
 </style>

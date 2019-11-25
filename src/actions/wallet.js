@@ -9,10 +9,12 @@ import {
 } from '@/constants'
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
+
 import {
   loadedInIframe,
+  getParentWindowCurrentJob,
+  replyToParentWindow,
   frameEventBalanceUpdated,
-  shrinkFrameInParentWindow,
   frameEventConnectionStatusUpdated,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 
@@ -28,12 +30,12 @@ const getBalanceCatchUpdateNetworkTimeouts = []
 const loadConfirmTxMsg = async () => {}
 
 const getBalance = async () => {
-  const { address, token: symbol } = store.state.wallet
+  const { address, tokenSymbol } = store.state.wallet
   if (!address) {
-    return Promise.reject('No wallet created')
+    return Promise.reject(new Error('No wallet has been created'))
   }
 
-  const tokenInfo = getTokenInfoForSymbol(symbol)
+  const tokenInfo = getTokenInfoForSymbol(tokenSymbol)
 
   try {
     let wei
@@ -43,8 +45,8 @@ const getBalance = async () => {
       wei = await web3.eth.getBalance(address)
     }
 
-    if (symbol !== store.state.wallet.token) {
-      return Promise.reject('User changed selected token')
+    if (tokenSymbol !== store.state.wallet.tokenSymbol) {
+      return Promise.reject(new Error('User changed selected token'))
     }
 
     if (getBalanceCatchUpdateNetworkTimeouts.length > 0) {
@@ -63,7 +65,7 @@ const getBalance = async () => {
       setTimeout(loadTxsInfoFromExplorer(), 2000)
     }
 
-    return wei
+    return Promise.resolve(wei)
   } catch (err) {
     store.dispatch(
       MutationTypes.SET_SPINNER_STATE,
@@ -102,6 +104,14 @@ const generateWallet = () => {
 
     store.dispatch(MutationTypes.SET_WALLET_ADDRESS, newAcc.address)
 
+    if (loadedInIframe()) {
+      const currentJob = getParentWindowCurrentJob()
+      const { data: { cmd } = {} } = currentJob || {}
+      if (cmd === 'defaultAddress') {
+        replyToParentWindow(newAcc.address, null, currentJob)
+      }
+    }
+
     // Add to log
     const newAccLog = {
       title: 'Account created',
@@ -138,6 +148,8 @@ const secureWallet = pass => {
     if (newAcc) {
       resolve(newAcc)
     } else {
+      store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
+
       reject(new Error('account already encrypted'))
     }
   })
@@ -229,18 +241,18 @@ const exitDialog = () => {
   const routeName = router.app.$route.name
   const { component } = store.state.ui.dialog
 
+  store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
+
   if (
     !store.state.ui.isDrawerActiveByUser &&
-    (routeName === RouteNames.NEW || component === DialogComponents.NO_FUNDS)
+    ([RouteNames.NEW, RouteNames.SAFARI_WARNING].includes(routeName) ||
+      [DialogComponents.FAILED_TX, DialogComponents.NO_FUNDS].includes(
+        component
+      ))
   ) {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
-
-    if (loadedInIframe()) {
-      shrinkFrameInParentWindow()
-    }
   }
 
-  store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
   store.commit(MutationTypes.CLEAR_DIALOG)
 }
 

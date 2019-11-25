@@ -1,14 +1,6 @@
 <template>
   <div class="send-tx dialog scroll-wrapper">
     <div class="wrapper">
-      <!--  <h2>
-          {{ popUPContent.subtitle }}
-        </h2>
-      <h3>
-        You are about to send ${value} ebk to ${tx.to}.
-      </h3>
-      -->
-
       <h3>
         {{ preTitle }}
         <strong v-if="amountTitle != ''" class="caution">

@@ -9,11 +9,12 @@ const initialState = {
   tx: {
     object: {},
     jobId: null, // parentFrame handler id
+    whitelistAnimationReady: false, // hack for blocking ui animations
   },
 
   // netwrok preferences
   network: {
-    id: 0,
+    networkId: process.env.DEFAULT_NETWORK_ID,
     nodeAddress: '',
     status: NetworkStatus.DISCONNECTED,
   },
@@ -41,7 +42,7 @@ const initialState = {
     locked: true,
     address: null, // TODO: add getter that gives the checksumAddress
     balance: '0', // TODO: add getters for getting balanceInEther, etc
-    token: DefaultToken, // FIXME: rename to tokenSymbol
+    tokenSymbol: DefaultToken,
   },
 
   // transaction history, each entry will have a timestamp (sort)
@@ -68,8 +69,11 @@ const initialState = {
       active: false,
       component: '',
       title: '',
+      data: null,
     },
   },
+
+  isSafariAllowed: false, // warn users that dapps doesn't share same wallet on behalf of privacy
 }
 
 export default () => ({

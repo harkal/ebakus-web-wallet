@@ -1,5 +1,5 @@
 <template>
-  <div class="settings">
+  <div class="settings scroll-wrapper">
     <div v-if="activePane == Panes.MAIN" key="main" class="wrapper">
       <!-- <h2>Slow network?</h2>
       <h3>
@@ -86,7 +86,7 @@
           <input
             type="range"
             class="whitelist-slider"
-            min="1"
+            min="0"
             :max="maxWhitelistDelay"
             step="1"
             :value="getWhitelistDelay"
@@ -143,7 +143,7 @@ import { RouteNames } from '@/router'
 
 import Backup from './Backup'
 
-const MAX_WHITELIST_DELAY = 30
+const MAX_WHITELIST_DELAY = 10
 
 const Panes = {
   MAIN: 'MAIN',
@@ -367,7 +367,6 @@ hr {
     background: #fcfcfc;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.28),
       inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
-    box-shadow: -100vw 0 0 100vw dodgerblue;
     border-radius: 100%;
     border: 1px solid transparent;
   }
@@ -387,7 +386,7 @@ hr {
 
   &::after {
     right: 0;
-    content: '30 sec';
+    content: '10 sec';
   }
 }
 
@@ -428,7 +427,6 @@ hr {
     background: #fcfcfc;
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.28),
       inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
-    box-shadow: -100vw 0 0 100vw dodgerblue;
     border-radius: 100%;
     border: 1px solid transparent;
   }

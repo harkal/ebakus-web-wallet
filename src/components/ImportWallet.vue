@@ -168,7 +168,7 @@ export default {
 
           this.$store.dispatch(
             MutationTypes.SET_SPINNER_STATE,
-            SpinnerState.FAILED
+            SpinnerState.NONE
           )
           return
         }
@@ -194,10 +194,7 @@ export default {
       } catch (err) {
         console.error('New account import failed', err)
 
-        this.$store.dispatch(
-          MutationTypes.SET_SPINNER_STATE,
-          SpinnerState.FAILED
-        )
+        this.$store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.NONE)
       }
     },
     secureWallet: async function() {
@@ -217,7 +214,6 @@ export default {
         console.error('Secure imported wallet failed with err: ', err)
 
         this.error = err
-        this.$store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
       }
     },
     handleMethodChange: function(e) {

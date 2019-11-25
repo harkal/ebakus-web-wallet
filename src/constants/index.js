@@ -4,26 +4,28 @@ const DefaultToken = 'EBK'
 const DefaultDappWhitelistTimer = 3 * 1000
 
 const SPINNER_RUNNING = 1 << 8
+const SKIP_WALLET_ANIMATIONS = 1 << 9
 const SpinnerState = {
   SPINNER_RUNNING,
-  NONE: 0,
-  SUCCESS: 1,
-  FAIL: 2,
-  CANCEL: 3,
+  SKIP_WALLET_ANIMATIONS,
+  NONE: 1 + SKIP_WALLET_ANIMATIONS,
+  SUCCESS: 2,
+  FAIL: 3 + SKIP_WALLET_ANIMATIONS,
+  CANCEL: 4 + SKIP_WALLET_ANIMATIONS,
 
   CALC_POW: 100 + SPINNER_RUNNING,
 
-  WALLET_UNLOCK: 110 + SPINNER_RUNNING,
-  WALLET_ENCRYPT: 111 + SPINNER_RUNNING,
-  WALLET_IMPORT: 112 + SPINNER_RUNNING,
+  WALLET_UNLOCK: 110 + SPINNER_RUNNING + SKIP_WALLET_ANIMATIONS,
+  WALLET_ENCRYPT: 111 + SPINNER_RUNNING + SKIP_WALLET_ANIMATIONS,
+  WALLET_IMPORT: 112 + SPINNER_RUNNING + SKIP_WALLET_ANIMATIONS,
 
-  TRANSACTION_WHITELISTING: 121,
+  TRANSACTION_WHITELISTING: 121 + SKIP_WALLET_ANIMATIONS,
   TRANSACTION_WHITELISTED_TIMER: 122 + SPINNER_RUNNING,
 
   TRANSACTION_SENDING: 131 + SPINNER_RUNNING,
   TRANSACTION_SENT_SUCCESS: 132,
 
-  NODE_SELECT: 140,
+  NODE_SELECT: 140 + SKIP_WALLET_ANIMATIONS,
   NODE_CONNECT: 141 + SPINNER_RUNNING,
   NODE_CONNECTED: 142,
   NODE_DISCONNECTED: 143,
@@ -40,7 +42,7 @@ const Networks = {
    * }
    * */
 
-  0: {
+  101: {
     name: 'Ebakus Testnet',
     testnet: true,
     provider: () => new Web3.providers.WebsocketProvider(process.env.NODE_URL),
@@ -48,7 +50,7 @@ const Networks = {
 }
 
 if (process.env.NODE_ENV === 'development') {
-  Networks[1] = {
+  Networks[1337] = {
     name: 'Ebakus Local node',
     testnet: true,
     provider: () => new Web3.providers.WebsocketProvider('ws://127.0.0.1:8546'),
@@ -62,9 +64,9 @@ const NetworkStatus = {
 
 const DialogComponents = {
   SEND_TX: 'SendTx',
+  FAILED_TX: 'FailedTx',
   NO_FUNDS: 'NoFunds',
   DELETE_WALLET: 'DeleteWallet',
-  WHITELIST_DAPP: 'WHITELIST_DAPP',
 }
 
 const StorageNames = {

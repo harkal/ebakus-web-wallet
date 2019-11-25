@@ -10,7 +10,6 @@ import store from '@/store'
 import {
   getTargetOrigin,
   loadedInIframe,
-  shrinkFrameInParentWindow,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
@@ -42,7 +41,7 @@ const isDappWhitelisted = () => {
   return (
     dapp &&
     typeof dapp.all !== 'undefined' &&
-    dapp.all.timer &&
+    typeof dapp.all.timer !== 'undefined' &&
     typeof dapp.contracts !== 'undefined'
   )
 }
@@ -136,8 +135,6 @@ const whitelistNewDapp = () => {
   const origin = getTargetOrigin()
   if (origin) {
     const { to } = store.state.tx.object
-    console.log('origin', origin, 'contractAddress', to)
-
     store.commit(MutationTypes.SET_DAPP_WHITELIST, {
       origin,
       contractAddress: to,
@@ -150,7 +147,6 @@ const whitelistDappAddNewContract = () => {
   const origin = getTargetOrigin()
   if (origin) {
     const { to } = store.state.tx.object
-    console.log('origin', origin, 'contractAddress', to)
 
     store.commit(MutationTypes.ADD_CONTRACT_TO_DAPP_WHITELIST, {
       origin,
@@ -160,7 +156,6 @@ const whitelistDappAddNewContract = () => {
 
   if (loadedInIframe() && !store.state.ui.isDrawerActiveByUser) {
     store.commit(MutationTypes.DEACTIVATE_DRAWER)
-    shrinkFrameInParentWindow()
   }
 }
 
@@ -200,7 +195,6 @@ const performWhitelistedAction = () => {
 
         if (loadedInIframe() && !store.state.ui.isDrawerActiveByUser) {
           store.commit(MutationTypes.DEACTIVATE_DRAWER)
-          shrinkFrameInParentWindow()
         }
         return
       }

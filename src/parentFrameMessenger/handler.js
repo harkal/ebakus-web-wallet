@@ -10,14 +10,17 @@ import router, { RouteNames } from '@/router'
 
 import {
   replyToParentWindow,
-  expandFrameInParentWindow,
   frameEventConnectionStatusUpdated,
 } from './parentFrameMessenger'
 
 const unlockWallet = () => {
   const routeName = router.app.$route.name
 
-  if ([RouteNames.NEW, RouteNames.UNLOCK].includes(routeName)) {
+  if (
+    [RouteNames.NEW, RouteNames.UNLOCK, RouteNames.SAFARI_WARNING].includes(
+      routeName
+    )
+  ) {
     activateDrawerIfClosed()
   }
 }
@@ -32,12 +35,6 @@ const defaultAddress = payload => {
 
   if (localAddr) {
     replyToParentWindow(localAddr, null, payload)
-  } else {
-    const err = {
-      code: 'noAccountFound',
-      desc: 'No account found in wallet',
-    }
-    replyToParentWindow(null, err, payload)
   }
 }
 
@@ -47,21 +44,32 @@ const getBalance = payload => {
       replyToParentWindow(balance, null, payload)
     })
     .catch(err => {
-      replyToParentWindow(null, err, payload)
+      replyToParentWindow(
+        null,
+        {
+          code: 'balance_updater_failure',
+          msg: err.message,
+        },
+        payload
+      )
     })
 }
 
 const sendTransaction = async payload => {
   const { id, req } = payload
 
-  store.commit(MutationTypes.SET_TX_JOB_ID, id)
+  store.dispatch(MutationTypes.SET_TX_JOB_ID, id)
 
   const pendingTx = await addPendingTx(req)
   calcWork(pendingTx)
 
   const routeName = router.app.$route.name
 
-  if (![RouteNames.NEW, RouteNames.UNLOCK].includes(routeName)) {
+  if (
+    ![RouteNames.NEW, RouteNames.UNLOCK, RouteNames.SAFARI_WARNING].includes(
+      routeName
+    )
+  ) {
     performWhitelistedAction()
     return
   }
@@ -106,7 +114,6 @@ const requiresUserAction = cmd => {
 
 const activateDrawerIfClosed = () => {
   if (!store.state.ui.isDrawerActive) {
-    expandFrameInParentWindow()
     store.commit(MutationTypes.ACTIVATE_DRAWER, false)
   }
 }

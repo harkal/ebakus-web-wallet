@@ -37,6 +37,7 @@
             placeholder
             @keyup.enter="secureWallet"
           />
+          <span v-if="error" class="text-error">{{ error }}</span>
           <button class="full" @click="secureWallet">Next</button>
         </div>
       </div>
@@ -97,6 +98,7 @@ export default {
       activePane: Panes.CREATE,
       pass: '',
       mnemonic: null,
+      error: '',
     }
   },
   computed: {
@@ -152,14 +154,14 @@ export default {
           MutationTypes.SET_SPINNER_STATE,
           SpinnerState.SUCCESS
         )
+
+        this.error = ''
+
+        this.activePane = Panes.BACKUP
       } catch (err) {
+        this.error = err
         console.error('Secure imported wallet failed with err: ', err)
-        // TODO: show error state to user
-
-        this.$store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
       }
-
-      this.activePane = Panes.BACKUP
     },
 
     finish: function() {
@@ -168,6 +170,8 @@ export default {
       this.activePane = Panes.FINISH
 
       setTimeout(() => {
+        self.$router.push({ name: RouteNames.HOME })
+
         const pendingTx = self.$store.state.tx.object
         if (
           loadedInIframe() &&
@@ -180,8 +184,6 @@ export default {
           }
           return
         }
-
-        self.$router.push({ name: RouteNames.HOME })
       }, 1200)
     },
   },

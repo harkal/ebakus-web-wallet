@@ -5,8 +5,6 @@ import { SpinnerState } from '@/constants'
 import {
   loadedInIframe,
   replyToParentWindow,
-  shrinkFrameInParentWindow,
-  expandFrameInParentWindow,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
@@ -27,7 +25,7 @@ const addPendingTx = async tx => {
   const nonce = await web3.eth.getTransactionCount(from)
 
   const txObject = {
-    chainId: web3.utils.toHex(7),
+    chainId: web3.utils.toHex(process.env.MAINNET_CHAIN_ID),
     gas: 100000,
     ...tx,
     to: web3.utils.toChecksumAddress(tx.to),
@@ -46,8 +44,6 @@ const calcWork = async tx => {
   // 2. for web3.js > beta.41, if possible
   tx.gasPrice = '0'
 
-  store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.CALC_POW)
-
   try {
     const difficulty = await web3.eth.suggestDifficulty(tx.from)
     const txWithPow = await web3.eth.calculateWorkForTransaction(
@@ -59,25 +55,32 @@ const calcWork = async tx => {
 
     return txWithPow
   } catch (err) {
+    store.dispatch(MutationTypes.CLEAR_TX)
     store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
 
     if (loadedInIframe()) {
-      replyToParentWindow(null, err.message)
+      replyToParentWindow(null, {
+        code: 'calc_pow_failure',
+        msg: err.message,
+      })
     }
   }
 }
 
 const calcWorkAndSendTx = async tx => {
   if (loadedInIframe() && !store.state.ui.isDrawerActiveByUser) {
-    store.commit(MutationTypes.DEACTIVATE_DRAWER)
-    shrinkFrameInParentWindow()
+    store.dispatch(MutationTypes.DEACTIVATE_DRAWER)
   }
 
+  const originalPendingTxJobId = store.state.tx.jobId
   const originalPendingTx = store.state.tx.object
-  store.commit(MutationTypes.CLEAR_TX)
+
+  store.dispatch(MutationTypes.CLEAR_TX)
 
   try {
     if (!tx.workNonce) {
+      store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.CALC_POW)
+
       tx = await calcWork(tx)
     }
 
@@ -88,8 +91,8 @@ const calcWorkAndSendTx = async tx => {
 
     const receipt = await web3.eth.sendTransaction(tx)
 
-    if (loadedInIframe()) {
-      replyToParentWindow(receipt)
+    if (!receipt.status) {
+      throw new Error('Transaction failed')
     }
 
     store.dispatch(
@@ -97,21 +100,39 @@ const calcWorkAndSendTx = async tx => {
       SpinnerState.TRANSACTION_SENT_SUCCESS
     )
 
-    const log = await getTxLogInfo({
-      ...originalPendingTx,
-      ...receipt,
-      hash: receipt.transactionHash,
-    })
-    store.dispatch(MutationTypes.ADD_LOCAL_LOG, log)
+    if (loadedInIframe() && originalPendingTxJobId) {
+      replyToParentWindow(receipt)
+    }
+
+    loadTxsInfoFromExplorer()
   } catch (err) {
     console.log('calcWorkAndSendTx err', err)
 
     store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
 
-    if (loadedInIframe()) {
-      replyToParentWindow(null, err.message)
+    activateDrawerIfClosed()
+
+    store.commit(MutationTypes.SHOW_DIALOG, {
+      component: DialogComponents.FAILED_TX,
+      title: 'Transaction Failed',
+      data: {
+        ...originalPendingTx,
+      },
+    })
+
+    if (loadedInIframe() && originalPendingTxJobId) {
+      replyToParentWindow(null, {
+        code: 'send_tx_failure',
+        msg: err.message,
+      })
     }
+
+    loadTxsInfoFromExplorer()
   }
+}
+
+const getTokenSymbolPrefix = (chainId = process.env.MAINNET_CHAIN_ID) => {
+  return web3.utils.hexToNumber(chainId) != 7 ? 't' : ''
 }
 
 const cancelPendingTx = () => {
@@ -120,11 +141,14 @@ const cancelPendingTx = () => {
   store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.CANCEL)
 
   if (loadedInIframe()) {
-    replyToParentWindow(null, 'Transaction cancelled by user')
+    replyToParentWindow(null, {
+      code: 'send_tx_cancel',
+      msg: 'Transaction cancelled by user',
+    })
 
     if (!store.state.ui.isDrawerActiveByUser) {
+      store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
       store.commit(MutationTypes.DEACTIVATE_DRAWER)
-      shrinkFrameInParentWindow()
     }
   }
 
@@ -155,6 +179,7 @@ const getTxLogInfo = async receipt => {
   const foreignAddress = isLocal ? to : txFrom
 
   const token = getTokenInfoForContractAddress(foreignAddress)
+  const tokenSymbolPrefix = getTokenSymbolPrefix(receipt.chainId)
   const data = txData || input
 
   value = Vue.options.filters.toEtherFixed(value)
@@ -166,7 +191,7 @@ const getTxLogInfo = async receipt => {
   }
 
   if (isLocal) {
-    logTitle = `You sent ${value} EBK to:`
+    logTitle = `You sent ${value} ${tokenSymbolPrefix}EBK to:`
     logAddress = to
 
     if (isContractCreation) {
@@ -177,22 +202,22 @@ const getTxLogInfo = async receipt => {
 
       if (name === 'transfer') {
         const tokenValue = getValueForParam('_value', params) || 0
-        logTitle = `You sent ${web3.utils.fromWei(String(tokenValue))} ${
-          token.symbol
-        } to:`
+        logTitle = `You sent ${web3.utils.fromWei(
+          String(tokenValue)
+        )} ${tokenSymbolPrefix}${token.symbol} to:`
         logAddress = getValueForParam('_to', params)
       } else if (name === 'getWei') {
-        logTitle = `You requested 1 EBK from faucet:`
+        logTitle = `You requested 1 ${tokenSymbolPrefix}EBK from faucet:`
       } else {
         logTitle = `You called contract method ${name ? `"${name}"` : ''} at:`
       }
     }
   } else {
-    logTitle = `You received ${value} EBK from:`
+    logTitle = `You received ${value} ${tokenSymbolPrefix}EBK from:`
     logAddress = txFrom
 
     if (decodedData && decodedData.name === 'getWei') {
-      logTitle = `You received 1 EBK from faucet:`
+      logTitle = `You received 1 ${tokenSymbolPrefix}EBK from faucet:`
     }
   }
 
@@ -215,7 +240,6 @@ const checkIfEnoughBalance = tx => {
 
   if (parseFloat(value) < 0 || parseFloat(value) > balance) {
     if (loadedInIframe()) {
-      expandFrameInParentWindow()
       activateDrawerIfClosed()
     }
 
@@ -240,6 +264,7 @@ const getTransactionMessage = async tx => {
   to = tx.to
 
   const value = tx.value ? web3.utils.fromWei(tx.value) : '0'
+  const tokenSymbolPrefix = getTokenSymbolPrefix(tx.chainId)
   let data = tx.data || tx.input
 
   let decodedData
@@ -247,7 +272,7 @@ const getTransactionMessage = async tx => {
   preTitle = 'You are about'
 
   if (value > 0) {
-    amountTitle = `to send ${value} EBK`
+    amountTitle = `to send ${value} ${tokenSymbolPrefix}EBK`
   }
 
   const isContractCreation = !tx.to || /^0x0+$/.test(tx.to)
@@ -270,12 +295,12 @@ const getTransactionMessage = async tx => {
         to = getValueForParam('_to', params)
         const value = getValueForParam('_value', params) || 0
 
-        emTitle = `to transfer ${web3.utils.fromWei(String(value))} ${
-          token.symbol
-        }`
+        emTitle = `to transfer ${web3.utils.fromWei(
+          String(value)
+        )} ${tokenSymbolPrefix}${token.symbol}`
         postTitle = `to "${to}". Are you sure?`
       } else if (name === 'getWei') {
-        emTitle = 'to request 1 EBK'
+        emTitle = `to request 1 ${tokenSymbolPrefix}EBK`
         postTitle = 'from faucet. Are you sure?'
       } else {
         emTitle = `to call ${name}`
@@ -322,6 +347,7 @@ export {
   addPendingTx,
   calcWork,
   calcWorkAndSendTx,
+  getTokenSymbolPrefix,
   cancelPendingTx,
   checkIfEnoughBalance,
   getTransactionMessage,

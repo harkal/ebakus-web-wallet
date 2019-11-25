@@ -18,7 +18,9 @@
           @change="onTokenChange()"
         >
           <option value="EBK" :selected="inputs.amount == 'EBK'"
-            >ebakus (EBK)</option
+            >{{ network.isTestnet ? 'testnet - ' : '' }}ebakus ({{
+              tokenSymbolPrefix
+            }}EBK)</option
           >
           <option
             v-for="(tokenObj, index) in tokens"
@@ -58,7 +60,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import QR from '@/assets/vendor/qr_lib/qr_packed'
 
@@ -85,12 +87,16 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['network']),
     ...mapState({
       isDrawerActive: state => state.ui.isDrawerActive,
       tokens: state => state.tokens,
-      tokenSymbol: state => state.wallet.token,
+      tokenSymbol: state => state.wallet.tokenSymbol,
       tx: state => state.tx.object,
     }),
+    tokenSymbolPrefix: function() {
+      return this.network.isTestnet ? 't' : ''
+    },
     visible: function() {
       return this.isDrawerActive && this.$route.name === RouteNames.SEND
     },

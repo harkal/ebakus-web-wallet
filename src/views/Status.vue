@@ -2,208 +2,171 @@
   <div
     ref="statusBar"
     class="status-bar"
+    :class="{
+      hasBalance: hasBalance,
+      hasTitle: hasTitle,
+      hasNavigation: hasNavigation,
+    }"
     @click="!isDrawerActive && !showWhitelistingTimer && showWallet()"
   >
     <identicon
-      v-if="isDrawerActive || (!isDrawerActive && !showWhitelistingTimer)"
+      v-show="isDrawerActive || (!isDrawerActive && !showWhitelistingTimer)"
       key="identicon"
+      ref="identicon"
       :public-key="publicAddress"
       :class="{ loading: isSpinnerActive }"
     />
 
-    <transition
-      name="fade-transition"
-      :duration="{
-        enter: styles.animationFadeEnter,
-        leave: 0,
-      }"
-      appear
+    <div
+      v-if="
+        !isDrawerActive &&
+          [
+            SpinnerState.CALC_POW,
+            SpinnerState.TRANSACTION_SENDING,
+            SpinnerState.TRANSACTION_SENT_SUCCESS,
+            SpinnerState.NODE_CONNECT,
+            SpinnerState.NODE_CONNECTED,
+            SpinnerState.NODE_DISCONNECTED,
+          ].includes(spinnerState)
+      "
+      key="closedState"
+      class="closed-state"
     >
-      <div
+      <span
         v-if="
-          !isDrawerActive &&
-            [
-              SpinnerState.CALC_POW,
-              SpinnerState.TRANSACTION_SENDING,
-              SpinnerState.TRANSACTION_SENT_SUCCESS,
-              SpinnerState.NODE_CONNECT,
-              SpinnerState.NODE_CONNECTED,
-              SpinnerState.NODE_DISCONNECTED,
-            ].includes(spinnerState)
+          [SpinnerState.CALC_POW, SpinnerState.TRANSACTION_SENDING].includes(
+            spinnerState
+          )
         "
-        key="closedState"
-        class="closed-state"
+        key="working"
+        class="animate-fade-in-out-slow"
       >
-        <span
-          v-if="
-            [SpinnerState.CALC_POW, SpinnerState.TRANSACTION_SENDING].includes(
-              spinnerState
-            )
-          "
-          key="working"
-          class="animate-fade-in-out-slow"
-        >
-          Working...
-        </span>
+        Working...
+      </span>
 
-        <span
-          v-else-if="spinnerState === SpinnerState.TRANSACTION_SENT_SUCCESS"
-          key="sent"
-        >
-          Sent
-
-          <img src="@/assets/img/ic_sent.svg" width="13" height="7" />
-        </span>
-
-        <img
-          v-else-if="spinnerState === SpinnerState.NODE_CONNECT"
-          key="connecting"
-          src="@/assets/img/ic_connecting.svg"
-          width="16"
-          height="31"
-          class="animate-fade-in-out"
-        />
-        <img
-          v-else-if="spinnerState === SpinnerState.NODE_CONNECTED"
-          key="connected"
-          src="@/assets/img/ic_connected.svg"
-          width="16"
-          height="31"
-        />
-        <img
-          v-else-if="spinnerState === SpinnerState.NODE_DISCONNECTED"
-          key="disconnected"
-          src="@/assets/img/ic_disconnected.svg"
-          width="21"
-          height="31"
-          title="Connection lost try refreshing the page."
-        />
-      </div>
-
-      <p
-        v-else-if="
-          (!isDrawerActive && !showWhitelistingTimer) ||
-            (isDrawerActive && !isDialog)
-        "
-        key="balance"
-        class="balance"
+      <span
+        v-else-if="spinnerState === SpinnerState.TRANSACTION_SENT_SUCCESS"
+        key="sent"
       >
-        {{ balance | toEtherFixed }}
+        Sent
 
-        <transition
-          name="fade-transition"
-          :duration="{
-            enter: styles.animationFadeEnter,
-            leave: 0,
-          }"
-        >
-          <img
-            v-if="!isDrawerActive && tokenSymbol == 'EBK'"
-            src="@/assets/img/ebakus_logo_small.svg"
-            width="14"
-            height="14"
-          />
+        <img src="@/assets/img/ic_sent.svg" width="13" height="7" />
+      </span>
 
-          <span v-else>{{ tokenSymbol }}</span>
-        </transition>
-      </p>
-    </transition>
-
-    <transition
-      name="fade-transition"
-      :duration="{
-        enter: styles.animationFadeEnter,
-        leave: 0,
-      }"
-    >
-      <p
-        v-if="isDrawerActive && isDialog && dialog.title != ''"
-        key="title"
-        class="title"
-      >
-        {{ dialog.title }}
-      </p>
-    </transition>
-
-    <transition
-      name="fade-transition"
-      :duration="{
-        enter: styles.animationFadeEnter,
-        leave: 0,
-      }"
-    >
-      <Navigation
-        v-if="isDrawerActive && !isDialog && !isLocked"
-        key="navigation"
+      <img
+        v-else-if="spinnerState === SpinnerState.NODE_CONNECT"
+        key="connecting"
+        :src="require('!!url-loader?limit=true!@/assets/img/ic_connecting.svg')"
+        width="16"
+        height="31"
+        class="animate-fade-in-out"
       />
-    </transition>
+      <img
+        v-else-if="spinnerState === SpinnerState.NODE_CONNECTED"
+        key="connected"
+        src="@/assets/img/ic_connected.svg"
+        width="16"
+        height="31"
+      />
+      <img
+        v-else-if="spinnerState === SpinnerState.NODE_DISCONNECTED"
+        key="disconnected"
+        :src="
+          require('!!url-loader?limit=true!@/assets/img/ic_disconnected.svg')
+        "
+        width="21"
+        height="31"
+        title="Connection lost try refreshing the page."
+      />
+    </div>
 
-    <transition
-      name="whitelist-transition"
-      :duration="{ enter: styles.animationStatusWhitelist, leave: 0 }"
-      appear
+    <div
+      v-else-if="!isDrawerActive && !showWhitelistingTimer"
+      key="balanceClosed"
+      class="balance balanceClosed"
     >
-      <DappWhitelistedStatusBar v-if="showWhitelistingTimer" key="whitelist" />
-    </transition>
+      {{ balance | toEtherFixed }}
 
-    <transition
-      name="status-buttons-transition"
-      :duration="{
-        enter: styles.animationStatusButtonsEnter,
-        leave: styles.animationStatusButtonsLeave,
-      }"
-      appear
+      <img
+        v-if="!network.isTestnet && tokenSymbol == 'EBK'"
+        src="@/assets/img/ebakus_logo_small.svg"
+        width="14"
+        height="14"
+      />
+
+      <span v-else>{{
+        network.isTestnet ? ` t${tokenSymbol}` : ` ${tokenSymbol}`
+      }}</span>
+    </div>
+
+    <div
+      v-if="isDrawerActive && !isDialog"
+      key="balanceOpened"
+      class="balance balanceOpened"
     >
-      <div v-if="isDrawerActive" key="buttons" class="buttons">
-        <transition-group
-          name="fade-transition"
-          :duration="{
-            enter: styles.animationFadeEnter,
-            leave: 0,
-          }"
-          appear
-        >
-          <button
-            v-show="buttonState === ButtonStates.EXIT"
-            key="exit"
-            class="btn-circle exit"
-            @click.stop="exit"
-          />
-          <button
-            v-show="buttonState === ButtonStates.MAIN"
-            key="settings"
-            class="btn-circle settings"
-            @click.stop="showSettings"
-          />
-          <button
-            v-show="
-              [ButtonStates.UNLOCK, ButtonStates.MAIN].includes(buttonState)
-            "
-            key="close"
-            class="btn-circle close"
-            @click.stop="hideWallet"
-          />
-        </transition-group>
-      </div>
-    </transition>
+      {{ balance | toEtherFixed }}
+      <p><span v-if="network.isTestnet">t</span>{{ tokenSymbol }}</p>
+    </div>
+
+    <p v-if="hasTitle" key="title" class="title">
+      {{ dialog.title }}
+    </p>
+
+    <Navigation v-if="hasNavigation" key="navigation" />
+
+    <DappWhitelistedStatusBar
+      v-if="showWhitelistingTimer"
+      ref="whitelist"
+      key="whitelist"
+    />
+
+    <div v-if="isDrawerActive" key="buttons" class="buttons">
+      <transition-group name="fade-transition">
+        <button
+          v-show="buttonState === ButtonStates.EXIT"
+          key="exit"
+          class="btn-circle exit"
+          @click.stop="exit"
+        />
+        <button
+          v-show="buttonState === ButtonStates.MAIN"
+          key="settings"
+          class="btn-circle settings"
+          @click.stop="showSettings"
+        />
+        <button
+          v-show="
+            [ButtonStates.UNLOCK, ButtonStates.MAIN].includes(buttonState)
+          "
+          key="close"
+          class="btn-circle close"
+          @click.stop="hideWallet"
+        />
+      </transition-group>
+    </div>
+
+    <div
+      v-if="
+        network.isTestnet &&
+          ![
+            SpinnerState.NODE_CONNECT,
+            SpinnerState.NODE_CONNECTED,
+            SpinnerState.NODE_DISCONNECTED,
+          ].includes(spinnerState)
+      "
+      class="testnet"
+    >
+      test-network
+    </div>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import { SpinnerState, DialogComponents } from '@/constants'
 
-import { isContractCall, isContractCallWhitelisted } from '@/actions/whitelist'
-
 import MutationTypes from '@/store/mutation-types'
-
-import {
-  loadedInIframe,
-  shrinkFrameInParentWindow,
-  expandFrameInParentWindow,
-  resizeFrameWidthInParentWindow,
-} from '@/parentFrameMessenger/parentFrameMessenger'
 
 import Identicon from '@/components/Identicon'
 import DappWhitelistedStatusBar from '@/components/DappWhitelistedStatusBar'
@@ -211,7 +174,9 @@ import Navigation from '@/components/Navigation'
 
 import { RouteNames } from '@/router'
 
-import styles from '@/assets/css/_animations.scss'
+import { animationQueue } from '@/utils'
+
+import styleAnimationVariables from '@/assets/css/_animations.scss'
 
 const ButtonStates = {
   NONE: 'NONE',
@@ -222,12 +187,14 @@ const ButtonStates = {
 
 export default {
   components: { Identicon, Navigation, DappWhitelistedStatusBar },
-  data() {
-    return {
-      resizeFrameTimer: null,
-    }
+  props: {
+    showWhitelistingTimer: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
+    ...mapGetters(['network']),
     ...mapState({
       isDrawerActive: state => state.ui.isDrawerActive,
       isSpinnerActive: state => state.ui.isSpinnerActive,
@@ -237,23 +204,23 @@ export default {
       isLocked: state => state.wallet.locked,
       publicAddress: state => state.wallet.address,
       balance: state => state.wallet.balance,
-      tokenSymbol: state => state.wallet.token,
-      isTxFromParentFrame: state => state.tx.jobId,
+      tokenSymbol: state => state.wallet.tokenSymbol,
     }),
 
     SpinnerState: () => SpinnerState,
     ButtonStates: () => ButtonStates,
-    styles: () => styles,
 
-    buttonState() {
-      if (this.$route.name == RouteNames.UNLOCK) {
+    buttonState: function() {
+      if (
+        [RouteNames.UNLOCK, RouteNames.SAFARI_WARNING].includes(
+          this.$route.name
+        )
+      ) {
         return ButtonStates.UNLOCK
+      } else if (this.$route.name == RouteNames.WHITELIST_DAPP) {
+        return ButtonStates.NONE
       } else if (this.isDialog) {
-        if (
-          [DialogComponents.SEND_TX, DialogComponents.WHITELIST_DAPP].includes(
-            this.dialog.component
-          )
-        ) {
+        if ([DialogComponents.SEND_TX].includes(this.dialog.component)) {
           return ButtonStates.NONE
         } else {
           return ButtonStates.EXIT
@@ -262,70 +229,17 @@ export default {
       return ButtonStates.MAIN
     },
 
-    showWhitelistingTimer: function() {
+    hasBalance: function() {
       return (
-        this.isTxFromParentFrame &&
-        isContractCall() &&
-        isContractCallWhitelisted() &&
-        this.$route.name !== RouteNames.UNLOCK &&
-        this.dialog.component !== DialogComponents.NO_FUNDS
+        (!this.isDrawerActive && !this.showWhitelistingTimer) ||
+        (this.isDrawerActive && !this.isDialog)
       )
     },
-  },
-  watch: {
-    spinnerState: function(val, oldVal) {
-      if (val !== oldVal) {
-        if (
-          [
-            SpinnerState.TRANSACTION_SENT_SUCCESS,
-            SpinnerState.NODE_CONNECTED,
-          ].includes(val)
-        ) {
-          setTimeout(() => {
-            this.$store.commit(
-              MutationTypes.SET_SPINNER_STATE,
-              SpinnerState.SUCCESS
-            )
-          }, 800)
-        }
-
-        if (!this.isDrawerActive) {
-          if (loadedInIframe()) {
-            if ([SpinnerState.CANCEL, SpinnerState.SUCCESS].includes(val)) {
-              clearTimeout(this.resizeFrameTimer)
-              this.resizeFrameTimer = setTimeout(() => {
-                resizeFrameWidthInParentWindow(
-                  this.$refs.statusBar.clientWidth + 2
-                )
-              }, 800)
-            } else if (
-              [SpinnerState.TRANSACTION_WHITELISTED_TIMER].includes(val)
-            ) {
-              resizeFrameWidthInParentWindow(400, 120)
-
-              clearTimeout(this.resizeFrameTimer)
-              this.resizeFrameTimer = setTimeout(() => {
-                resizeFrameWidthInParentWindow(
-                  this.$refs.statusBar.clientWidth + 2,
-                  this.$refs.statusBar.clientHeight + 2
-                )
-              }, 800)
-            }
-          }
-        }
-      }
+    hasTitle: function() {
+      return this.isDrawerActive && this.isDialog && this.dialog.title != ''
     },
-    isDrawerActive: function(val, oldVal) {
-      if (val !== oldVal && val == false) {
-        resizeFrameWidthInParentWindow(400, 120)
-        clearTimeout(this.resizeFrameTimer)
-        this.resizeFrameTimer = setTimeout(() => {
-          resizeFrameWidthInParentWindow(
-            this.$refs.statusBar.clientWidth + 2,
-            this.$refs.statusBar.clientHeight + 2
-          )
-        }, 800)
-      }
+    hasNavigation: function() {
+      return this.isDrawerActive && !this.isDialog && !this.isLocked
     },
   },
   mounted() {
@@ -335,33 +249,30 @@ export default {
     this.updateInnerHeight()
   },
   methods: {
+    isAnimating: function() {
+      return (
+        animationQueue.isAnimating() || this.spinnerState === 0
+      ) /* isAnimating or new page load */
+    },
     showWallet: function() {
-      this.$emit('showWallet')
-
-      clearTimeout(this.resizeFrameTimer)
-
-      if (loadedInIframe()) {
-        expandFrameInParentWindow()
+      if (this.isAnimating()) {
+        return
       }
 
       this.$store.commit(MutationTypes.ACTIVATE_DRAWER, true)
     },
     hideWallet: function() {
-      this.$emit('hideWallet')
-
-      this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
-
-      if (loadedInIframe()) {
-        shrinkFrameInParentWindow()
+      if (this.isAnimating()) {
+        return
       }
+
+      this.$emit('hideWallet') // IMPORTANT: call before DEACTIVATE_DRAWER
+      this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
+      this.$store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
     },
     exit: function() {
       if (this.$route.name == RouteNames.NEW) {
         this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
-
-        if (loadedInIframe()) {
-          shrinkFrameInParentWindow()
-        }
       } else if (this.$route.name == RouteNames.IMPORT) {
         const redirectFrom = this.$route.query.redirectFrom || RouteNames.HOME
         this.$router.push({ name: redirectFrom }, () => {})
@@ -377,24 +288,38 @@ export default {
       this.$router.push({ name: RouteNames.SETTINGS }, () => {})
     },
     updateInnerHeight: function() {
+      const self = this
+
       // handle "iOS viewport scroll bug", https://css-tricks.com/the-trick-to-viewport-units-on-mobile/
       // set the value in the --status-bar-vh custom property to the root of the document
-      this.$nextTick(() => {
-        const height = this.$refs.statusBar.clientHeight * 0.01
-        document.documentElement.style.setProperty(
-          '--status-bar-vh',
-          `${height}px`
-        )
-      })
+      setTimeout(() => {
+        self.$nextTick(() => {
+          const height = self.$refs.statusBar.clientHeight * 0.01
+          document.documentElement.style.setProperty(
+            '--status-bar-vh',
+            `${height}px`
+          )
+        })
+      }, styleAnimationVariables.animationStatusBase)
     },
   },
 }
 </script>
 
 <style scoped lang="scss">
-@import '../assets/css/_animations.scss';
+@import '../assets/css/_variables';
+@import '../assets/css/_animations';
+@import '../assets/css/_z-index.scss';
 
 .title {
+  position: absolute;
+  top: $widget-opened-top + $widget-size-opened + $status-bar-padding;
+
+  right: ($wallet-opened-width / 2);
+  transform: translateX(50%);
+
+  margin: 0 auto;
+
   color: white;
   font-family: sans-serif;
   font-size: 13px;
@@ -404,66 +329,236 @@ export default {
 }
 
 .balance {
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-  align-items: center;
-  align-content: center;
-  justify-content: center;
-
   color: white;
-  text-align: center;
+  text-align: right;
 
   font-family: 'Arial';
   font-size: 17px;
-  font-weight: 500;
+  font-weight: 400;
   white-space: nowrap;
 
-  .opened & {
-    flex-wrap: wrap;
-
-    font-family: sans-serif;
-    font-size: 34px;
-    line-height: 34px;
-    font-weight: 600;
-
-    span {
-      flex-basis: 100%;
-      font-weight: 400;
-    }
-  }
-
-  .hidden {
-    opacity: 0;
-  }
-
-  span {
+  span,
+  p {
+    margin: 0;
     font-size: 13px;
     line-height: 13px;
   }
 
   img {
-    margin: 2px 6px;
+    margin: -2px 4px 0;
+  }
+}
+
+.balanceClosed {
+  position: relative;
+  top: ($wallet-closed-height / 2);
+  transform: translateY(-50%);
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  margin: 0 8px;
+
+  span {
+    white-space: pre;
+  }
+}
+
+.balanceOpened {
+  display: block;
+  position: absolute;
+  top: $widget-opened-top + $widget-size-opened + $status-bar-padding;
+
+  right: ($wallet-opened-width / 2);
+  transform: translateX(50%);
+
+  padding-top: 0;
+
+  text-align: center;
+  font-family: sans-serif;
+  font-size: 34px;
+  line-height: 34px;
+  font-weight: 600;
+
+  p {
+    font-weight: 400;
   }
 }
 
 .closed-state {
+  position: relative;
+  top: ($wallet-closed-height / 2);
+  transform: translateY(-50%);
+
+  margin: 0 8px;
+
   color: white;
+  text-align: right;
 }
 
 .buttons {
   position: absolute;
   top: 0;
-  left: 0;
-  margin: 0 !important;
+  right: 0;
+  width: 100%;
 }
 
 .btn-circle {
   position: absolute;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #333333;
+  background-repeat: no-repeat;
+  border-radius: 100%;
+  margin: 18px;
+  background-position: center;
 
+  &.exit {
+    background-image: url(../assets/img/ic_exit.png);
+    background-size: 11px;
+  }
+  &.close {
+    background-image: url(../assets/img/ic_close.png);
+    background-size: 6px 11px;
+  }
+  &.settings {
+    background-image: url(../assets/img/ic_settings.png);
+    background-size: 18px;
+  }
   &.settings,
   &.exit {
     right: 0px;
+  }
+}
+
+.testnet {
+  position: absolute;
+  top: 2px;
+  right: 8px;
+
+  color: #f3067c;
+
+  font-family: sans-serif;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-align: center;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  user-select: none;
+}
+
+.status-bar {
+  @include z-index(status);
+  @include accelerate(width, height);
+
+  min-height: $wallet-closed-height;
+  height: $wallet-closed-height;
+
+  background-color: rgb(10, 17, 31);
+  padding-left: $widget-size-base + 8px;
+  margin-left: auto !important;
+
+  // close animation
+  transition: width animation-duration(status, base) ease-out
+      animation-duration(fade, leave),
+    height animation-duration(status, base) ease-out
+      animation-duration(fade, leave),
+    border animation-duration(status, base) ease-out
+      animation-duration(fade, leave);
+
+  #wallet:not(.opened) & {
+    width: fit-content;
+
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-left-radius: 5px;
+    box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.15);
+
+    user-select: none;
+  }
+
+  #wallet.whitelisted:not(.opened) & {
+    height: auto;
+    padding-left: 0;
+
+    @media only screen and (max-width: $status-bar-whitelist-mobile-breakpoint) {
+      width: 100vw !important;
+      border-left: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    .buttons {
+      display: none;
+    }
+  }
+
+  .opened & {
+    height: $widget-opened-top + $widget-size-opened + ($status-bar-padding * 2);
+    padding: 0;
+    overflow: hidden;
+
+    // open animation
+    transition: width animation-duration(status, base) ease-out 0s,
+      height animation-duration(status, base) ease-out 0s,
+      border animation-duration(status, base) ease-out 0s;
+
+    &.hasBalance {
+      height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
+        $status-balance-height + $status-bar-padding;
+    }
+
+    &.hasTitle {
+      height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
+        $status-title-height + $status-bar-padding;
+    }
+
+    &.hasNavigation {
+      height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
+        $status-navigation-height;
+    }
+
+    &.hasBalance.hasNavigation {
+      height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
+        $status-balance-height + $status-bar-padding + $status-navigation-height;
+    }
+
+    .testnet {
+      top: 8px;
+      right: 50%;
+      transform: translateX(50%);
+
+      width: 88px;
+      border: solid 1px #f3067c;
+      border-radius: 2rem;
+
+      font-size: 11px;
+      font-weight: 400;
+    }
+  }
+}
+
+.animate-fade-in-out {
+  animation: fadeInOutAnimation 0.5s infinite;
+}
+.animate-fade-in-out-slow {
+  animation: fadeInOutAnimation 1s infinite;
+}
+
+@keyframes fadeInOutAnimation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
   }
 }
 </style>

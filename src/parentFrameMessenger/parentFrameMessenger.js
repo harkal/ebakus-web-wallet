@@ -1,6 +1,4 @@
-import { SpinnerState } from '@/constants'
-
-import store from '@/store'
+import { nextAnimationFrame } from '@/utils'
 
 import {
   externalFrameHandler,
@@ -165,6 +163,8 @@ const getTargetOrigin = () => {
   return _targetOrigin
 }
 
+const getParentWindowCurrentJob = () => jobQueue.current()
+
 const replyToParentWindow = (res, err, job) => {
   if (!job || !job.id) {
     const { data: { id: currentJobId } = {} } = jobQueue.current() || {}
@@ -181,25 +181,51 @@ const replyToParentWindow = (res, err, job) => {
   if (err) {
     payload.err = err
   }
-  postMessage(payload)
+
+  let target, targetOrigin
+  if (typeof payload.target !== 'undefined') {
+    target = payload.target
+    delete payload.target
+  }
+  if (typeof payload.targetOrigin !== 'undefined') {
+    targetOrigin = payload.targetOrigin
+    delete payload.targetOrigin
+  }
+
+  postMessage(payload, target, targetOrigin)
 }
 const expandFrameInParentWindow = () => postMessage({ cmd: 'active' })
 const shrinkFrameInParentWindow = () => {
   postMessage({ cmd: 'inactive' })
-
-  // expand parent width for better animations
-  if (
-    [
-      SpinnerState.CALC_POW,
-      SpinnerState.TRANSACTION_SENDING,
-      SpinnerState.NODE_CONNECT,
-    ].includes(store.state.ui.currentSpinnerState)
-  ) {
-    resizeFrameWidthInParentWindow(400)
-  }
 }
-const resizeFrameWidthInParentWindow = (width, height = 60) =>
+const resizeFrameWidthInParentWindow = async (width, height = 60) => {
+  width = parseInt(width, 10) > window.outerWidth ? window.outerWidth : width
+
   postMessage({ cmd: 'resize', width, height })
+
+  return new Promise(resolve => {
+    let retries = 0,
+      startTime
+
+    const checkSize = function(timestamp) {
+      if (!startTime) {
+        startTime = timestamp
+      }
+
+      const diff = timestamp - startTime
+
+      if (diff > 1000 || retries >= 10) {
+        resolve()
+      } else if (width > window.innerWidth || height > window.innerHeight) {
+        nextAnimationFrame(checkSize)
+        retries++
+      } else {
+        resolve()
+      }
+    }
+    checkSize()
+  })
+}
 const expandOverlayFrameInParentWindow = () =>
   postMessage({ cmd: 'withOverlay' })
 const shrinkOverlayFrameInParentWindow = () =>
@@ -235,6 +261,7 @@ export default init
 export {
   getTargetOrigin,
   loadedInIframe,
+  getParentWindowCurrentJob,
   replyToParentWindow,
   expandFrameInParentWindow,
   shrinkFrameInParentWindow,
