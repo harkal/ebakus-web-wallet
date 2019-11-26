@@ -1,6 +1,9 @@
 import Web3 from 'web3'
 
-import { localStorageGetFromParent } from '@/parentFrameMessenger/parentFrameMessenger'
+import {
+  localStorageGetFromParent,
+  getTargetOrigin,
+} from '@/parentFrameMessenger/parentFrameMessenger'
 import { StorageNames } from '@/constants'
 
 import MutationTypes from './mutation-types'
@@ -31,6 +34,16 @@ export default {
 
     const web3data = await localStorageGetFromParent(StorageNames.WEB3_WALLET)
     if (web3data) {
+      // backup iframe wallet if exists
+      const currentWallet = localStorage.getItem(StorageNames.WEB3_WALLET)
+      if (currentWallet && currentWallet !== web3data) {
+        const targetOrigin = getTargetOrigin() || Date.now()
+        localStorage.setItem(
+          `${StorageNames.WEB3_OLD_WALLET_BACKUP}_${targetOrigin}`,
+          currentWallet
+        )
+      }
+
       localStorage.setItem(StorageNames.WEB3_WALLET, web3data)
 
       let parsedWeb3data = JSON.parse(web3data)
