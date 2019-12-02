@@ -14,16 +14,20 @@ import {
   loadedInIframe,
   getParentWindowCurrentJob,
   replyToParentWindow,
+  localStorageSetToParent,
+  localStorageRemoveFromParent,
   frameEventBalanceUpdated,
   frameEventConnectionStatusUpdated,
 } from '@/parentFrameMessenger/parentFrameMessenger'
+
+import router, { RouteNames } from '@/router'
+
+import { isSafari } from '@/utils'
 
 import { setProvider, checkNodeConnection } from './providers'
 import { getTokenInfoForSymbol, getBalanceOfAddressForToken } from './tokens'
 import { loadTxsInfoFromExplorer } from './transactions'
 import { web3 } from './web3ebakus'
-
-import router, { RouteNames } from '@/router'
 
 const getBalanceCatchUpdateNetworkTimeouts = []
 
@@ -141,9 +145,15 @@ const secureWallet = pass => {
       local: true,
     }
     store.dispatch(MutationTypes.ADD_LOCAL_LOG, newAccLog)
-    // localStorage.setItem('logs', JSON.stringify(store.getters.transactions))
 
     store.dispatch(MutationTypes.UNLOCK_WALLET)
+
+    if (isSafari && store.state.isSafariAllowed && loadedInIframe()) {
+      const loadedWalletFromStorage = localStorage.getItem(
+        StorageNames.WEB3_WALLET
+      )
+      localStorageSetToParent(StorageNames.WEB3_WALLET, loadedWalletFromStorage)
+    }
 
     if (newAcc) {
       resolve(newAcc)
@@ -212,6 +222,14 @@ const importWallet = _seed => {
 const deleteWallet = () => {
   web3.eth.accounts.wallet.clear()
   localStorage.clear()
+
+  if (loadedInIframe()) {
+    localStorageRemoveFromParent(StorageNames.WALLET_STORE)
+    localStorageRemoveFromParent(StorageNames.LOGS)
+    localStorageRemoveFromParent(StorageNames.WEB3_WALLET)
+    localStorageRemoveFromParent(StorageNames.WEB3_OLD_WALLET_BACKUP)
+  }
+
   store.commit(MutationTypes.DELETE_WALLET)
   store.commit(MutationTypes.RESET_LOGS)
 }

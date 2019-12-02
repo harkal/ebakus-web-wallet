@@ -4,8 +4,6 @@ import floor from 'lodash/floor'
 
 import { init as initWeb3, web3 } from '@/actions/web3ebakus'
 
-import MutationTypes from '@/store/mutation-types'
-
 import store from '@/store'
 
 import router from '@/router'
@@ -51,8 +49,6 @@ new Vue({
   router,
   store,
   beforeCreate() {
-    this.$store.commit(MutationTypes.INITIALISE_STORE)
-
     // init web3 ebakus instance
     initWeb3(this.$store.getters.network)
   },

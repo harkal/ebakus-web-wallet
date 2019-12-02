@@ -50,6 +50,7 @@ import {
   isContractCallWhitelisted,
   getWhitelistDappTimer,
 } from '@/actions/whitelist'
+import { init as initWeb3 } from '@/actions/web3ebakus'
 
 import { SpinnerState, DialogComponents } from '@/constants'
 
@@ -69,7 +70,7 @@ import MutationTypes from '@/store/mutation-types'
 import SendTx from '@/components/dialogs/SendTx.vue'
 import Status from '@/views/Status'
 
-import { nextAnimationFrame, animationQueue } from '@/utils'
+import { isSafari, nextAnimationFrame, animationQueue } from '@/utils'
 
 import styleVariables from '@/assets/css/_variables.scss'
 import styleAnimationVariables from '@/assets/css/_animations.scss'
@@ -227,13 +228,31 @@ export default {
 
     animationQueue.add(() => nextAnimationFrame(self.hideWalletAnimation))
 
-    checkNodeConnection(true)
+    const unsubscribeWatcher = this.$store.watch(
+      () => self.$store.state.isStateLoaded,
+      loaded => {
+        if (loaded) {
+          unsubscribeWatcher()
 
-    setInterval(() => {
-      getBalance().catch(() => {}) // just for catching exceptions
-    }, 1000)
+          // init web3 ebakus instance
+          initWeb3(self.$store.getters.network)
 
-    this.loadWalletState()
+          checkNodeConnection(true)
+
+          setInterval(() => {
+            getBalance().catch(() => {}) // just for catching exceptions
+          }, 1000)
+
+          self.loadWalletState()
+        }
+      }
+    )
+
+    if (isSafari) {
+      this.$store.dispatch(MutationTypes.INITIALISE_REMOTE_STORE)
+    } else {
+      this.$store.commit(MutationTypes.INITIALISE_STORE)
+    }
   },
   methods: {
     restyleWallet: function() {

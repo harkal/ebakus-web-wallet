@@ -3,6 +3,13 @@ import Vuex from 'vuex'
 
 import { StorageNames } from '@/constants'
 
+import {
+  loadedInIframe,
+  localStorageSetToParent,
+} from '@/parentFrameMessenger/parentFrameMessenger'
+
+import { isSafari } from '@/utils'
+
 import MutationTypes from './mutation-types'
 
 import initialState from './state'
@@ -22,7 +29,21 @@ const store = new Vuex.Store({
 
 // subscribe to persist updates at localStorage
 store.subscribe(({ type }, state) => {
-  if (
+  if ([MutationTypes.ADD_LOCAL_LOG].includes(type)) {
+    if (isSafari && state.isSafariAllowed && loadedInIframe()) {
+      localStorageSetToParent(
+        StorageNames.LOGS,
+        JSON.stringify(state.history.local)
+      )
+    } else {
+      localStorage.setItem(
+        StorageNames.LOGS,
+        JSON.stringify(state.history.local)
+      )
+    }
+
+    return
+  } else if (
     ![
       MutationTypes.SET_NETWORK,
       MutationTypes.SET_DAPP_WHITELIST,
@@ -46,7 +67,11 @@ store.subscribe(({ type }, state) => {
     delete store.network.status
   }
 
-  localStorage.setItem(StorageNames.WALLET_STORE, JSON.stringify(store))
+  if (isSafari && state.isSafariAllowed && loadedInIframe()) {
+    localStorageSetToParent(StorageNames.WALLET_STORE, JSON.stringify(store))
+  } else {
+    localStorage.setItem(StorageNames.WALLET_STORE, JSON.stringify(store))
+  }
 })
 
 // accept actions and mutations as hot modules
