@@ -46,6 +46,7 @@ store.subscribe(({ type }, state) => {
   } else if (
     ![
       MutationTypes.SET_NETWORK,
+      MutationTypes.SET_NETWORK_CHAIN_ID,
       MutationTypes.SET_DAPP_WHITELIST,
       MutationTypes.SET_DAPP_WHITELIST_TIMER,
       MutationTypes.ADD_CONTRACT_TO_DAPP_WHITELIST,

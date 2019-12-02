@@ -81,9 +81,11 @@ const checkNodeConnection = async (force = false) => {
   }
 
   try {
-    await web3.eth.net.getId()
+    const chainId = await web3.eth.getChainId()
 
     if (store.state.network.status !== NetworkStatus.CONNECTED) {
+      store.dispatch(MutationTypes.SET_NETWORK_CHAIN_ID, chainId)
+
       store.dispatch(
         MutationTypes.SET_SPINNER_STATE,
         SpinnerState.NODE_CONNECTED
