@@ -248,7 +248,7 @@ export default {
       }
     )
 
-    if (isSafari) {
+    if (isSafari && loadedInIframe()) {
       this.$store.dispatch(MutationTypes.INITIALISE_REMOTE_STORE)
     } else {
       this.$store.commit(MutationTypes.INITIALISE_STORE)
