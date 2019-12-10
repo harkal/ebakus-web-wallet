@@ -5,5 +5,5 @@ module.exports = {
   API_ENDPOINT: '"https://explorersrv.ebakus.com"',
   MAINNET_CHAIN_ID: 10,
   DEFAULT_NETWORK_ID: 7, // as defined in `actions/providers.js`
-  FAUCET_CONTRACT_ADDRESS: '"0xe43aeaf605705af8b835efcaf318c7983dd39f85"',
+  FAUCET_CONTRACT_ADDRESS: '"0xb487e290dd71773b39f7250efe1496677c1400da"',
 }

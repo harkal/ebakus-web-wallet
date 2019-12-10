@@ -37,7 +37,7 @@ const setProvider = network => {
 
 const getProviderByNetworkId = id => {
   if (!Networks.hasOwnProperty(id)) {
-    alert('The given network is not valid!')
+    console.error('The given network is not valid!', id)
     return
   }
 
