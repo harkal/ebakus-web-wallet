@@ -10,7 +10,9 @@ export default {
         : process.env.DEFAULT_NETWORK_ID
 
     const networkOpts = Networks[networkId]
-    const isTestnet = networkOpts && networkOpts.testnet
+    const isTestnet =
+      (networkOpts && networkOpts.testnet) ||
+      state.network.chainId == process.env.TESTNET_CHAIN_ID
 
     return {
       networkId,
