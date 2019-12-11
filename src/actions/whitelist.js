@@ -16,7 +16,6 @@ import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 import router, { RouteNames } from '@/router'
 
 import { calcWorkAndSendTx, checkIfEnoughBalance } from './transactions'
-import { loadConfirmTxMsg } from './wallet'
 import { web3 } from './web3ebakus'
 
 let userOptedOutOnceForSession = false
@@ -199,7 +198,10 @@ const performWhitelistedAction = () => {
         return
       }
     } else {
-      loadConfirmTxMsg(tx)
+      store.commit(MutationTypes.SHOW_DIALOG, {
+        component: DialogComponents.SEND_TX,
+        title: 'Send Confirmation',
+      })
     }
   }
 

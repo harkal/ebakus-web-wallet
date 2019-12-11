@@ -155,6 +155,9 @@ export default {
       status: NetworkStatus.DISCONNECTED,
     }
   },
+  [MutationTypes.SET_NETWORK_CHAIN_ID](state, chainId) {
+    state.network.chainId = chainId
+  },
   [MutationTypes.SET_NETWORK_STATUS](state, status) {
     state.network.status = status
   },

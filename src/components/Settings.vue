@@ -245,7 +245,9 @@ export default {
 
           // this timeout is here in order the code waits for provider to be set to web3 instance
           setTimeout(async () => {
-            await web3.eth.net.getId()
+            const chainId = await web3.eth.getChainId()
+
+            self.$store.dispatch(MutationTypes.SET_NETWORK_CHAIN_ID, chainId)
 
             self.$store.dispatch(
               MutationTypes.SET_SPINNER_STATE,

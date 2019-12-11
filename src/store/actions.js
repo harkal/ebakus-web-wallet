@@ -111,6 +111,9 @@ export default {
     context.commit(MutationTypes.CLEAR_DIALOG)
   },
 
+  [MutationTypes.SET_NETWORK_CHAIN_ID](context, chainId) {
+    context.commit(MutationTypes.SET_NETWORK_CHAIN_ID, chainId)
+  },
   [MutationTypes.SET_NETWORK_STATUS](context, data) {
     context.commit(MutationTypes.SET_NETWORK_STATUS, data)
   },

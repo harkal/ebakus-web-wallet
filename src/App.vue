@@ -56,6 +56,8 @@ import { SpinnerState, DialogComponents } from '@/constants'
 
 import {
   loadedInIframe,
+  getParentWindowCurrentJob,
+  replyToParentWindow,
   shrinkFrameInParentWindow,
   expandFrameInParentWindow,
   resizeFrameWidthInParentWindow,
@@ -244,11 +246,19 @@ export default {
           }, 1000)
 
           self.loadWalletState()
+
+          if (self.publicAddress !== null && loadedInIframe()) {
+            const currentJob = getParentWindowCurrentJob()
+            const { data: { cmd } = {} } = currentJob || {}
+            if (cmd === 'defaultAddress') {
+              replyToParentWindow(self.publicAddress, null, currentJob)
+            }
+          }
         }
       }
     )
 
-    if (isSafari) {
+    if (isSafari && loadedInIframe()) {
       this.$store.dispatch(MutationTypes.INITIALISE_REMOTE_STORE)
     } else {
       this.$store.commit(MutationTypes.INITIALISE_STORE)

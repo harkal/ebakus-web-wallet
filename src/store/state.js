@@ -14,9 +14,10 @@ const initialState = {
     whitelistAnimationReady: false, // hack for blocking ui animations
   },
 
-  // netwrok preferences
+  // network preferences
   network: {
     networkId: process.env.DEFAULT_NETWORK_ID,
+    chainId: process.env.DEFAULT_NETWORK_ID,
     nodeAddress: '',
     status: NetworkStatus.DISCONNECTED,
   },

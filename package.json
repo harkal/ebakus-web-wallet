@@ -23,7 +23,7 @@
     "vue-qrcode-component": "^2.1.1",
     "vue-router": "^3.0.3",
     "vuex": "^3.0.1",
-    "web3": "^1.2.1",
+    "web3": "^1.2.4",
     "web3-ebakus": "^0.1.2"
   },
   "devDependencies": {

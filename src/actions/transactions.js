@@ -25,7 +25,7 @@ const addPendingTx = async tx => {
   const nonce = await web3.eth.getTransactionCount(from)
 
   const txObject = {
-    chainId: web3.utils.toHex(process.env.MAINNET_CHAIN_ID),
+    chainId: web3.utils.toHex(store.state.network.chainId),
     gas: 100000,
     ...tx,
     to: web3.utils.toChecksumAddress(tx.to),
@@ -131,7 +131,7 @@ const calcWorkAndSendTx = async tx => {
   }
 }
 
-const getTokenSymbolPrefix = (chainId = process.env.MAINNET_CHAIN_ID) => {
+const getTokenSymbolPrefix = (chainId = store.state.network.chainId) => {
   return web3.utils.hexToNumber(chainId) != 7 ? 't' : ''
 }
 

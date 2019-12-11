@@ -39,6 +39,7 @@ export default {
     ...mapState({
       isDrawerActive: state => state.ui.isDrawerActive,
       isDrawerActiveByUser: state => state.ui.isDrawerActiveByUser,
+      dialogComponent: state => state.ui.dialog.component,
       tx: state => state.tx.object,
     }),
     visible() {
@@ -56,7 +57,9 @@ export default {
     this.$store.commit(MutationTypes.SHOW_DIALOG)
   },
   beforeDestroy() {
-    this.$store.commit(MutationTypes.CLEAR_DIALOG)
+    if (this.dialogComponent === '') {
+      this.$store.commit(MutationTypes.CLEAR_DIALOG)
+    }
   },
   methods: {
     unlockWallet: function() {

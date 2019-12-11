@@ -41,8 +41,13 @@ const Networks = {
    *   provider - function which return a new Web3 provider instance
    * }
    * */
+  // 10: {
+  //   name: 'Ebakus Mainnet',
+  //   testnet: false,
+  //   provider: () => new Web3.providers.WebsocketProvider(process.env.NODE_URL),
+  // },
 
-  101: {
+  7: {
     name: 'Ebakus Testnet',
     testnet: true,
     provider: () => new Web3.providers.WebsocketProvider(process.env.NODE_URL),

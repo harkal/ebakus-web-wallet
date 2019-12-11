@@ -43,6 +43,7 @@ export default {
   computed: {
     ...mapState({
       isDrawerActiveByUser: state => state.ui.isDrawerActiveByUser,
+      dialogComponent: state => state.ui.dialog.component,
     }),
     getDappOrigin: function() {
       return getTargetOrigin()
@@ -58,7 +59,9 @@ export default {
     this.$store.commit(MutationTypes.SET_OVERLAY_COLOR, 'black')
   },
   beforeDestroy() {
-    this.$store.commit(MutationTypes.CLEAR_DIALOG)
+    if (this.dialogComponent === '') {
+      this.$store.commit(MutationTypes.CLEAR_DIALOG)
+    }
     this.$store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
   },
   methods: {
