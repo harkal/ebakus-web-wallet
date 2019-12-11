@@ -1,6 +1,23 @@
 {
-  "name": "ebakus_web_wallet",
+  "name": "ebakus-web-wallet",
   "version": "0.1.0",
+  "description": "This is the official web wallet which can be embed into a dApp page to interact with the Ebakus blockchain.",
+  "homepage": "https://www.ebakus.com/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ebakus/ebakus-web-wallet.git"
+  },
+  "author": "Ebakus AG <chris@ebakus.com>",
+  "license": "MIT",
+  "keywords": [
+    "blockchain",
+    "ebakus",
+    "wallet",
+    "web3"
+  ],
+  "bugs": {
+    "url": "https://github.com/ebakus/ebakus-web-wallet/issues"
+  },
   "private": true,
   "scripts": {
     "serve": "DISABLE_HOST_CHECK=1 vue-cli-service serve",
