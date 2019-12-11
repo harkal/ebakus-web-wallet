@@ -66,7 +66,6 @@ import { mapState } from 'vuex'
 import {
   generateWallet,
   secureWallet as secureWalletFunc,
-  loadConfirmTxMsg,
 } from '@/actions/wallet'
 import {
   isContractCall,
@@ -74,7 +73,7 @@ import {
   showWhitelistNewDappView,
 } from '@/actions/whitelist'
 
-import { SpinnerState } from '@/constants'
+import { SpinnerState, DialogComponents } from '@/constants'
 
 import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger'
 
@@ -107,6 +106,7 @@ export default {
       isDrawerActive: state => state.ui.isDrawerActive,
       isLocked: state => state.wallet.locked,
       publicAddress: state => state.wallet.address,
+      dialogComponent: state => state.ui.dialog.component,
     }),
     RouteNames: () => RouteNames,
     visible() {
@@ -136,7 +136,9 @@ export default {
     }
   },
   beforeDestroy() {
-    this.$store.commit(MutationTypes.CLEAR_DIALOG)
+    if (this.dialogComponent === '') {
+      this.$store.commit(MutationTypes.CLEAR_DIALOG)
+    }
   },
   methods: {
     requestNewPassword: function() {
@@ -167,7 +169,7 @@ export default {
     finish: function() {
       const self = this
 
-      this.activePane = Panes.FINISH
+      self.activePane = Panes.FINISH
 
       setTimeout(() => {
         self.$router.push({ name: RouteNames.HOME })
@@ -180,7 +182,10 @@ export default {
           if (isContractCall() && !isContractCallWhitelisted()) {
             showWhitelistNewDappView()
           } else {
-            loadConfirmTxMsg(pendingTx)
+            self.$store.dispatch(MutationTypes.SHOW_DIALOG, {
+              component: DialogComponents.SEND_TX,
+              title: 'Send Confirmation',
+            })
           }
           return
         }

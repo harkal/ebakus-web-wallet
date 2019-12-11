@@ -31,8 +31,6 @@ import { web3 } from './web3ebakus'
 
 const getBalanceCatchUpdateNetworkTimeouts = []
 
-const loadConfirmTxMsg = async () => {}
-
 const getBalance = async () => {
   const { address, tokenSymbol } = store.state.wallet
   if (!address) {
@@ -275,7 +273,6 @@ const exitDialog = () => {
 }
 
 export {
-  loadConfirmTxMsg,
   getBalance,
   generateWallet,
   secureWallet,

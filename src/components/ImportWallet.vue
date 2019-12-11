@@ -95,6 +95,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 import {
   hasWallet as hasWalletFunc,
   unlockWallet,
@@ -124,6 +126,9 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      dialogComponent: state => state.ui.dialog.component,
+    }),
     ComponentStates: () => ComponentStates,
     mnemonicPlaceholder: () =>
       [...Array(12)].map((val, idx) => `word ${idx + 1}`),
@@ -137,7 +142,9 @@ export default {
     this.$store.commit(MutationTypes.SET_OVERLAY_COLOR, 'black')
   },
   beforeDestroy() {
-    this.$store.commit(MutationTypes.CLEAR_DIALOG)
+    if (this.dialogComponent === '') {
+      this.$store.commit(MutationTypes.CLEAR_DIALOG)
+    }
     this.$store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
   },
   methods: {
