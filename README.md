@@ -4,6 +4,8 @@ This is the official web wallet which can be embedded into a dApp page to intera
 
 You can check the [released mainnet wallet](https://wallet.ebakus.com) and check how it looks like inside a dApp at [an existing dApp](https://demo.ebakus.com).
 
+## Important
+
 For embedding the wallet to your own dApp check the [wallet loader project](https://github.com/ebakus/ebakus-web-wallet-loader).
 
 ## Project setup
