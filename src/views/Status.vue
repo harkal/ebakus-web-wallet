@@ -280,6 +280,8 @@ export default {
       } else if (this.$route.name == RouteNames.SETTINGS) {
         this.$router.push({ name: RouteNames.HOME }, () => {})
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
+      } else if (this.$route.name == RouteNames.STAKE) {
+        this.$router.go(-1)
       } else if (this.isDialog) {
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
       }
