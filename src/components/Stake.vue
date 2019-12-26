@@ -12,7 +12,7 @@
         :value="newStakedAmount"
         :data-staked="newStakedAmount.toFixed(4)"
         :data-liquid="newLiquidAmount"
-        @change="setNewStakedAmount($event)"
+        @input="setNewStakedAmount($event)"
       />
 
       <hr />
@@ -86,7 +86,6 @@ import floor from 'lodash/floor'
 
 import {
   stake,
-  getStaked,
   unstake,
   getClaimableEntries,
   claimUnstaked,
@@ -172,7 +171,15 @@ export default {
       return entries
     },
     maxStakeAmount: function() {
-      return parseFloat(this.staked) + parseFloat(this.balance)
+      const claimable = this.claimableEntriesStorage.reduce(
+        (acc, entry) => acc + entry.amount,
+        0
+      )
+      return (
+        parseFloat(this.staked) +
+        parseFloat(this.balance) +
+        parseFloat(claimable)
+      )
     },
     hasStakeChanged: function() {
       return this.staked != this.newStakedAmount
@@ -189,11 +196,13 @@ export default {
     staked: function(val, oldVal) {
       if (val !== oldVal) {
         this.$set(this, 'newStakedAmount', val)
-        this.$set(
-          this,
-          'newLiquidAmount',
-          floor(this.maxStakeAmount - val, 4).toFixed(4)
-        )
+        setTimeout(() => {
+          this.$set(
+            this,
+            'newLiquidAmount',
+            floor(this.maxStakeAmount - val, 4).toFixed(4)
+          )
+        }, 0)
       }
     },
   },
@@ -203,8 +212,6 @@ export default {
     })
     this.$store.commit(MutationTypes.SET_OVERLAY_COLOR, 'black')
 
-    const self = this
-    getStaked().then(staked => (self.newStakedAmount = staked))
     this.getClaimable()
   },
   beforeDestroy() {

@@ -28,6 +28,7 @@ import { setProvider, checkNodeConnection } from './providers'
 import { getTokenInfoForSymbol, getBalanceOfAddressForToken } from './tokens'
 import { loadTxsInfoFromExplorer } from './transactions'
 import { web3 } from './web3ebakus'
+import { getStaked } from './systemContract'
 
 const getBalanceCatchUpdateNetworkTimeouts = []
 
@@ -59,6 +60,8 @@ const getBalance = async () => {
 
     if (parseFloat(wei) != parseFloat(store.state.wallet.balance)) {
       store.dispatch(MutationTypes.SET_WALLET_BALANCE, String(wei))
+
+      getStaked()
 
       if (loadedInIframe()) {
         frameEventBalanceUpdated(wei)

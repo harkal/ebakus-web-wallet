@@ -246,9 +246,11 @@ export default {
             getBalance().catch(() => {}) // just for catching exceptions
           }, 1000)
 
-          self.loadWalletState()
-
+          // keep it here, as the call in getBalance, won't be called
+          // if everything is staked and balance is 0
           getStaked()
+
+          self.loadWalletState()
 
           if (self.publicAddress !== null && loadedInIframe()) {
             const currentJob = getParentWindowCurrentJob()
