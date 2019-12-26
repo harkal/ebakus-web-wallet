@@ -67,7 +67,7 @@ const calcWork = async tx => {
   }
 }
 
-const calcWorkAndSendTx = async tx => {
+const calcWorkAndSendTx = async (tx, handleErrorUI = true) => {
   if (loadedInIframe() && !store.state.ui.isDrawerActiveByUser) {
     store.dispatch(MutationTypes.DEACTIVATE_DRAWER)
   }
@@ -110,15 +110,17 @@ const calcWorkAndSendTx = async tx => {
 
     store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
 
-    activateDrawerIfClosed()
+    if (handleErrorUI) {
+      activateDrawerIfClosed()
 
-    store.commit(MutationTypes.SHOW_DIALOG, {
-      component: DialogComponents.FAILED_TX,
-      title: 'Transaction Failed',
-      data: {
-        ...originalPendingTx,
-      },
-    })
+      store.commit(MutationTypes.SHOW_DIALOG, {
+        component: DialogComponents.FAILED_TX,
+        title: 'Transaction Failed',
+        data: {
+          ...originalPendingTx,
+        },
+      })
+    }
 
     if (loadedInIframe() && originalPendingTxJobId) {
       replyToParentWindow(null, {
@@ -128,6 +130,10 @@ const calcWorkAndSendTx = async tx => {
     }
 
     loadTxsInfoFromExplorer()
+
+    if (!handleErrorUI) {
+      return Promise.reject(err)
+    }
   }
 }
 
