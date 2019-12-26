@@ -50,6 +50,7 @@ import {
   isContractCallWhitelisted,
   getWhitelistDappTimer,
 } from '@/actions/whitelist'
+import { getStaked } from '@/actions/systemContract'
 import { init as initWeb3 } from '@/actions/web3ebakus'
 
 import { SpinnerState, DialogComponents } from '@/constants'
@@ -246,6 +247,8 @@ export default {
           }, 1000)
 
           self.loadWalletState()
+
+          getStaked()
 
           if (self.publicAddress !== null && loadedInIframe()) {
             const currentJob = getParentWindowCurrentJob()

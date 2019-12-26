@@ -83,6 +83,9 @@ export default {
   [MutationTypes.SET_WALLET_BALANCE](context, balance) {
     context.commit(MutationTypes.SET_WALLET_BALANCE, balance)
   },
+  [MutationTypes.SET_WALLET_STAKED](context, staked) {
+    context.commit(MutationTypes.SET_WALLET_STAKED, staked)
+  },
 
   [MutationTypes.PUSH_LOGS](context, data) {
     context.commit(MutationTypes.PUSH_LOGS, data)

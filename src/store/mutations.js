@@ -105,6 +105,9 @@ export default {
   [MutationTypes.SET_WALLET_BALANCE](state, balance) {
     state.wallet.balance = balance
   },
+  [MutationTypes.SET_WALLET_STAKED](state, staked) {
+    state.wallet.staked = staked
+  },
   [MutationTypes.SET_ACTIVE_TOKEN](state, tokenSymbol = DefaultToken) {
     state.wallet.tokenSymbol = tokenSymbol
   },
