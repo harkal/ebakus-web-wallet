@@ -225,7 +225,6 @@ export default {
     setStake: async function() {
       if (this.newStakedAmount > this.staked) {
         try {
-          console.log('stake', floor(this.newStakedAmount - this.staked, 4))
           await stake(floor(this.newStakedAmount - this.staked, 4))
         } catch (err) {
           console.error('Failed to set new stake amount: ', err)
@@ -239,7 +238,6 @@ export default {
         }
 
         try {
-          console.log('unstake', floor(this.staked - this.newStakedAmount, 4))
           await unstake(floor(this.staked - this.newStakedAmount, 4))
         } catch (err) {
           console.error('Failed to set unstake amount: ', err)

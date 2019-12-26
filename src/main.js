@@ -21,12 +21,12 @@ parentFrameMessenger()
 
 Vue.use(VueClipboard)
 
-Vue.filter('toFixed', function(price, limit = 2) {
+Vue.filter('toFixed', function(price, limit = 4) {
   return price.toFixed(limit)
 })
 
 Vue.filter('floor', function(number) {
-  return floor(number, 2)
+  return floor(number, 4)
 })
 
 Vue.filter('toEther', function(wei) {
@@ -42,14 +42,14 @@ Vue.filter('toEtherFixed', function(wei) {
     wei = '0x' + wei.toString(16)
   }
 
-  return floor(parseFloat(web3.utils.fromWei(wei)), 2).toFixed(2)
+  return floor(parseFloat(web3.utils.fromWei(wei)), 4).toFixed(4)
 })
 
 new Vue({
   router,
   store,
   beforeCreate() {
-    // init web3 ebakus instance
+    // init web3 ebakus instance, temp use for bootstap as it will be reinitialised in App
     initWeb3(this.$store.getters.network)
   },
   render: h => h(App),
