@@ -1,297 +1,282 @@
 <template>
-  <div class="settings scroll-wrapper">
-    <div v-if="activePane == Panes.MAIN" key="main" class="wrapper">
-      <!-- <h2>Slow network?</h2>
-      <h3>
-        To improve performance while using the ebakus network you can
-        temporarily reserve some of your ebakus tokens. Adjust your balance
-        utilization bellow.
-      </h3>
-      <input type="range" min="0" max="100" value="val" class="slider js" /> -->
+  <div class="stake scroll-wrapper">
+    <div class="wrapper">
+      <h2>Stake some EBK to proceed with voting</h2>
 
-      <h2>Network</h2>
-      <div class="dropdown-wrapper">
-        <select
-          v-model="inputs.networkId"
-          class="dropdown"
-          @change="onNetworkChange()"
-        >
-          <option
-            v-for="(network, key, index) in availableNetworks"
-            :key="index"
-            :value="key"
-            >{{ network.name }}</option
+      <input
+        type="range"
+        class="slider"
+        min="0"
+        :max="maxStakeAmount"
+        step="0.0001"
+        :value="newStakedAmount"
+        :data-staked="newStakedAmount.toFixed(4)"
+        :data-liquid="newLiquidAmount"
+        @change="setNewStakedAmount($event)"
+      />
+
+      <hr />
+
+      <section v-if="claimableEntries.length > 0" class="unstaking">
+        <header class="header">
+          <h4>Unstaking</h4>
+          <span
+            >{{ claimableEntries.length }} out of {{ MaxUnstakedEntries }}</span
           >
-          <option value="-1">Use custom node</option>
-        </select>
-      </div>
+        </header>
 
-      <span v-if="isNodeConnectionError" class="text-error"
-        >Failed to connect to network. Switched to default network.</span
-      >
+        <ul>
+          <li
+            v-for="(entry, index) in claimableEntries"
+            :key="index"
+            class="unstaking-entry"
+          >
+            <div class="unstaking-info">
+              <span class="unstaking-amount"> {{ entry.amount }} EBK </span>
+              <span class="unstaking-remaining-time">
+                {{ entry.remainingTime }}
+              </span>
 
-      <div v-if="inputs.networkId == '-1'">
-        <label for="network">Enter node address</label>
-        <input v-model="inputs.nodeAddress" type="text" />
-
-        <span v-if="customNodeError != ''" class="text-error">{{
-          customNodeError
-        }}</span>
+              <div class="progress-bar">
+                <div
+                  class="state"
+                  :style="{
+                    width: getRemainingTimeProgressWidth(entry.timestamp) + '%',
+                  }"
+                ></div>
+              </div>
+            </div>
+          </li>
+        </ul>
 
         <button
-          class="full"
-          :class="{
-            disabled: inputs.nodeAddress === '',
-            loading: spinnerState == SpinnerState.NODE_CONNECT,
-            success: spinnerState == SpinnerState.NODE_CONNECTED,
-            error: spinnerState == SpinnerState.NODE_DISCONNECTED,
-          }"
-          :disabled="inputs.nodeAddress === ''"
-          @click="connectToNode"
+          v-if="hasClaimable"
+          class="full cta"
+          @click="claimUnstakedAmount"
         >
-          <span v-if="spinnerState === SpinnerState.NODE_CONNECT" key="connect">
-            Connecting...
-          </span>
-          <span
-            v-else-if="spinnerState === SpinnerState.NODE_CONNECTED"
-            key="connected"
-          >
-            Connected successfully
-          </span>
-          <span
-            v-else-if="spinnerState === SpinnerState.NODE_DISCONNECTED"
-            key="disconnected"
-          >
-            Connection failed
-          </span>
-          <span v-else key="connect">Connect</span>
+          Claim Unstaked
         </button>
-        <hr />
-      </div>
+        <hr v-if="hasClaimable" />
+      </section>
 
-      <button class="full" @click="importKey">Import another Account</button>
-      <button class="full" @click="deleteWallet">Delete your Account</button>
-      <button class="full" @click="exportPrivateKey">Export Private Key</button>
+      <span v-if="error != ''" class="text-error">{{ error }}</span>
 
-      <div v-if="isDappWhitelisted || targetOrigin" class="whitelisted">
-        <h2>Whitelist</h2>
-        <h3>{{ targetOrigin }}</h3>
-        <div v-if="isDappWhitelisted">
-          <label for="whitelist">
-            Transaction Confirmation Delay
-            <strong :class="{ error: getWhitelistDelay == 0 }">
-              ({{ getWhitelistDelay }} sec)
-            </strong>
-          </label>
-          <input
-            type="range"
-            class="whitelist-slider"
-            min="0"
-            :max="maxWhitelistDelay"
-            step="1"
-            :value="getWhitelistDelay"
-            @change="setWhitelistDelay($event)"
-          />
+      <button v-if="hasStakeChanged" class="full cta" @click="setStake">
+        Set Stake
+      </button>
+      <button v-if="hasStakeChanged" class="full" @click="discardChanges">
+        Cancel
+      </button>
 
-          <span v-if="getWhitelistDelay == 0" class="text-error">
-            By setting confirmation delay to 0 you will have no time to cancel a
-            transaction you don’t approve.
-          </span>
-
-          <button class="full" @click="removeDappFromWhitelist">
-            Remove from whitelist
-          </button>
-        </div>
-        <div v-else>
-          <button class="full" @click="whitelistThisDapp">
-            Whitelist this dApp
-          </button>
-        </div>
-      </div>
-    </div>
-    <div v-if="activePane == Panes.BACKUP" key="backup" class="wrapper">
-      <Backup type="privateKey" />
+      <h3>
+        To vote for block producers and to improve performance while using the
+        ebakus network you can temporarily reserve some of your ebakus tokens.
+        Adjust your balance utilization above. Staked tokens take 3 Days to
+        unstake and become liquid again. There are 5 concurent unstaking slots.
+      </h3>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import Vue from 'vue'
+import { mapState } from 'vuex'
 
-import { DialogComponents, SpinnerState, Networks } from '@/constants'
-
-import {
-  isDappWhitelisted,
-  showWhitelistNewDappView,
-  getWhitelistDappTimer,
-  setWhitelistDappTimer,
-  removeDappFromWhitelist,
-} from '@/actions/whitelist'
-import { setProvider, getCurrentProviderEndpoint } from '@/actions/providers'
-import {} from '@/actions/wallet'
-import { web3 } from '@/actions/web3ebakus'
+import floor from 'lodash/floor'
 
 import {
-  getTargetOrigin,
-  loadedInIframe,
-  frameEventCurrentProviderEndpointUpdated,
-} from '@/parentFrameMessenger/parentFrameMessenger'
+  stake,
+  getStaked,
+  unstake,
+  getClaimableEntries,
+  claimUnstaked,
+} from '@/actions/systemContract'
 
 import MutationTypes from '@/store/mutation-types'
 
-import { RouteNames } from '@/router'
+const MAX_UNSTAKED_ENTRIES = 5
+const UNSTAKE_PERIOD = 60 * 60 * 24 * 3 // 3 days
+const CLAIMABLE_LABEL = 'claimable'
 
-import Backup from './Backup'
+const timeLeft = UNIX_timestamp => {
+  const now = new Date()
+  const ttime = new Date(UNIX_timestamp * 1000)
+  const diff = ttime - now
 
-const MAX_WHITELIST_DELAY = 10
+  const divideBy = { w: 604800000, d: 86400000, h: 3600000, m: 60000, s: 1000 }
 
-const Panes = {
-  MAIN: 'MAIN',
-  BACKUP: 'BACKUP',
+  if (diff <= 0) {
+    return CLAIMABLE_LABEL
+  }
+
+  let out = ''
+
+  const days = Math.floor(diff / divideBy.d)
+  if (days > 0) {
+    out += `${days} days`
+  }
+
+  const hours = Math.floor(diff / divideBy.h) % 24
+  if (hours > 0) {
+    out += ` ${hours} hours`
+  }
+
+  const minutes = Math.floor(diff / divideBy.m) % 60
+  if (days == 0 && minutes > 0) {
+    out += ` ${minutes} min`
+    if (minutes > 1) out += 's'
+  }
+
+  const seconds = Math.floor(diff / divideBy.s) % 60
+  if (days == 0 && hours == 0 && minutes == 0 && seconds > 0) {
+    out += ` 1 min` // ` ${seconds} secs`
+  }
+
+  return `${out} left`
 }
 
 export default {
-  components: { Backup },
   data() {
     return {
-      activePane: Panes.MAIN,
-      availableNetworks: Networks,
-      inputs: this.$store.getters.network,
-      customNodeError: '',
+      newStakedAmount: this.$store.state.wallet.staked,
+      newLiquidAmount: Vue.options.filters.toEtherFixed(
+        this.$store.state.wallet.balance
+      ),
+      claimableEntriesStorage: [],
+      hasClaimable: false,
+      error: '',
     }
   },
   computed: {
-    Panes: () => Panes,
-    ...mapGetters(['network']),
+    MaxUnstakedEntries: () => MAX_UNSTAKED_ENTRIES,
     ...mapState({
-      isSpinnerActive: state => state.ui.isSpinnerActive,
-      spinnerState: state => state.ui.currentSpinnerState,
+      balance: state => Vue.options.filters.toEtherFixed(state.wallet.balance),
+      staked: state => state.wallet.staked,
     }),
+    claimableEntries: function() {
+      let hasClaimable = false
+      const entries = this.claimableEntriesStorage.map(entry => {
+        const remainingTime = timeLeft(entry.timestamp)
+        if (remainingTime === CLAIMABLE_LABEL) {
+          hasClaimable = true
+        }
 
-    maxWhitelistDelay: () => MAX_WHITELIST_DELAY,
-    SpinnerState: () => SpinnerState,
+        return {
+          ...entry,
+          remainingTime,
+        }
+      })
 
-    targetOrigin: () => getTargetOrigin(),
-    isDappWhitelisted: () => isDappWhitelisted(),
-    isNodeConnectionError: function() {
-      return (
-        this.inputs.networkId != '-1' && this.spinnerState === SpinnerState.FAIL
-      )
+      this.$set(this, 'hasClaimable', hasClaimable)
+
+      return entries
     },
-    getWhitelistDelay: () => {
-      const timer = getWhitelistDappTimer()
-      return timer / 1000
+    maxStakeAmount: function() {
+      return parseFloat(this.staked) + parseFloat(this.balance)
+    },
+    hasStakeChanged: function() {
+      return this.staked != this.newStakedAmount
     },
   },
   watch: {
-    network(newNetwork) {
-      this.$set(this, 'inputs', newNetwork)
+    balance: async function(val, oldVal) {
+      if (val !== oldVal) {
+        this.$set(this, 'newLiquidAmount', val) // computed balance has converted the val to ether already
+
+        await this.getClaimable()
+      }
+    },
+    staked: function(val, oldVal) {
+      if (val !== oldVal) {
+        this.$set(this, 'newStakedAmount', val)
+        this.$set(
+          this,
+          'newLiquidAmount',
+          floor(this.maxStakeAmount - val, 4).toFixed(4)
+        )
+      }
     },
   },
   mounted() {
     this.$store.commit(MutationTypes.SHOW_DIALOG, {
-      title: 'Settings',
+      title: 'Attention',
     })
     this.$store.commit(MutationTypes.SET_OVERLAY_COLOR, 'black')
 
-    this.$store.commit(
-      MutationTypes.SET_SPINNER_STATE,
-      SpinnerState.NODE_SELECT
-    )
+    const self = this
+    getStaked().then(staked => (self.newStakedAmount = staked))
+    this.getClaimable()
   },
   beforeDestroy() {
     this.$store.commit(MutationTypes.UNSET_OVERLAY_COLOR)
   },
   methods: {
-    importKey: function() {
-      this.$store.commit(MutationTypes.SHOW_DIALOG, { title: 'Import wallet' })
-      this.$router.push({
-        name: RouteNames.IMPORT,
-        query: { redirectFrom: this.$route.name },
-      })
-    },
-    deleteWallet: function() {
-      this.$store.commit(MutationTypes.SHOW_DIALOG, {
-        component: DialogComponents.DELETE_WALLET,
-        title: 'Delete wallet',
-      })
-    },
-    exportPrivateKey: function() {
-      this.activePane = Panes.BACKUP
-    },
-    setWhitelistDelay({ target: { valueAsNumber } }) {
-      const delay = valueAsNumber * 1000 // in ms
-      setWhitelistDappTimer(delay)
-    },
-    whitelistThisDapp: () => showWhitelistNewDappView(true),
-    removeDappFromWhitelist: () => removeDappFromWhitelist(),
-    connectToNode: function() {
-      const self = this
+    getRemainingTimeProgressWidth: function(UNIX_timestamp) {
+      const now = new Date()
+      const ttime = new Date(UNIX_timestamp * 1000)
+      const diff = ttime - now
 
-      const { networkId, nodeAddress } = this.inputs
-      const network = {
-        networkId,
-        nodeAddress: networkId == '-1' ? nodeAddress : '',
+      if (diff <= 0) {
+        return 0
       }
 
-      this.$store.commit(
-        MutationTypes.SET_SPINNER_STATE,
-        SpinnerState.NODE_CONNECT
-      )
-
-      try {
-        if (setProvider(network)) {
-          this.$store.commit(MutationTypes.SET_NETWORK, network)
-
-          // this timeout is here in order the code waits for provider to be set to web3 instance
-          setTimeout(async () => {
-            const chainId = await web3.eth.getChainId()
-
-            self.$store.dispatch(MutationTypes.SET_NETWORK_CHAIN_ID, chainId)
-
-            self.$store.dispatch(
-              MutationTypes.SET_SPINNER_STATE,
-              SpinnerState.NODE_CONNECTED
-            )
-
-            self.customNodeError = ''
-
-            if (loadedInIframe()) {
-              const providerEndpoint = getCurrentProviderEndpoint()
-              frameEventCurrentProviderEndpointUpdated(providerEndpoint)
-            }
-          }, 100)
+      return (Math.floor(diff / 1000) / UNSTAKE_PERIOD) * 100
+    },
+    setStake: async function() {
+      if (this.newStakedAmount > this.staked) {
+        try {
+          console.log('stake', floor(this.newStakedAmount - this.staked, 4))
+          await stake(floor(this.newStakedAmount - this.staked, 4))
+        } catch (err) {
+          console.error('Failed to set new stake amount: ', err)
+          this.error = 'Failed to set new stake amount.'
         }
-      } catch (err) {
-        this.$store.commit(
-          MutationTypes.SET_SPINNER_STATE,
-          SpinnerState.NODE_DISCONNECTED
-        )
+      } else {
+        if (this.claimableEntries.length >= MAX_UNSTAKED_ENTRIES) {
+          this.error =
+            'Your are not allowed to have more than 5 unstaking entries.'
+          return
+        }
 
-        setTimeout(async () => {
-          this.$store.dispatch(
-            MutationTypes.SET_SPINNER_STATE,
-            SpinnerState.NODE_SELECT
-          )
-        }, 1000)
-
-        this.customNodeError = "Can't connect to provider"
-        console.error('Failed to set provider', err)
+        try {
+          console.log('unstake', floor(this.staked - this.newStakedAmount, 4))
+          await unstake(floor(this.staked - this.newStakedAmount, 4))
+        } catch (err) {
+          console.error('Failed to set unstake amount: ', err)
+          this.error = 'Failed to set unstake amount.'
+        }
       }
+
+      this.getClaimable()
     },
-    onNetworkChange: function() {
-      const { networkId, nodeAddress } = this.inputs
+    discardChanges: function() {
+      this.newLiquidAmount = this.balance
+      this.newStakedAmount = this.staked
 
-      this.$store.commit(
-        MutationTypes.SET_SPINNER_STATE,
-        SpinnerState.NODE_SELECT
-      )
-      if (networkId != '-1') {
-        this.$set(this.inputs, 'nodeAddress', '')
-      }
+      this.error = ''
+    },
+    claimUnstakedAmount: async function() {
+      await claimUnstaked()
 
-      if (networkId != '-1' || nodeAddress !== '') {
-        this.connectToNode()
+      this.error = ''
+    },
+    setNewStakedAmount: function({ target: { valueAsNumber } }) {
+      this.newLiquidAmount = floor(
+        this.maxStakeAmount - valueAsNumber,
+        4
+      ).toFixed(4)
+
+      this.newStakedAmount = valueAsNumber
+
+      this.error = ''
+    },
+    getClaimable: async function() {
+      try {
+        const entries = await getClaimableEntries()
+        this.claimableEntriesStorage = entries
+      } catch (err) {
+        console.error('Failed to get claimable entries: ', err)
+        this.error = 'Failed to get claimable entries'
       }
     },
   },
@@ -299,105 +284,118 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import '../assets/css/_variables';
+
+$button-width: 10px;
+
 h2 {
-  font-size: 0.9em;
-  margin-bottom: 5px;
-  font-weight: 500;
-}
-
-h3 {
-  margin-bottom: 15px;
-}
-
-.text-error {
-  display: block;
+  margin-bottom: 12px;
 }
 
 hr {
   width: 110%;
-  margin: 1em 0 1em -5%;
+  margin: 10px 0 10px -5%;
   border: 0;
   border-top: 1px solid #d8d8d8;
 }
 
-.whitelisted {
-  margin-top: 30px;
+.unstaking {
+  .header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 
-  h3 {
-    margin-top: 0;
-    font-size: 0.9em;
-    font-weight: 600;
-    color: #354ea0;
+    h4 {
+      margin: 0 auto 0 0;
+      font-size: 10px;
+      font-weight: 500;
+      color: #677a86;
+    }
+
+    span {
+      font-size: 10px;
+      color: #dbdbdb;
+    }
+  }
+
+  ul {
+    margin-bottom: 24px;
+    padding: 0;
+    list-style: none;
   }
 }
 
-.whitelist-slider {
-  position: relative;
-  -webkit-appearance: none; /* Override default CSS styles */
-  appearance: none;
-  width: 100%; /* Full-width */
-  height: 11px; /* Specified height */
-  margin: 20px 0 40px;
+.unstaking-entry {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 
-  --range: calc(var(--max) - var(--min));
-  --ratio: calc((var(--val) - var(--min)) / var(--range));
-  --sx: calc(0.5 * 1.5em + var(--ratio) * (100% - 1.5em));
+  margin-bottom: 12px;
+  padding: 6px 10px;
 
-  background: rgb(212, 212, 212); /* Grey background */
-  outline: none; /* Remove outline */
-  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-  transition: opacity 0.2s;
-  border-radius: 20px;
+  border-radius: 4px;
+  border: solid 1px #edeaea;
+}
 
-  /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-  &::-webkit-slider-thumb {
-    appearance: none;
-    width: 27px; /* Set a specific slider handle width */
-    height: 27px; /* Slider handle height */
-    cursor: pointer; /* Cursor on hover */
-    background: #fcfcfc;
-    box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.28),
-      inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
-    border-radius: 100%;
-    border: 1px solid transparent;
+.unstaking-info {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  width: calc(100% - #{$button-width});
+}
+
+.unstaking-amount {
+  margin-right: auto;
+  font-size: 12px;
+  font-weight: 500;
+  color: #112f42;
+}
+
+.unstaking-remaining-time {
+  font-size: 10px;
+  font-weight: 600;
+  color: #677a86;
+}
+
+.progress-bar {
+  width: 100%;
+  margin-top: 8px;
+
+  &,
+  .state {
+    height: 3px;
+    border-radius: 1em;
+    background: #d8d8d8;
   }
 
-  &::-moz-range-thumb {
-    width: 27px; /* Set a specific slider handle width */
-    height: 27px; /* Slider handle height */
-    cursor: pointer; /* Cursor on hover */
-    background: #fcfcfc;
-    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.28),
-      inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
-    border-radius: 100%;
-    border: 1px solid transparent;
+  .state {
+    background: rgba(0, 0, 0, 0.6);
   }
+}
 
-  &::before,
-  &::after {
-    position: absolute;
-    font-size: 10px;
-    white-space: pre;
-    top: 25px;
-  }
+.unstaking-cancel {
+  width: $button-width;
+  margin: 0;
+  margin-left: $status-bar-padding;
 
-  &::before {
-    left: 0;
-    content: '0';
-  }
+  color: transparent;
+  text-decoration: none;
 
-  &::after {
-    right: 0;
-    content: '10 sec';
-  }
+  background-image: url(../assets/img/ic_exit.png);
+  background-repeat: no-repeat;
+  background-size: $button-width;
+  background-position: center center;
+  filter: brightness(0.7);
 }
 
 .slider {
   position: relative;
-  -webkit-appearance: none; /* Override default CSS styles */
-  appearance: none;
   width: 100%; /* Full-width */
   height: 11px; /* Specified height */
+  margin: 60px 0px 35px 0px;
   background: rgb(212, 212, 212); /* Grey background */
   outline: none; /* Remove outline */
   opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
@@ -407,7 +405,8 @@ hr {
   --ratio: calc((var(--val) - var(--min)) / var(--range));
   --sx: calc(0.5 * 1.5em + var(--ratio) * (100% - 1.5em));
 
-  margin: 60px 0px 50px 0px;
+  -webkit-appearance: none;
+  appearance: none;
 
   /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
   &::-webkit-slider-thumb {
@@ -436,7 +435,7 @@ hr {
   &::before {
     position: absolute;
     font-size: 12px;
-    content: '0 ebakus staked  \A 0 ebakus liquid';
+    content: attr(data-staked) ' ebakus staked  \A'attr(data-liquid) ' ebakus liquid';
     white-space: pre; /* or pre-wrap */
     width: 100%;
     text-align: center;
@@ -452,10 +451,11 @@ hr {
 
   &::after {
     position: absolute;
-    font-size: 10px;
-    content: 'Liquidity                                                Performance';
-    white-space: pre;
     top: 25px;
+    content: 'Liquidity                                                      Performance';
+    font-size: 10px;
+    font-weight: 600;
+    white-space: pre;
   }
 }
 </style>
