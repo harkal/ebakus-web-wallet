@@ -89,9 +89,14 @@ import {
   unstake,
   getClaimableEntries,
   claimUnstaked,
+  isVotingCall,
+  hasStakeForVotingCall,
 } from '@/actions/systemContract'
+import { addPendingTx, estimateGas, calcWork } from '@/actions/transactions'
+import { performWhitelistedAction } from '@/actions/whitelist'
 
 import MutationTypes from '@/store/mutation-types'
+import { loadedInIframe } from '../parentFrameMessenger/parentFrameMessenger'
 
 const MAX_UNSTAKED_ENTRIES = 5
 const UNSTAKE_PERIOD = 60 * 60 * 24 * 3 // 3 days
@@ -232,7 +237,25 @@ export default {
     setStake: async function() {
       if (this.newStakedAmount > this.staked) {
         try {
-          await stake(floor(this.newStakedAmount - this.staked, 4))
+          if (loadedInIframe() && isVotingCall() && !hasStakeForVotingCall()) {
+            const upstreamTx = { ...this.$store.state.tx.object }
+            const upstreamJobId = this.$store.state.tx.jobId
+
+            this.$store.dispatch(MutationTypes.SET_TX_JOB_ID, null)
+
+            this.$store.dispatch(MutationTypes.UNSET_OVERLAY_COLOR)
+
+            await stake(floor(this.newStakedAmount - this.staked, 4))
+
+            this.$store.dispatch(MutationTypes.SET_TX_JOB_ID, upstreamJobId)
+            const pendingTx = await addPendingTx(upstreamTx)
+            const txWithGas = await estimateGas({ ...pendingTx })
+            await calcWork({ ...txWithGas })
+
+            performWhitelistedAction()
+          } else {
+            await stake(floor(this.newStakedAmount - this.staked, 4))
+          }
         } catch (err) {
           console.error('Failed to set new stake amount: ', err)
           this.error = 'Failed to set new stake amount.'

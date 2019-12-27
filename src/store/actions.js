@@ -107,6 +107,10 @@ export default {
     context.commit(MutationTypes.CLEAR_TX)
   },
 
+  [MutationTypes.UNSET_OVERLAY_COLOR](context) {
+    context.commit(MutationTypes.UNSET_OVERLAY_COLOR)
+  },
+
   [MutationTypes.SHOW_DIALOG](context, data) {
     context.commit(MutationTypes.SHOW_DIALOG, data)
   },

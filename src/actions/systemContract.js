@@ -184,4 +184,24 @@ const claimUnstaked = async () => {
   }
 }
 
-export { stake, getStaked, unstake, getClaimableEntries, claimUnstaked }
+const isVotingCall = () => {
+  const tx = store.state.tx.object
+
+  return (
+    tx.to === '0x0000000000000000000000000000000000000101' &&
+    tx.data.startsWith('0xed081329')
+  )
+}
+const hasStakeForVotingCall = () => {
+  return store.state.wallet.staked > 0
+}
+
+export {
+  stake,
+  getStaked,
+  unstake,
+  getClaimableEntries,
+  claimUnstaked,
+  isVotingCall,
+  hasStakeForVotingCall,
+}

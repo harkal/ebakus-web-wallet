@@ -17,6 +17,7 @@ import router, { RouteNames } from '@/router'
 
 import { calcWorkAndSendTx, checkIfEnoughBalance } from './transactions'
 import { web3 } from './web3ebakus'
+import { isVotingCall, hasStakeForVotingCall } from './systemContract'
 
 let userOptedOutOnceForSession = false
 
@@ -174,6 +175,17 @@ const performWhitelistedAction = () => {
 
   if (checkIfEnoughBalance()) {
     if (isContractCall()) {
+      if (isVotingCall() && !hasStakeForVotingCall()) {
+        router.push({
+          name: RouteNames.STAKE,
+        })
+
+        if (loadedInIframe()) {
+          activateDrawerIfClosed()
+        }
+        return
+      }
+
       const isCallWhitelisted = isContractCallWhitelisted()
       const { contracts = [] } = loadWhitelistedDapp() || {}
 

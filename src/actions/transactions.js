@@ -38,6 +38,21 @@ const addPendingTx = async tx => {
   return txObject
 }
 
+const estimateGas = async tx => {
+  try {
+    const estimatedGas = await web3.eth.estimateGas(tx)
+    const txWithGas = { ...tx, gas: estimatedGas }
+    store.dispatch(MutationTypes.SET_TX_OBJECT, txWithGas)
+
+    return txWithGas
+  } catch (err) {
+    console.log(
+      'Gas estimation failed, but we can still try the transaction',
+      err
+    )
+  }
+}
+
 const calcWork = async tx => {
   // TODO: remove this after:
   // 1. pownode.ebakus.com has the latest code
@@ -351,6 +366,7 @@ const loadTxsInfoFromExplorer = () => {
 
 export {
   addPendingTx,
+  estimateGas,
   calcWork,
   calcWorkAndSendTx,
   getTokenSymbolPrefix,
