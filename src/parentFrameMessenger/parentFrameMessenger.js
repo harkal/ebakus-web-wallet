@@ -246,7 +246,7 @@ const replyToParentWindow = (res, err, job) => {
 
   const payload = { ...job }
 
-  if (res) {
+  if (typeof res !== 'undefined' && res !== null) {
     payload.res = res
   }
   if (err) {
