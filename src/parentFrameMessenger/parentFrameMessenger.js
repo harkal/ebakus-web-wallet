@@ -323,6 +323,7 @@ const frameEventCurrentProviderEndpointUpdated = endpoint =>
   postEvent('ebakusCurrentProviderEndpoint', endpoint)
 
 const frameEventBalanceUpdated = balance => postEvent('ebakusBalance', balance)
+const frameEventStakedUpdated = staked => postEvent('ebakusStaked', staked)
 
 const frameEventConnectionStatusUpdated = status =>
   postEvent('ebakusConnectionStatus', status)
@@ -353,5 +354,6 @@ export {
   openInNewTabInParentWindow,
   frameEventCurrentProviderEndpointUpdated,
   frameEventBalanceUpdated,
+  frameEventStakedUpdated,
   frameEventConnectionStatusUpdated,
 }

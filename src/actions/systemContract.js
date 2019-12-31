@@ -1,6 +1,11 @@
 import { addPendingTx, calcWorkAndSendTx } from './transactions'
 import { web3 } from './web3ebakus'
 
+import {
+  loadedInIframe,
+  frameEventStakedUpdated,
+} from '@/parentFrameMessenger/parentFrameMessenger'
+
 import store from '@/store'
 import MutationTypes from '@/store/mutation-types'
 
@@ -84,6 +89,10 @@ const getStaked = async () => {
       parseFloat(stakedAmountInEbk) != parseFloat(store.state.wallet.staked)
     ) {
       store.dispatch(MutationTypes.SET_WALLET_STAKED, stakedAmountInEbk)
+
+      if (loadedInIframe()) {
+        frameEventStakedUpdated(staked)
+      }
     }
 
     return Promise.resolve(stakedAmountInEbk)
