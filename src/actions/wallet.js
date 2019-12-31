@@ -44,6 +44,9 @@ const getBalance = async () => {
     let wei
     if (tokenInfo) {
       wei = await getBalanceOfAddressForToken(tokenInfo)
+      if (typeof wei === 'undefined') {
+        return Promise.reject(new Error('Token not found'))
+      }
     } else {
       wei = await web3.eth.getBalance(address)
     }
