@@ -94,9 +94,12 @@ import {
 } from '@/actions/systemContract'
 import { addPendingTx, estimateGas, calcWork } from '@/actions/transactions'
 import { performWhitelistedAction } from '@/actions/whitelist'
+import { exitDialog } from '@/actions/wallet'
 
 import MutationTypes from '@/store/mutation-types'
-import { loadedInIframe } from '../parentFrameMessenger/parentFrameMessenger'
+import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger'
+
+import { RouteNames } from '@/router'
 
 const MAX_UNSTAKED_ENTRIES = 5
 const UNSTAKE_PERIOD = 60 * 60 * 24 * 3 // 3 days
@@ -249,10 +252,18 @@ export default {
 
             this.$store.dispatch(MutationTypes.SET_TX_JOB_ID, upstreamJobId)
             const pendingTx = await addPendingTx(upstreamTx)
-            const txWithGas = await estimateGas({ ...pendingTx })
-            await calcWork({ ...txWithGas })
+
+            // remove gas and recalculate
+            const pendingTxWithoutGas = { ...pendingTx }
+            delete pendingTxWithoutGas.gas
+            const txWithGas = await estimateGas(pendingTxWithoutGas)
+
+            await calcWork({ ...txWithGas, gas: txWithGas.gas + 5000 })
 
             performWhitelistedAction()
+
+            exitDialog()
+            this.$router.push({ name: RouteNames.HOME }, () => {})
           } else {
             await stake(floor(this.newStakedAmount - this.staked, 4))
           }
