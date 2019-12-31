@@ -99,9 +99,14 @@ const stake = async amount => {
     const systemContract = getContractInstance()
     const amountInEbk = Math.floor(amount * EBK_PRECISION_FACTOR)
 
+    const stakeMethod = systemContract.methods.stake(amountInEbk)
+
+    const estimatedGas = await stakeMethod.estimateGas()
+
     const txWithPow = await addPendingTx({
       to: SystemContractAddress,
-      data: systemContract.methods.stake(amountInEbk).encodeABI(),
+      data: stakeMethod.encodeABI(),
+      gas: estimatedGas + 5000,
     })
     await calcWorkAndSendTx(txWithPow, /* handleErrorUI */ false)
 
@@ -119,9 +124,14 @@ const unstake = async amount => {
     const systemContract = getContractInstance()
     const amountInEbk = Math.floor(amount * EBK_PRECISION_FACTOR)
 
+    const unstakeMethod = systemContract.methods.unstake(amountInEbk)
+
+    const estimatedGas = await unstakeMethod.estimateGas()
+
     const txWithPow = await addPendingTx({
       to: SystemContractAddress,
-      data: systemContract.methods.unstake(amountInEbk).encodeABI(),
+      data: unstakeMethod.encodeABI(),
+      gas: estimatedGas + 5000,
     })
     await calcWorkAndSendTx(txWithPow, /* handleErrorUI */ false)
 
@@ -169,9 +179,15 @@ const getClaimableEntries = async () => {
 const claimUnstaked = async () => {
   try {
     const systemContract = getContractInstance()
+
+    const claimMethod = systemContract.methods.claim()
+
+    const estimatedGas = await claimMethod.estimateGas()
+
     const txWithPow = await addPendingTx({
       to: SystemContractAddress,
-      data: systemContract.methods.claim().encodeABI(),
+      data: claimMethod.encodeABI(),
+      gas: estimatedGas + 5000,
     })
     await calcWorkAndSendTx(txWithPow)
 
