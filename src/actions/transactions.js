@@ -345,9 +345,15 @@ const loadTxsInfoFromExplorer = () => {
   if (!localAddr) {
     return
   }
+
+  const isTestnet = store.getters.network.isTestnet
+  const apiEndpoint = isTestnet
+    ? process.env.TESTNET_API_ENDPOINT
+    : process.env.MAINNET_API_ENDPOINT
+
   axios
     .get(
-      `${process.env.API_ENDPOINT}/transaction/all/${localAddr}?offset=0&limit=20&order=desc`
+      `${apiEndpoint}/transaction/all/${localAddr}?offset=0&limit=20&order=desc`
     )
     .then(
       response => {

@@ -41,24 +41,26 @@ const Networks = {
    *   provider - function which return a new Web3 provider instance
    * }
    * */
-  // 10: {
-  //   name: 'Ebakus Mainnet',
-  //   testnet: false,
-  //   provider: () => new Web3.providers.WebsocketProvider(process.env.NODE_URL),
-  // },
+  10: {
+    name: 'Ebakus Mainnet',
+    testnet: false,
+    provider: () =>
+      new Web3.providers.WebsocketProvider(process.env.MAINNET_NODE_URL),
+  },
 
   7: {
     name: 'Ebakus Testnet',
     testnet: true,
-    provider: () => new Web3.providers.WebsocketProvider(process.env.NODE_URL),
+    provider: () =>
+      new Web3.providers.WebsocketProvider(process.env.TESTNET_NODE_URL),
   },
 }
 
 if (process.env.NODE_ENV === 'development') {
   Networks[1337] = {
     name: 'Ebakus Local node',
-    testnet: true,
-    provider: () => new Web3.providers.WebsocketProvider('ws://127.0.0.1:8546'),
+    provider: () =>
+      new Web3.providers.WebsocketProvider(process.env.LOCAL_NODE_URL),
   }
 }
 

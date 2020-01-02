@@ -2,7 +2,7 @@ const webpack = require('webpack')
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 const env = IS_PRODUCTION
-  ? require('./config/prod.env')
+  ? require('./config/mainnet.env')
   : require('./config/dev.env')
 
 module.exports = {
