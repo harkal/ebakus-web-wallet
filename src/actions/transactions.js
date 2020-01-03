@@ -230,7 +230,7 @@ const getTxLogInfo = async receipt => {
       } else if (name === 'getWei') {
         logTitle = `You requested 1 ${tokenSymbolPrefix}EBK from faucet:`
       } else {
-        logTitle = `You called contract method ${name ? `"${name}"` : ''} at:`
+        logTitle = `You called contract action ${name ? `"${name}"` : ''} at:`
       }
     }
   } else {
