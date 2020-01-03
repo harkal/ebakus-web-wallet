@@ -83,15 +83,18 @@
               ({{ getWhitelistDelay }} sec)
             </strong>
           </label>
-          <input
-            type="range"
-            class="whitelist-slider"
-            min="0"
-            :max="maxWhitelistDelay"
-            step="1"
-            :value="getWhitelistDelay"
-            @change="setWhitelistDelay($event)"
-          />
+
+          <div class="whitelist-slider-container">
+            <input
+              type="range"
+              class="whitelist-slider"
+              min="0"
+              :max="maxWhitelistDelay"
+              step="1"
+              :value="getWhitelistDelay"
+              @change="setWhitelistDelay($event)"
+            />
+          </div>
 
           <span v-if="getWhitelistDelay == 0" class="text-error">
             By setting confirmation delay to 0 you will have no time to cancel a
@@ -336,13 +339,36 @@ hr {
   }
 }
 
+.whitelist-slider-container {
+  position: relative;
+  width: 100%; /* Full-width */
+  margin: 20px 0px 40px 0px;
+
+  &::before,
+  &::after {
+    position: absolute;
+    font-size: 10px;
+    white-space: pre;
+    top: 25px;
+  }
+
+  &::before {
+    left: 0;
+    content: '0';
+  }
+
+  &::after {
+    right: 0;
+    content: '10 sec';
+  }
+}
+
 .whitelist-slider {
   position: relative;
   -webkit-appearance: none; /* Override default CSS styles */
   appearance: none;
   width: 100%; /* Full-width */
   height: 11px; /* Specified height */
-  margin: 20px 0 40px;
 
   --range: calc(var(--max) - var(--min));
   --ratio: calc((var(--val) - var(--min)) / var(--range));
@@ -376,24 +402,6 @@ hr {
       inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
     border-radius: 100%;
     border: 1px solid transparent;
-  }
-
-  &::before,
-  &::after {
-    position: absolute;
-    font-size: 10px;
-    white-space: pre;
-    top: 25px;
-  }
-
-  &::before {
-    left: 0;
-    content: '0';
-  }
-
-  &::after {
-    right: 0;
-    content: '10 sec';
   }
 }
 </style>

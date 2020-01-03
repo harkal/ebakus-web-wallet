@@ -3,17 +3,21 @@
     <div class="wrapper">
       <h2>Stake some EBK to proceed with voting</h2>
 
-      <input
-        type="range"
-        class="slider"
-        min="0"
-        :max="maxStakeAmount"
-        step="0.0001"
-        :value="newStakedAmount"
+      <div
+        class="slider-container"
         :data-staked="newStakedAmount.toFixed(4)"
         :data-liquid="newLiquidAmount"
-        @input="setNewStakedAmount($event)"
-      />
+      >
+        <input
+          type="range"
+          class="slider"
+          min="0"
+          :max="maxStakeAmount"
+          step="0.0001"
+          :value="newStakedAmount"
+          @input="setNewStakedAmount($event)"
+        />
+      </div>
 
       <hr />
 
@@ -430,11 +434,45 @@ hr {
   filter: brightness(0.7);
 }
 
+.slider-container {
+  position: relative;
+  width: 100%; /* Full-width */
+  margin: 60px 0px 45px 0px;
+
+  &::before {
+    // display: block;
+    position: absolute;
+    font-size: 12px;
+    content: attr(data-staked) ' ebakus staked  \A'attr(data-liquid) ' ebakus liquid';
+    white-space: pre; /* or pre-wrap */
+    width: 100%;
+    text-align: center;
+    top: -45px;
+    background-image: url(../assets/img/ic_fast.png),
+      url(../assets/img/ic_slow.png);
+    background-repeat: no-repeat;
+    background-size: 32px, 32px;
+    background-position: top right, top left;
+    height: 30px;
+    color: #000;
+  }
+
+  &::after {
+    position: absolute;
+    top: 32px;
+    left: 0;
+    content: 'Liquidity                                                      Performance';
+    font-size: 10px;
+    font-weight: 600;
+    white-space: pre;
+    opacity: 0.7;
+  }
+}
+
 .slider {
   position: relative;
   width: 100%; /* Full-width */
   height: 11px; /* Specified height */
-  margin: 60px 0px 35px 0px;
   background: rgb(212, 212, 212); /* Grey background */
   outline: none; /* Remove outline */
   opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
@@ -469,32 +507,6 @@ hr {
       inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
     border-radius: 100%;
     border: 1px solid transparent;
-  }
-
-  &::before {
-    position: absolute;
-    font-size: 12px;
-    content: attr(data-staked) ' ebakus staked  \A'attr(data-liquid) ' ebakus liquid';
-    white-space: pre; /* or pre-wrap */
-    width: 100%;
-    text-align: center;
-    top: -50px;
-    background-image: url(../assets/img/ic_fast.png),
-      url(../assets/img/ic_slow.png);
-    background-repeat: no-repeat;
-    background-size: 32px, 32px;
-    background-position: top right, top left;
-    height: 30px;
-    color: #000;
-  }
-
-  &::after {
-    position: absolute;
-    top: 25px;
-    content: 'Liquidity                                                      Performance';
-    font-size: 10px;
-    font-weight: 600;
-    white-space: pre;
   }
 }
 </style>
