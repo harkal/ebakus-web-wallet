@@ -1,5 +1,3 @@
-import Web3 from 'web3'
-
 const DefaultToken = 'EBK'
 const DefaultDappWhitelistTimer = 3 * 1000
 
@@ -44,23 +42,20 @@ const Networks = {
   10: {
     name: 'Ebakus Mainnet',
     testnet: false,
-    provider: () =>
-      new Web3.providers.WebsocketProvider(process.env.MAINNET_NODE_URL),
+    endpoint: process.env.MAINNET_NODE_URL,
   },
 
   7: {
     name: 'Ebakus Testnet',
     testnet: true,
-    provider: () =>
-      new Web3.providers.WebsocketProvider(process.env.TESTNET_NODE_URL),
+    endpoint: process.env.TESTNET_NODE_URL,
   },
 }
 
 if (process.env.NODE_ENV === 'development') {
   Networks[1337] = {
     name: 'Ebakus Local node',
-    provider: () =>
-      new Web3.providers.WebsocketProvider(process.env.LOCAL_NODE_URL),
+    endpoint: process.env.LOCAL_NODE_URL,
   }
 }
 
