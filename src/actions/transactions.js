@@ -38,6 +38,21 @@ const addPendingTx = async tx => {
   return txObject
 }
 
+const estimateGas = async tx => {
+  try {
+    const estimatedGas = await web3.eth.estimateGas(tx)
+    const txWithGas = { ...tx, gas: estimatedGas }
+    store.dispatch(MutationTypes.SET_TX_OBJECT, txWithGas)
+
+    return txWithGas
+  } catch (err) {
+    console.log(
+      'Gas estimation failed, but we can still try the transaction',
+      err
+    )
+  }
+}
+
 const calcWork = async tx => {
   // TODO: remove this after:
   // 1. pownode.ebakus.com has the latest code
@@ -67,7 +82,7 @@ const calcWork = async tx => {
   }
 }
 
-const calcWorkAndSendTx = async tx => {
+const calcWorkAndSendTx = async (tx, handleErrorUI = true) => {
   if (loadedInIframe() && !store.state.ui.isDrawerActiveByUser) {
     store.dispatch(MutationTypes.DEACTIVATE_DRAWER)
   }
@@ -110,15 +125,17 @@ const calcWorkAndSendTx = async tx => {
 
     store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
 
-    activateDrawerIfClosed()
+    if (handleErrorUI) {
+      activateDrawerIfClosed()
 
-    store.commit(MutationTypes.SHOW_DIALOG, {
-      component: DialogComponents.FAILED_TX,
-      title: 'Transaction Failed',
-      data: {
-        ...originalPendingTx,
-      },
-    })
+      store.commit(MutationTypes.SHOW_DIALOG, {
+        component: DialogComponents.FAILED_TX,
+        title: 'Transaction Failed',
+        data: {
+          ...originalPendingTx,
+        },
+      })
+    }
 
     if (loadedInIframe() && originalPendingTxJobId) {
       replyToParentWindow(null, {
@@ -128,6 +145,10 @@ const calcWorkAndSendTx = async tx => {
     }
 
     loadTxsInfoFromExplorer()
+
+    if (!handleErrorUI) {
+      return Promise.reject(err)
+    }
   }
 }
 
@@ -209,7 +230,7 @@ const getTxLogInfo = async receipt => {
       } else if (name === 'getWei') {
         logTitle = `You requested 1 ${tokenSymbolPrefix}EBK from faucet:`
       } else {
-        logTitle = `You called contract method ${name ? `"${name}"` : ''} at:`
+        logTitle = `You called contract action ${name ? `"${name}"` : ''} at:`
       }
     }
   } else {
@@ -324,9 +345,15 @@ const loadTxsInfoFromExplorer = () => {
   if (!localAddr) {
     return
   }
+
+  const isTestnet = store.getters.network.isTestnet
+  const apiEndpoint = isTestnet
+    ? process.env.TESTNET_API_ENDPOINT
+    : process.env.MAINNET_API_ENDPOINT
+
   axios
     .get(
-      `${process.env.API_ENDPOINT}/transaction/all/${localAddr}?offset=0&limit=20&order=desc`
+      `${apiEndpoint}/transaction/all/${localAddr}?offset=0&limit=20&order=desc`
     )
     .then(
       response => {
@@ -345,6 +372,7 @@ const loadTxsInfoFromExplorer = () => {
 
 export {
   addPendingTx,
+  estimateGas,
   calcWork,
   calcWorkAndSendTx,
   getTokenSymbolPrefix,

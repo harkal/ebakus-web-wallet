@@ -50,6 +50,7 @@ import {
   isContractCallWhitelisted,
   getWhitelistDappTimer,
 } from '@/actions/whitelist'
+import { getStaked } from '@/actions/systemContract'
 import { init as initWeb3 } from '@/actions/web3ebakus'
 
 import { SpinnerState, DialogComponents } from '@/constants'
@@ -244,6 +245,10 @@ export default {
           setInterval(() => {
             getBalance().catch(() => {}) // just for catching exceptions
           }, 1000)
+
+          // keep it here, as the call in getBalance, won't be called
+          // if everything is staked and balance is 0
+          getStaked()
 
           self.loadWalletState()
 

@@ -9,13 +9,13 @@
       </h3>
 
       <button class="full" @click="exit">OK</button>
-      <GetFaucet @click="exit" />
+      <GetFaucet v-if="network.isTestne" @click="exit" />
     </div>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 import { exitDialog } from '@/actions/wallet'
 import { web3 } from '@/actions/web3ebakus'
@@ -40,6 +40,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['network']),
     ...mapState({
       balance: state => state.wallet.balance,
       tx: state => state.tx.object,

@@ -1,14 +1,6 @@
 <template>
   <div class="settings scroll-wrapper">
     <div v-if="activePane == Panes.MAIN" key="main" class="wrapper">
-      <!-- <h2>Slow network?</h2>
-      <h3>
-        To improve performance while using the ebakus network you can
-        temporarily reserve some of your ebakus tokens. Adjust your balance
-        utilization bellow.
-      </h3>
-      <input type="range" min="0" max="100" value="val" class="slider js" /> -->
-
       <h2>Network</h2>
       <div class="dropdown-wrapper">
         <select
@@ -73,6 +65,14 @@
       <button class="full" @click="deleteWallet">Delete your Account</button>
       <button class="full" @click="exportPrivateKey">Export Private Key</button>
 
+      <div class="staking">
+        <h2>EBK Staking</h2>
+        <router-link :to="{ name: RouteNames.STAKE }" class="full" tag="button"
+          >Stake EBK</router-link
+        >
+        <h3>Staking EBK enhances quality of service and enables voting.</h3>
+      </div>
+
       <div v-if="isDappWhitelisted || targetOrigin" class="whitelisted">
         <h2>Whitelist</h2>
         <h3>{{ targetOrigin }}</h3>
@@ -83,15 +83,18 @@
               ({{ getWhitelistDelay }} sec)
             </strong>
           </label>
-          <input
-            type="range"
-            class="whitelist-slider"
-            min="0"
-            :max="maxWhitelistDelay"
-            step="1"
-            :value="getWhitelistDelay"
-            @change="setWhitelistDelay($event)"
-          />
+
+          <div class="whitelist-slider-container">
+            <input
+              type="range"
+              class="whitelist-slider"
+              min="0"
+              :max="maxWhitelistDelay"
+              step="1"
+              :value="getWhitelistDelay"
+              @change="setWhitelistDelay($event)"
+            />
+          </div>
 
           <span v-if="getWhitelistDelay == 0" class="text-error">
             By setting confirmation delay to 0 you will have no time to cancel a
@@ -128,7 +131,7 @@ import {
   removeDappFromWhitelist,
 } from '@/actions/whitelist'
 import { setProvider, getCurrentProviderEndpoint } from '@/actions/providers'
-import {} from '@/actions/wallet'
+
 import { web3 } from '@/actions/web3ebakus'
 
 import {
@@ -161,6 +164,7 @@ export default {
     }
   },
   computed: {
+    RouteNames: () => RouteNames,
     Panes: () => Panes,
     ...mapGetters(['network']),
     ...mapState({
@@ -320,6 +324,10 @@ hr {
   border-top: 1px solid #d8d8d8;
 }
 
+.staking {
+  margin-top: 30px;
+}
+
 .whitelisted {
   margin-top: 30px;
 
@@ -331,47 +339,10 @@ hr {
   }
 }
 
-.whitelist-slider {
+.whitelist-slider-container {
   position: relative;
-  -webkit-appearance: none; /* Override default CSS styles */
-  appearance: none;
   width: 100%; /* Full-width */
-  height: 11px; /* Specified height */
-  margin: 20px 0 40px;
-
-  --range: calc(var(--max) - var(--min));
-  --ratio: calc((var(--val) - var(--min)) / var(--range));
-  --sx: calc(0.5 * 1.5em + var(--ratio) * (100% - 1.5em));
-
-  background: rgb(212, 212, 212); /* Grey background */
-  outline: none; /* Remove outline */
-  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-  transition: opacity 0.2s;
-  border-radius: 20px;
-
-  /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-  &::-webkit-slider-thumb {
-    appearance: none;
-    width: 27px; /* Set a specific slider handle width */
-    height: 27px; /* Slider handle height */
-    cursor: pointer; /* Cursor on hover */
-    background: #fcfcfc;
-    box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.28),
-      inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
-    border-radius: 100%;
-    border: 1px solid transparent;
-  }
-
-  &::-moz-range-thumb {
-    width: 27px; /* Set a specific slider handle width */
-    height: 27px; /* Slider handle height */
-    cursor: pointer; /* Cursor on hover */
-    background: #fcfcfc;
-    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.28),
-      inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
-    border-radius: 100%;
-    border: 1px solid transparent;
-  }
+  margin: 20px 0px 40px 0px;
 
   &::before,
   &::after {
@@ -392,22 +363,22 @@ hr {
   }
 }
 
-.slider {
+.whitelist-slider {
   position: relative;
   -webkit-appearance: none; /* Override default CSS styles */
   appearance: none;
   width: 100%; /* Full-width */
   height: 11px; /* Specified height */
+
+  --range: calc(var(--max) - var(--min));
+  --ratio: calc((var(--val) - var(--min)) / var(--range));
+  --sx: calc(0.5 * 1.5em + var(--ratio) * (100% - 1.5em));
+
   background: rgb(212, 212, 212); /* Grey background */
   outline: none; /* Remove outline */
   opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
   transition: opacity 0.2s;
   border-radius: 20px;
-  --range: calc(var(--max) - var(--min));
-  --ratio: calc((var(--val) - var(--min)) / var(--range));
-  --sx: calc(0.5 * 1.5em + var(--ratio) * (100% - 1.5em));
-
-  margin: 60px 0px 50px 0px;
 
   /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
   &::-webkit-slider-thumb {
@@ -431,31 +402,6 @@ hr {
       inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
     border-radius: 100%;
     border: 1px solid transparent;
-  }
-
-  &::before {
-    position: absolute;
-    font-size: 12px;
-    content: '0 ebakus staked  \A 0 ebakus liquid';
-    white-space: pre; /* or pre-wrap */
-    width: 100%;
-    text-align: center;
-    top: -50px;
-    background-image: url(../assets/img/ic_fast.png),
-      url(../assets/img/ic_slow.png);
-    background-repeat: no-repeat;
-    background-size: 32px, 32px;
-    background-position: top right, top left;
-    height: 30px;
-    color: #000;
-  }
-
-  &::after {
-    position: absolute;
-    font-size: 10px;
-    content: 'Liquidity                                                Performance';
-    white-space: pre;
-    top: 25px;
   }
 }
 </style>

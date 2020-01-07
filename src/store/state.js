@@ -43,8 +43,9 @@ const initialState = {
   // wallet global state
   wallet: {
     locked: true,
-    address: null, // TODO: add getter that gives the checksumAddress
-    balance: '0', // TODO: add getters for getting balanceInEther, etc
+    address: null,
+    balance: '0',
+    staked: 0,
     tokenSymbol: DefaultToken,
   },
 

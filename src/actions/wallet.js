@@ -1,12 +1,8 @@
 import { generateMnemonic, mnemonicToSeed } from 'bip39'
 import hdkey from 'hdkey'
+import { backOff } from 'exponential-backoff'
 
-import {
-  SpinnerState,
-  StorageNames,
-  DialogComponents,
-  NetworkStatus,
-} from '@/constants'
+import { SpinnerState, StorageNames, DialogComponents } from '@/constants'
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
 
@@ -17,7 +13,6 @@ import {
   localStorageSetToParent,
   localStorageRemoveFromParent,
   frameEventBalanceUpdated,
-  frameEventConnectionStatusUpdated,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 
 import router, { RouteNames } from '@/router'
@@ -28,13 +23,24 @@ import { setProvider, checkNodeConnection } from './providers'
 import { getTokenInfoForSymbol, getBalanceOfAddressForToken } from './tokens'
 import { loadTxsInfoFromExplorer } from './transactions'
 import { web3 } from './web3ebakus'
+import { getStaked } from './systemContract'
 
-const getBalanceCatchUpdateNetworkTimeouts = []
+const BACKOFF_SETTINGS = {
+  jitter: 'full',
+  startingDelay: 2000,
+  maxDelay: 20 * 1000,
+  numOfAttempts: 100,
+}
+let isWeb3Reconnecting = false
 
 const getBalance = async () => {
   const { address, tokenSymbol } = store.state.wallet
   if (!address) {
     return Promise.reject(new Error('No wallet has been created'))
+  }
+
+  if (isWeb3Reconnecting) {
+    return Promise.reject(new Error('Wallet is not connected to node'))
   }
 
   const tokenInfo = getTokenInfoForSymbol(tokenSymbol)
@@ -43,6 +49,9 @@ const getBalance = async () => {
     let wei
     if (tokenInfo) {
       wei = await getBalanceOfAddressForToken(tokenInfo)
+      if (typeof wei === 'undefined') {
+        return Promise.reject(new Error('Token not found'))
+      }
     } else {
       wei = await web3.eth.getBalance(address)
     }
@@ -51,14 +60,10 @@ const getBalance = async () => {
       return Promise.reject(new Error('User changed selected token'))
     }
 
-    if (getBalanceCatchUpdateNetworkTimeouts.length > 0) {
-      getBalanceCatchUpdateNetworkTimeouts.forEach(handle =>
-        clearTimeout(handle)
-      )
-    }
-
     if (parseFloat(wei) != parseFloat(store.state.wallet.balance)) {
       store.dispatch(MutationTypes.SET_WALLET_BALANCE, String(wei))
+
+      getStaked()
 
       if (loadedInIframe()) {
         frameEventBalanceUpdated(wei)
@@ -69,24 +74,18 @@ const getBalance = async () => {
 
     return Promise.resolve(wei)
   } catch (err) {
-    store.dispatch(
-      MutationTypes.SET_SPINNER_STATE,
-      SpinnerState.NODE_DISCONNECTED
-    )
-    store.dispatch(MutationTypes.SET_NETWORK_STATUS, NetworkStatus.DISCONNECTED)
-
-    if (loadedInIframe()) {
-      frameEventConnectionStatusUpdated(NetworkStatus.DISCONNECTED)
-    }
-
     console.error('Failed to connect to network')
-    const updateNetworkTimeout = setTimeout(() => {
+
+    isWeb3Reconnecting = true
+
+    await backOff(() => {
       store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.NODE_CONNECT)
       setProvider(store.getters.network)
 
-      checkNodeConnection()
-    }, 2000)
-    getBalanceCatchUpdateNetworkTimeouts.push(updateNetworkTimeout)
+      return checkNodeConnection()
+    }, BACKOFF_SETTINGS)
+
+    isWeb3Reconnecting = false
 
     return Promise.reject(err)
   }

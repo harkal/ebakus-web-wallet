@@ -33,6 +33,7 @@ const RouteNames = {
   WHITELIST_CONTRACT_FOR_DAPP: 'whitelist_CONTRACT_FOR_dapp',
 
   SETTINGS: 'settings',
+  STAKE: 'stake',
 
   SAFARI_WARNING: 'safari_warning',
 }
@@ -90,6 +91,13 @@ const router = new Router({
       path: '/settings',
       name: RouteNames.SETTINGS,
       component: Settings,
+    },
+
+    {
+      path: '/settings/stake',
+      name: RouteNames.STAKE,
+      component: () =>
+        import(/* webpackChunkName: "stake" */ '@/components/Stake'),
     },
 
     {

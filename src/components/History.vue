@@ -28,15 +28,26 @@ export default {
     ...mapState({
       isDrawerActive: state => state.ui.isDrawerActive,
     }),
-    ...mapGetters(['getSortedLogs']),
+    ...mapGetters(['getSortedLogs', 'network']),
   },
-  // watch: { history() {} },
+  watch: {
+    network(val, oldVal) {
+      if (val.isTestnet !== oldVal.isTestnet) {
+        loadTxsInfoFromExplorer()
+      }
+    },
+  },
   mounted() {
     loadTxsInfoFromExplorer()
   },
   methods: {
     openInNewTab: function(address) {
-      const href = process.env.EXPLORER_URL + '/search/' + address
+      const isTestnet = this.network.isTestnet
+      const explorerEndpoint = isTestnet
+        ? process.env.TESTNET_EXPLORER_URL
+        : process.env.MAINNET_EXPLORER_URL
+
+      const href = explorerEndpoint + '/search/' + address
 
       if (loadedInIframe()) {
         openInNewTabInParentWindow(href)

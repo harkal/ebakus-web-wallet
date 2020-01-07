@@ -75,35 +75,36 @@ const setProviderByNetworkId = id => {
   return false
 }
 
-const checkNodeConnection = async (force = false) => {
-  if (!force && store.state.network.status === NetworkStatus.CONNECTED) {
-    return
-  }
-
+const checkNodeConnection = async () => {
   try {
     const chainId = await web3.eth.getChainId()
 
+    store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.NODE_CONNECTED)
+
     if (store.state.network.status !== NetworkStatus.CONNECTED) {
       store.dispatch(MutationTypes.SET_NETWORK_CHAIN_ID, chainId)
-
-      store.dispatch(
-        MutationTypes.SET_SPINNER_STATE,
-        SpinnerState.NODE_CONNECTED
-      )
       store.dispatch(MutationTypes.SET_NETWORK_STATUS, NetworkStatus.CONNECTED)
 
       if (loadedInIframe()) {
         frameEventConnectionStatusUpdated(NetworkStatus.CONNECTED)
       }
     }
+
+    return Promise.resolve()
   } catch (err) {
     console.error('Failed to connect to network', err)
 
+    // timeout has been added for UX reasons only
+    setTimeout(
+      () =>
+        store.dispatch(
+          MutationTypes.SET_SPINNER_STATE,
+          SpinnerState.NODE_DISCONNECTED
+        ),
+      1000
+    )
+
     if (store.state.network.status !== NetworkStatus.DISCONNECTED) {
-      store.dispatch(
-        MutationTypes.SET_SPINNER_STATE,
-        SpinnerState.NODE_DISCONNECTED
-      )
       store.dispatch(
         MutationTypes.SET_NETWORK_STATUS,
         NetworkStatus.DISCONNECTED
@@ -113,6 +114,8 @@ const checkNodeConnection = async (force = false) => {
         frameEventConnectionStatusUpdated(NetworkStatus.DISCONNECTED)
       }
     }
+
+    return Promise.reject()
   }
 }
 

@@ -2,6 +2,7 @@ import { addPendingTx, calcWork } from '@/actions/transactions'
 import { getCurrentProviderEndpoint } from '@/actions/providers'
 import { getBalance as getBalanceFromWallet } from '@/actions/wallet'
 import { performWhitelistedAction } from '@/actions/whitelist'
+import { getStaked as getStakedFromNode } from '@/actions/systemContract'
 
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
@@ -55,6 +56,23 @@ const getBalance = payload => {
     })
 }
 
+const getStaked = payload => {
+  getStakedFromNode()
+    .then(stake => {
+      replyToParentWindow(stake, null, payload)
+    })
+    .catch(err => {
+      replyToParentWindow(
+        null,
+        {
+          code: 'get_staked_failure',
+          msg: err.message,
+        },
+        payload
+      )
+    })
+}
+
 const sendTransaction = async payload => {
   const { id, req } = payload
 
@@ -86,6 +104,8 @@ const externalFrameHandler = payload => {
     defaultAddress(payload)
   } else if (cmd === 'getBalance') {
     getBalance(payload)
+  } else if (cmd === 'getStaked') {
+    getStaked(payload)
   } else if (cmd === 'sendTransaction') {
     sendTransaction(payload)
   }

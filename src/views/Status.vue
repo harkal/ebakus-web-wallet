@@ -4,6 +4,7 @@
     class="status-bar"
     :class="{
       hasBalance: hasBalance,
+      hasStaked: hasStaked,
       hasTitle: hasTitle,
       hasNavigation: hasNavigation,
     }"
@@ -106,6 +107,10 @@
     >
       {{ balance | toEtherFixed }}
       <p><span v-if="network.isTestnet">t</span>{{ tokenSymbol }}</p>
+
+      <p v-if="hasStaked" class="staked">
+        + {{ staked }} <span v-if="network.isTestnet">t</span>EBK staked
+      </p>
     </div>
 
     <p v-if="hasTitle" key="title" class="title">
@@ -205,6 +210,7 @@ export default {
       publicAddress: state => state.wallet.address,
       balance: state => state.wallet.balance,
       tokenSymbol: state => state.wallet.tokenSymbol,
+      staked: state => state.wallet.staked,
     }),
 
     SpinnerState: () => SpinnerState,
@@ -233,6 +239,11 @@ export default {
       return (
         (!this.isDrawerActive && !this.showWhitelistingTimer) ||
         (this.isDrawerActive && !this.isDialog)
+      )
+    },
+    hasStaked: function() {
+      return (
+        this.isDrawerActive && !this.isDialog && this.staked && this.staked > 0
       )
     },
     hasTitle: function() {
@@ -280,6 +291,8 @@ export default {
       } else if (this.$route.name == RouteNames.SETTINGS) {
         this.$router.push({ name: RouteNames.HOME }, () => {})
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
+      } else if (this.$route.name == RouteNames.STAKE) {
+        this.$router.go(-1)
       } else if (this.isDialog) {
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
       }
@@ -383,6 +396,11 @@ export default {
 
   p {
     font-weight: 400;
+  }
+
+  .staked {
+    margin: $status-bar-padding / 2 0;
+    color: rgba(10, 206, 235, 0.59);
   }
 }
 
@@ -523,9 +541,20 @@ export default {
         $status-navigation-height;
     }
 
+    &.hasBalance.hasStaked {
+      height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
+        $status-balance-height + $status-staked-height + $status-bar-padding;
+    }
+
     &.hasBalance.hasNavigation {
       height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
         $status-balance-height + $status-bar-padding + $status-navigation-height;
+    }
+
+    &.hasBalance.hasStaked.hasNavigation {
+      height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
+        $status-balance-height + $status-staked-height + $status-bar-padding +
+        $status-navigation-height;
     }
 
     .testnet {

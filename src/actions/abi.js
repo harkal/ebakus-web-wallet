@@ -3,6 +3,8 @@ import axios from 'axios'
 import debounce from 'lodash/debounce'
 import memoize from 'lodash/memoize'
 
+import store from '@/store'
+
 const requestAbiWithCaching = memoize(async req => await axios.get(req))
 
 const cleanAbiCacheForUrl = debounce(function(url) {
@@ -10,8 +12,13 @@ const cleanAbiCacheForUrl = debounce(function(url) {
 }, 2000)
 
 const getAbi = async contractAddress => {
+  const isTestnet = store.getters.network.isTestnet
+  const apiEndpoint = isTestnet
+    ? process.env.TESTNET_API_ENDPOINT
+    : process.env.MAINNET_API_ENDPOINT
+
   let abi
-  const abiUrl = `${process.env.API_ENDPOINT}/abi/${contractAddress}`
+  const abiUrl = `${apiEndpoint}/abi/${contractAddress}`
 
   try {
     const req = await requestAbiWithCaching(abiUrl)

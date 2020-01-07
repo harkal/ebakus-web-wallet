@@ -83,6 +83,9 @@ export default {
   [MutationTypes.SET_WALLET_BALANCE](context, balance) {
     context.commit(MutationTypes.SET_WALLET_BALANCE, balance)
   },
+  [MutationTypes.SET_WALLET_STAKED](context, staked) {
+    context.commit(MutationTypes.SET_WALLET_STAKED, staked)
+  },
 
   [MutationTypes.PUSH_LOGS](context, data) {
     context.commit(MutationTypes.PUSH_LOGS, data)
@@ -102,6 +105,10 @@ export default {
   },
   [MutationTypes.CLEAR_TX](context) {
     context.commit(MutationTypes.CLEAR_TX)
+  },
+
+  [MutationTypes.UNSET_OVERLAY_COLOR](context) {
+    context.commit(MutationTypes.UNSET_OVERLAY_COLOR)
   },
 
   [MutationTypes.SHOW_DIALOG](context, data) {

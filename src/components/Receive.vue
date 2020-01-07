@@ -21,13 +21,13 @@
         class="qrcode"
         :size="Number(240)"
       />
-      <GetFaucet />
+      <GetFaucet v-if="network.isTestnet" />
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 import VueQRCodeComponent from 'vue-qrcode-component'
 import GetFaucet from './GetFaucet'
 
