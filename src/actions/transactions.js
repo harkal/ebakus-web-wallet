@@ -26,11 +26,19 @@ const addPendingTx = async tx => {
 
   const txObject = {
     chainId: web3.utils.toHex(store.state.network.chainId),
-    gas: 100000,
     ...tx,
     to: web3.utils.toChecksumAddress(tx.to),
     from,
     nonce,
+  }
+
+  if (!txObject.gas) {
+    try {
+      txObject.gas = await web3.eth.estimateGas(txObject)
+    } catch (err) {
+      console.warn('Gas estimation failed with error: ', err)
+      txObject.gas = 21000
+    }
   }
 
   store.dispatch(MutationTypes.SET_TX_OBJECT, txObject)
