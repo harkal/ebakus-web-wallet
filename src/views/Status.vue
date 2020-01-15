@@ -179,9 +179,15 @@ import Navigation from '@/components/Navigation'
 
 import { RouteNames } from '@/router'
 
+import {
+  loadedInIframe,
+  getParentWindowCurrentJob,
+  replyToParentWindow,
+} from '@/parentFrameMessenger/parentFrameMessenger'
 import { animationQueue } from '@/utils'
 
 import styleAnimationVariables from '@/assets/css/_animations.scss'
+import { isVotingCall } from '../actions/systemContract'
 
 const ButtonStates = {
   NONE: 'NONE',
@@ -297,6 +303,21 @@ export default {
         this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
         this.$router.go(-1)
+
+        if (loadedInIframe() && isVotingCall()) {
+          const currentJob = getParentWindowCurrentJob()
+          const { data: { cmd } = {} } = currentJob || {}
+          if (cmd === 'sendTransaction') {
+            replyToParentWindow(
+              null,
+              {
+                code: 'send_tx_cancel',
+                msg: 'User cancelled setting stake (voting action)',
+              },
+              currentJob
+            )
+          }
+        }
       } else if (this.isDialog) {
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
       }

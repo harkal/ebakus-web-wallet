@@ -66,7 +66,7 @@
       <span v-if="error != ''" class="text-error">{{ error }}</span>
 
       <button v-if="hasStakeChanged" class="full cta" @click="setStake">
-        Set Stake
+        Set Stake <span v-if="isVotingCall"> and Vote</span>
       </button>
       <button v-if="hasStakeChanged" class="full" @click="discardChanges">
         Cancel
@@ -196,6 +196,7 @@ export default {
     hasStakeChanged: function() {
       return this.staked != this.newStakedAmount
     },
+    isVotingCall: () => isVotingCall(),
   },
   watch: {
     balance: async function(val, oldVal) {
