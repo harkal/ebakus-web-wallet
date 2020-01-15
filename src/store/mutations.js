@@ -149,6 +149,13 @@ export default {
   [MutationTypes.CLEAR_TX](state) {
     state.tx = { ...initialState().tx }
   },
+  [MutationTypes.SET_AMOUNT_OF_WORK](state, work) {
+    state.amountOfWork = typeof work === 'number' ? work : true
+  },
+  [MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK](state, work) {
+    state.singleTxAmountOfWork =
+      work === null ? null : typeof work === 'number' ? work : true
+  },
 
   [MutationTypes.SET_NETWORK](state, data) {
     const { networkId, nodeAddress } = data

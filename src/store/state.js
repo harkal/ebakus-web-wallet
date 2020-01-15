@@ -14,6 +14,9 @@ const initialState = {
     whitelistAnimationReady: false, // hack for blocking ui animations
   },
 
+  amountOfWork: true, // true: for auto estimation, number: for a pre-specified value
+  singleTxAmountOfWork: null, // true: for auto estimation, number: for a pre-specified value
+
   // network preferences
   network: {
     networkId: process.env.DEFAULT_NETWORK_ID,
