@@ -34,6 +34,7 @@ const RouteNames = {
 
   SETTINGS: 'settings',
   STAKE: 'stake',
+  VOTING_STAKE: 'voting_stake',
 
   SAFARI_WARNING: 'safari_warning',
 }
@@ -96,6 +97,13 @@ const router = new Router({
     {
       path: '/settings/stake',
       name: RouteNames.STAKE,
+      component: () =>
+        import(/* webpackChunkName: "stake" */ '@/components/Stake'),
+    },
+
+    {
+      path: '/voting/stake',
+      name: RouteNames.VOTING_STAKE,
       component: () =>
         import(/* webpackChunkName: "stake" */ '@/components/Stake'),
     },

@@ -177,7 +177,7 @@ const performWhitelistedAction = () => {
     if (isContractCall()) {
       if (isVotingCall() && !hasStakeForVotingCall()) {
         router.push({
-          name: RouteNames.STAKE,
+          name: RouteNames.VOTING_STAKE,
         })
 
         if (loadedInIframe()) {

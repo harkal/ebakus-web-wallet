@@ -293,6 +293,10 @@ export default {
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
       } else if (this.$route.name == RouteNames.STAKE) {
         this.$router.go(-1)
+      } else if (this.$route.name == RouteNames.VOTING_STAKE) {
+        this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
+        this.$store.commit(MutationTypes.CLEAR_DIALOG)
+        this.$router.go(-1)
       } else if (this.isDialog) {
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
       }
