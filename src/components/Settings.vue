@@ -1,64 +1,69 @@
 <template>
   <div class="settings scroll-wrapper">
     <div v-if="activePane == Panes.MAIN" key="main" class="wrapper">
-      <h2>Network</h2>
-      <div class="dropdown-wrapper">
-        <select
-          v-model="inputs.networkId"
-          class="dropdown"
-          @change="onNetworkChange()"
+      <div v-if="isMainnetDeployment" class="network">
+        <h2>Network</h2>
+        <div class="dropdown-wrapper">
+          <select
+            v-model="inputs.networkId"
+            class="dropdown"
+            @change="onNetworkChange()"
+          >
+            <option
+              v-for="(network, key, index) in availableNetworks"
+              :key="index"
+              :value="key"
+              >{{ network.name }}</option
+            >
+            <option value="-1">Use custom node</option>
+          </select>
+        </div>
+
+        <span v-if="isNodeConnectionError" class="text-error"
+          >Failed to connect to network. Switched to default network.</span
         >
-          <option
-            v-for="(network, key, index) in availableNetworks"
-            :key="index"
-            :value="key"
-            >{{ network.name }}</option
+
+        <div v-if="inputs.networkId == '-1'">
+          <label for="network">Enter node address</label>
+          <input v-model="inputs.nodeAddress" type="text" />
+
+          <span v-if="customNodeError != ''" class="text-error">{{
+            customNodeError
+          }}</span>
+
+          <button
+            class="full"
+            :class="{
+              disabled: inputs.nodeAddress === '',
+              loading: spinnerState == SpinnerState.NODE_CONNECT,
+              success: spinnerState == SpinnerState.NODE_CONNECTED,
+              error: spinnerState == SpinnerState.NODE_DISCONNECTED,
+            }"
+            :disabled="inputs.nodeAddress === ''"
+            @click="connectToNode"
           >
-          <option value="-1">Use custom node</option>
-        </select>
-      </div>
-
-      <span v-if="isNodeConnectionError" class="text-error"
-        >Failed to connect to network. Switched to default network.</span
-      >
-
-      <div v-if="inputs.networkId == '-1'">
-        <label for="network">Enter node address</label>
-        <input v-model="inputs.nodeAddress" type="text" />
-
-        <span v-if="customNodeError != ''" class="text-error">{{
-          customNodeError
-        }}</span>
-
-        <button
-          class="full"
-          :class="{
-            disabled: inputs.nodeAddress === '',
-            loading: spinnerState == SpinnerState.NODE_CONNECT,
-            success: spinnerState == SpinnerState.NODE_CONNECTED,
-            error: spinnerState == SpinnerState.NODE_DISCONNECTED,
-          }"
-          :disabled="inputs.nodeAddress === ''"
-          @click="connectToNode"
-        >
-          <span v-if="spinnerState === SpinnerState.NODE_CONNECT" key="connect">
-            Connecting...
-          </span>
-          <span
-            v-else-if="spinnerState === SpinnerState.NODE_CONNECTED"
-            key="connected"
-          >
-            Connected successfully
-          </span>
-          <span
-            v-else-if="spinnerState === SpinnerState.NODE_DISCONNECTED"
-            key="disconnected"
-          >
-            Connection failed
-          </span>
-          <span v-else key="connect">Connect</span>
-        </button>
-        <hr />
+            <span
+              v-if="spinnerState === SpinnerState.NODE_CONNECT"
+              key="connect"
+            >
+              Connecting...
+            </span>
+            <span
+              v-else-if="spinnerState === SpinnerState.NODE_CONNECTED"
+              key="connected"
+            >
+              Connected successfully
+            </span>
+            <span
+              v-else-if="spinnerState === SpinnerState.NODE_DISCONNECTED"
+              key="disconnected"
+            >
+              Connection failed
+            </span>
+            <span v-else key="connect">Connect</span>
+          </button>
+          <hr />
+        </div>
       </div>
 
       <button class="full" @click="importKey">Import another Account</button>
@@ -197,6 +202,9 @@ export default {
     getWhitelistDelay: () => {
       const timer = getWhitelistDappTimer()
       return timer / 1000
+    },
+    isMainnetDeployment: function() {
+      return process.env.MAINNET_DEPLOYED_URL !== window.location.origin
     },
   },
   watch: {
