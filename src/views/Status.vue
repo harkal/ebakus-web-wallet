@@ -125,8 +125,42 @@
       key="whitelist"
     />
 
+    <div
+      v-if="
+        isDrawerActive &&
+          [
+            SpinnerState.CALC_POW,
+            SpinnerState.TRANSACTION_SENDING,
+            SpinnerState.TRANSACTION_SENT_SUCCESS,
+          ].includes(spinnerState)
+      "
+      key="openedState"
+      class="openedState"
+    >
+      <span
+        v-if="
+          [SpinnerState.CALC_POW, SpinnerState.TRANSACTION_SENDING].includes(
+            spinnerState
+          )
+        "
+        key="working"
+        class="animate-fade-in-out-slow"
+      >
+        Working...
+      </span>
+
+      <span
+        v-else-if="spinnerState === SpinnerState.TRANSACTION_SENT_SUCCESS"
+        key="sent"
+      >
+        Sent
+
+        <img src="@/assets/img/ic_sent.svg" width="13" height="7" />
+      </span>
+    </div>
+
     <div v-if="isDrawerActive" key="buttons" class="buttons">
-      <transition-group name="fade-transition">
+      <transition-group appear name="fade-transition">
         <button
           v-show="buttonState === ButtonStates.EXIT"
           key="exit"
@@ -438,6 +472,27 @@ export default {
 
   color: white;
   text-align: right;
+}
+
+.openedState {
+  position: absolute;
+  bottom: $status-bar-padding;
+  right: 50%;
+  transform: translateX(50%);
+  max-width: 300px;
+  padding: 12px;
+  z-index: 10000;
+  background-color: rgb(38, 51, 75);
+  box-shadow: 0 0 20px rgb(4, 5, 23);
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.9em;
+  font-weight: 500;
+  color: #bec2c9;
+
+  .hasNavigation & {
+    bottom: $status-bar-padding + $status-navigation-height;
+  }
 }
 
 .buttons {
