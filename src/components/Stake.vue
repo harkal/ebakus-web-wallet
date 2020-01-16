@@ -5,7 +5,7 @@
 
       <div
         class="slider-container"
-        :data-staked="newStakedAmount.toFixed(4)"
+        :data-staked="getNewStakedAmount"
         :data-liquid="newLiquidAmount"
       >
         <input
@@ -18,6 +18,16 @@
           @input="setNewStakedAmount($event)"
         />
       </div>
+
+      <label for="stake">Staked amount</label>
+      <input
+        id="stake"
+        v-model.number="newStakedAmountInput"
+        type="number"
+        :min="0"
+        :max="maxStakeAmount"
+        @input="setNewStakedAmount($event)"
+      />
 
       <hr />
 
@@ -150,6 +160,7 @@ export default {
   data() {
     return {
       newStakedAmount: this.$store.state.wallet.staked,
+      newStakedAmountInput: this.$store.state.wallet.staked,
       newLiquidAmount: Vue.options.filters.toEtherFixed(
         this.$store.state.wallet.balance
       ),
@@ -181,6 +192,9 @@ export default {
       this.$set(this, 'hasClaimable', hasClaimable)
 
       return entries
+    },
+    getNewStakedAmount: function() {
+      return parseFloat(this.newStakedAmount).toFixed(4)
     },
     maxStakeAmount: function() {
       const claimable = this.claimableEntriesStorage.reduce(
@@ -216,6 +230,14 @@ export default {
             floor(this.maxStakeAmount - val, 4).toFixed(4)
           )
         }, 0)
+      }
+    },
+    newStakedAmount: function(val) {
+      this.newStakedAmountInput = val
+    },
+    newStakedAmountInput: function(val, oldVal) {
+      if (isNaN(val) || val < 0 || val > this.maxStakeAmount) {
+        this.newStakedAmountInput = oldVal
       }
     },
   },
@@ -307,6 +329,10 @@ export default {
       this.error = ''
     },
     setNewStakedAmount: function({ target: { valueAsNumber } }) {
+      if (isNaN(valueAsNumber) || valueAsNumber > this.maxStakeAmount) {
+        return
+      }
+
       this.newLiquidAmount = floor(
         this.maxStakeAmount - valueAsNumber,
         4
@@ -446,7 +472,7 @@ hr {
     // display: block;
     position: absolute;
     font-size: 12px;
-    content: attr(data-staked) ' ebakus staked  \A'attr(data-liquid) ' ebakus liquid';
+    content: attr(data-staked) ' EBK staked  \A'attr(data-liquid) ' EBK liquid  ';
     white-space: pre; /* or pre-wrap */
     width: 100%;
     text-align: center;
