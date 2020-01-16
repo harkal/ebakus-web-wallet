@@ -33,7 +33,7 @@
         v-model="whitelistSimilar"
         type="checkbox"
       />
-      <label v-if="isContractCall" for="whitelist" class="checkbox"
+      <label v-if="isContractCall" for="whitelist"
         >Whitelist similar transactions</label
       >
 
@@ -158,13 +158,5 @@ export default {
   overflow: auto;
   font-weight: 600;
   font-family: 'Courier New', Courier, monospace;
-}
-
-.checkbox {
-  display: inline-block;
-  margin: 0 0 9px;
-  padding: 6px 10px;
-  font-size: 0.95em;
-  font-weight: 300;
 }
 </style>
