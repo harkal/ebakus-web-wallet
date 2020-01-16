@@ -51,6 +51,8 @@ store.subscribe(({ type }, state) => {
       MutationTypes.SET_DAPP_WHITELIST_TIMER,
       MutationTypes.ADD_CONTRACT_TO_DAPP_WHITELIST,
       MutationTypes.REMOVE_DAPP_FROM_WHITELIST,
+      MutationTypes.SET_AMOUNT_OF_WORK,
+      MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK,
       MutationTypes.GRANT_SAFARI_ACCESS,
     ].includes(type)
   ) {
@@ -61,6 +63,7 @@ store.subscribe(({ type }, state) => {
     version: state.version,
     network: state.network,
     whitelist: state.whitelist,
+    amountOfWork: state.amountOfWork,
     isSafariAllowed: state.isSafariAllowed,
   }
 

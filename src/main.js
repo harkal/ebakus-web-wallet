@@ -12,6 +12,8 @@ import parentFrameMessenger from '@/parentFrameMessenger/parentFrameMessenger'
 
 import App from '@/App.vue'
 
+import WorkAdjustment from '@/components/WorkAdjustment.vue'
+
 import '@/assets/css/main.scss'
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
@@ -20,6 +22,8 @@ Vue.config.productionTip = process.env.NODE_ENV === 'production'
 parentFrameMessenger()
 
 Vue.use(VueClipboard)
+
+Vue.component('WorkAdjustment', WorkAdjustment)
 
 Vue.filter('toFixed', function(price, limit = 4) {
   return price.toFixed(limit)

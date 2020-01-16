@@ -106,6 +106,9 @@ export default {
   [MutationTypes.CLEAR_TX](context) {
     context.commit(MutationTypes.CLEAR_TX)
   },
+  [MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK](context, work) {
+    context.commit(MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK, work)
+  },
 
   [MutationTypes.UNSET_OVERLAY_COLOR](context) {
     context.commit(MutationTypes.UNSET_OVERLAY_COLOR)
