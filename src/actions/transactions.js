@@ -67,8 +67,16 @@ const calcWork = async tx => {
   // 2. for web3.js > beta.41, if possible
   tx.gasPrice = '0'
 
+  let difficulty = store.state.singleTxAmountOfWork
+  if (!difficulty) {
+    difficulty = store.state.amountOfWork
+  }
+
   try {
-    const difficulty = await web3.eth.suggestDifficulty(tx.from)
+    if (difficulty === true || typeof difficulty !== 'number') {
+      difficulty = await web3.eth.suggestDifficulty(tx.from)
+    }
+
     const txWithPow = await web3.eth.calculateWorkForTransaction(
       { ...tx },
       difficulty
@@ -87,6 +95,8 @@ const calcWork = async tx => {
         msg: err.message,
       })
     }
+  } finally {
+    store.dispatch(MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK, null)
   }
 }
 
