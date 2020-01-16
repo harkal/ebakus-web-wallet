@@ -255,20 +255,22 @@ export default {
 
             await stake(floor(this.newStakedAmount - this.staked, 4))
 
+            exitDialog()
+            this.$router.push({ name: RouteNames.HOME }, () => {})
+
             this.$store.dispatch(MutationTypes.SET_TX_JOB_ID, upstreamJobId)
             const pendingTx = await addPendingTx(upstreamTx)
 
-            // remove gas and recalculate
-            const pendingTxWithoutGas = { ...pendingTx }
-            delete pendingTxWithoutGas.gas
-            const txWithGas = await estimateGas(pendingTxWithoutGas)
+            // remove gas, workNonce and recalculate
+            const votePendingTx = { ...pendingTx }
+            delete votePendingTx.gas
+            delete votePendingTx.workNonce
 
-            await calcWork({ ...txWithGas, gas: txWithGas.gas + 5000 })
+            const txWithGas = await estimateGas(votePendingTx)
+
+            calcWork({ ...txWithGas, gas: txWithGas.gas + 5000 })
 
             performWhitelistedAction()
-
-            exitDialog()
-            this.$router.push({ name: RouteNames.HOME }, () => {})
           } else {
             await stake(floor(this.newStakedAmount - this.staked, 4))
           }
