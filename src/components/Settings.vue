@@ -111,6 +111,18 @@
           </button>
         </div>
       </div>
+
+      <div class="work-adjustment-wrapper">
+        <h2>Work Adjustment (Advanced)</h2>
+        <WorkAdjustment />
+
+        <hr />
+
+        <h3>
+          Work value determines the amount of work to be done before sending a
+          transaction to the network.
+        </h3>
+      </div>
     </div>
     <div v-if="activePane == Panes.BACKUP" key="backup" class="wrapper">
       <Backup type="privateKey" />
@@ -324,8 +336,13 @@ hr {
   border-top: 1px solid #d8d8d8;
 }
 
-.staking {
+.staking,
+.work-adjustment-wrapper {
   margin-top: 30px;
+}
+
+.work-adjustment-wrapper h2 {
+  margin-bottom: 0;
 }
 
 .whitelisted {
@@ -403,5 +420,16 @@ hr {
     border-radius: 100%;
     border: 1px solid transparent;
   }
+}
+
+/deep/ input[type='text'],
+/deep/ input[type='password'],
+/deep/ input[type='number'] {
+  border-color: rgba(0, 0, 0, 0.8);
+}
+
+/deep/ [type='checkbox']:checked + label:before,
+/deep/ [type='checkbox']:not(:checked) + label:before {
+  border-color: #000;
 }
 </style>

@@ -37,6 +37,8 @@
         >Whitelist similar transactions</label
       >
 
+      <WorkAdjustment is-single-tx />
+
       <button class="secondary col" @click="cancelPendingTx">Cancel</button>
       <button class="cta col" @click="confirmPendingTx">Send</button>
     </div>
