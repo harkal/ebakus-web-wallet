@@ -19,6 +19,8 @@ import { calcWorkAndSendTx, checkIfEnoughBalance } from './transactions'
 import { web3 } from './web3ebakus'
 import { isVotingCall, hasStakeForVotingCall } from './systemContract'
 
+const SystemContractAddress = '0x0000000000000000000000000000000000000101'
+
 let userOptedOutOnceForSession = false
 
 const isContractCall = () => {
@@ -54,9 +56,15 @@ const isContractCallWhitelisted = to => {
     }
   }
 
+  // auto whitelist system contract
+  if (to === SystemContractAddress) {
+    return true
+  }
+
   // auto-whitelist contracts if dapp is whitelisted and contracts are below 3
   const dapp = loadWhitelistedDapp()
   const { contracts = [] } = dapp || {}
+
   if (dapp != null && to && !contracts.includes(to) && contracts.length < 3) {
     whitelistDappAddNewContract()
     return true
