@@ -1,4 +1,4 @@
-import { generateMnemonic, mnemonicToSeed } from 'bip39'
+import { generateMnemonic, mnemonicToSeedSync } from 'bip39'
 import hdkey from 'hdkey'
 import { backOff } from 'exponential-backoff'
 
@@ -92,10 +92,10 @@ const getBalance = async () => {
 }
 
 const generateWallet = () => {
-  const promise = new Promise(async (resolve, reject) => {
+  const promise = new Promise((resolve, reject) => {
     // generate mnemonic and private key
     const mnemonic = generateMnemonic() // generates string
-    const seed = await mnemonicToSeed(mnemonic) // creates seed buffer
+    const seed = mnemonicToSeedSync(mnemonic) // creates seed buffer
     const root = hdkey.fromMasterSeed(seed)
     const addrNode = root.derive("m/44'/60'/0'/0/0") // line 1
     const newAcc = web3.eth.accounts.privateKeyToAccount(
@@ -186,7 +186,7 @@ const importWallet = _seed => {
       // generate account from mnemonics
     } else {
       const mnemonic = _seed.join(' ') // generates string
-      const seed = mnemonicToSeed(mnemonic) // creates seed buffer
+      const seed = mnemonicToSeedSync(mnemonic) // creates seed buffer
       const root = hdkey.fromMasterSeed(seed)
       const addrNode = root.derive("m/44'/60'/0'/0/0") // line 1
       const acc = web3.eth.accounts.privateKeyToAccount(

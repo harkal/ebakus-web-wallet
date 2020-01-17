@@ -181,8 +181,9 @@ export default {
         }
       }
 
+      const seed = this.sk != '' ? this.sk : [...this.seed]
       try {
-        const importedAccountAddress = await importWallet(this.seed)
+        const importedAccountAddress = await importWallet(seed)
 
         console.log('New Wallet imported', importedAccountAddress)
 
@@ -224,6 +225,9 @@ export default {
       }
     },
     handleMethodChange: function(e) {
+      this.seed = []
+      this.sk = ''
+
       this.useMnemonics = e.target.checked
     },
   },
