@@ -4,6 +4,7 @@
       id="work-auto"
       v-model="workAuto"
       type="checkbox"
+      class="checkbox"
       @change="toggleAutomaticWork($event)"
     />
     <label for="work-auto">
@@ -122,8 +123,8 @@ export default {
   color: #565656;
 }
 
-[type='checkbox']:checked + label,
-[type='checkbox']:not(:checked) + label {
+.checkbox:checked + label,
+.checkbox:not(:checked) + label {
   margin-bottom: 0;
 }
 </style>

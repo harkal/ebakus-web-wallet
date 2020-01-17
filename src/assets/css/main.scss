@@ -257,14 +257,14 @@ label {
 
 /* --- checkbox --- */
 
-[type='checkbox']:checked,
-[type='checkbox']:not(:checked) {
+.checkbox:checked,
+.checkbox:not(:checked) {
   position: absolute;
   left: -9999px;
 }
 
-[type='checkbox']:checked + label,
-[type='checkbox']:not(:checked) + label {
+.checkbox:checked + label,
+.checkbox:not(:checked) + label {
   position: relative;
   display: inline-block;
   margin: 6px 0;
@@ -276,8 +276,8 @@ label {
   cursor: pointer;
 }
 
-[type='checkbox']:checked + label:before,
-[type='checkbox']:not(:checked) + label:before {
+.checkbox:checked + label:before,
+.checkbox:not(:checked) + label:before {
   content: '';
   position: absolute;
   left: 0;
@@ -287,8 +287,8 @@ label {
   border: 1px solid #d5d5d5;
 }
 
-[type='checkbox']:checked + label:after,
-[type='checkbox']:not(:checked) + label:after {
+.checkbox:checked + label:after,
+.checkbox:not(:checked) + label:after {
   content: '';
   position: absolute;
   top: 4px;
@@ -301,13 +301,13 @@ label {
   transition: all 0.2s ease;
 }
 
-[type='checkbox']:not(:checked) + label:after {
+.checkbox:not(:checked) + label:after {
   opacity: 0;
   -webkit-transform: scale(0);
   transform: scale(0);
 }
 
-[type='checkbox']:checked + label:after {
+.checkbox:checked + label:after {
   opacity: 1;
   -webkit-transform: scale(1);
   transform: scale(1);

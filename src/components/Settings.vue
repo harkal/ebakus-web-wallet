@@ -436,8 +436,8 @@ hr {
   border-color: rgba(0, 0, 0, 0.8);
 }
 
-/deep/ [type='checkbox']:checked + label:before,
-/deep/ [type='checkbox']:not(:checked) + label:before {
+/deep/ .checkbox:checked + label:before,
+/deep/ .checkbox:not(:checked) + label:before {
   border-color: #000;
 }
 </style>

@@ -32,6 +32,7 @@
         id="whitelist"
         v-model="whitelistSimilar"
         type="checkbox"
+        class="checkbox"
       />
       <label v-if="isContractCall" for="whitelist"
         >Whitelist similar transactions</label
