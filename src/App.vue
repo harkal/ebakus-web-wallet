@@ -248,7 +248,9 @@ export default {
 
           // keep it here, as the call in getBalance, won't be called
           // if everything is staked and balance is 0
-          getStaked()
+          if (self.publicAddress !== null) {
+            getStaked()
+          }
 
           self.loadWalletState()
 
