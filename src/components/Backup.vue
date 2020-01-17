@@ -63,14 +63,10 @@ export default {
 
 <style scoped lang="scss">
 .seed {
+  float: left;
   width: 100%;
   margin: 20px 0px;
-  padding-top: 25px;
-  padding-bottom: 15px;
-  padding-left: 20px;
-
-  column-count: 2;
-  column-gap: 10px;
+  padding: 15px 20px;
 
   font-size: 14px;
 
@@ -80,11 +76,16 @@ export default {
   counter-reset: item;
 
   li {
-    margin: 10px 0px;
+    float: left;
+    width: 47.5%;
+
+    margin: 0;
+    padding: 5px 0;
+
     color: #fd315f;
 
-    &:first-child {
-      margin: 0px 0px;
+    &:nth-child(odd) {
+      margin-right: 5%;
     }
 
     &:before {
