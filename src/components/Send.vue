@@ -52,8 +52,6 @@
         </label>
       </div>
 
-      <WorkAdjustment is-single-tx />
-
       <span class="text-error"> {{ error }} </span>
 
       <button class="full" @click="addPendingTx">Send</button>
