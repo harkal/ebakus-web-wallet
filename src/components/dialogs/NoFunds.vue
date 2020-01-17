@@ -30,6 +30,7 @@ import {
 import MutationTypes from '@/store/mutation-types'
 
 import GetFaucet from '@/components/GetFaucet.vue'
+import { isVotingCall } from '../../actions/systemContract'
 
 export default {
   components: { GetFaucet },
@@ -59,7 +60,7 @@ export default {
     const balance = parseFloat(web3.utils.fromWei(this.balance))
     const value = this.tx.value ? web3.utils.fromWei(this.tx.value) : '0'
 
-    if (parseFloat(value) > balance) {
+    if (parseFloat(value) > balance || (isVotingCall() && balance <= 0)) {
       this.title = 'Not enough funds…'
       this.content = 'Please fund your account with more ebakus and try again.'
     } else if (parseFloat(value) < 0) {

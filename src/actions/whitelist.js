@@ -17,9 +17,11 @@ import router, { RouteNames } from '@/router'
 
 import { calcWorkAndSendTx, checkIfEnoughBalance } from './transactions'
 import { web3 } from './web3ebakus'
-import { isVotingCall, hasStakeForVotingCall } from './systemContract'
-
-const SystemContractAddress = '0x0000000000000000000000000000000000000101'
+import {
+  SystemContractAddress,
+  isVotingCall,
+  hasStakeForVotingCall,
+} from './systemContract'
 
 let userOptedOutOnceForSession = false
 

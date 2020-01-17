@@ -16,6 +16,7 @@ import { getTokenInfoForContractAddress, decodeData } from './tokens'
 import { web3 } from './web3ebakus'
 import { exitDialog } from './wallet'
 import { DialogComponents } from '../constants'
+import { isVotingCall } from './systemContract'
 
 const addPendingTx = async tx => {
   const from = web3.utils.toChecksumAddress(
@@ -277,7 +278,11 @@ const checkIfEnoughBalance = tx => {
   const balance = parseFloat(web3.utils.fromWei(store.state.wallet.balance))
   const value = tx.value ? web3.utils.fromWei(tx.value) : '0'
 
-  if (parseFloat(value) < 0 || parseFloat(value) > balance) {
+  if (
+    parseFloat(value) < 0 ||
+    parseFloat(value) > balance ||
+    (isVotingCall() && balance <= 0)
+  ) {
     if (loadedInIframe()) {
       activateDrawerIfClosed()
     }
