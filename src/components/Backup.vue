@@ -1,6 +1,6 @@
 import { mapState } from 'vuex';
 <template>
-  <div id="backup">
+  <div id="backup scroll-wrapper">
     <h1>Account Backup</h1>
     <div v-if="type == 'mnemonic'">
       <h3>

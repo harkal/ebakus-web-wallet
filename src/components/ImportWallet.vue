@@ -1,5 +1,5 @@
 <template>
-  <div class="import-wallet">
+  <div class="import-wallet scroll-wrapper">
     <div class="wrapper">
       <template v-if="componentState === ComponentStates.REQUEST_KEY">
         <h2>Use your seed phrase to import your wallet</h2>

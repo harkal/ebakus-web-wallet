@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <div class="wrapper scroll-wrapper">
     <label for="password">Password</label>
     <input
       ref="passField"
