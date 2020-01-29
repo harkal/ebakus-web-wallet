@@ -27,5 +27,5 @@ module.exports = {
 
   DEFAULT_NETWORK_ID: 10, // as defined in `actions/providers.js`
 
-  FAUCET_CONTRACT_ADDRESS: '"0xb487e290dd71773b39f7250efe1496677c1400da"',
+  FAUCET_CONTRACT_ADDRESS: '"0xd7ee36010dc02878a9cddc23bea945dc75caab89"',
 }
