@@ -15,7 +15,7 @@ const initialState = {
   },
 
   amountOfWork: true, // true: for auto estimation, number: for a pre-specified value
-  singleTxAmountOfWork: null, // true: for auto estimation, number: for a pre-specified value
+  singleTxAmountOfWork: false, // true: for auto estimation, number: for a pre-specified value
 
   // network preferences
   network: {

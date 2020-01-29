@@ -153,8 +153,7 @@ export default {
     state.amountOfWork = typeof work === 'number' ? work : true
   },
   [MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK](state, work) {
-    state.singleTxAmountOfWork =
-      work === null ? null : typeof work === 'number' ? work : true
+    state.singleTxAmountOfWork = typeof work === 'number' ? work : true
   },
 
   [MutationTypes.SET_NETWORK](state, data) {

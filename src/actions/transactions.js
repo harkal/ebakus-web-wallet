@@ -97,7 +97,7 @@ const calcWork = async tx => {
       })
     }
   } finally {
-    store.dispatch(MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK, null)
+    store.dispatch(MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK, false)
   }
 }
 
