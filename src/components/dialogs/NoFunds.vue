@@ -9,7 +9,7 @@
       </h3>
 
       <button class="full" @click="exit">OK</button>
-      <GetFaucet v-if="network.isTestne" @click="exit" />
+      <GetFaucet v-if="network.isTestnet" @click="exit" />
     </div>
   </div>
 </template>
