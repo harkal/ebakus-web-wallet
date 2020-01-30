@@ -87,6 +87,9 @@ export default {
     context.commit(MutationTypes.SET_WALLET_STAKED, staked)
   },
 
+  [MutationTypes.DELETE_WALLET](context) {
+    context.commit(MutationTypes.DELETE_WALLET)
+  },
   [MutationTypes.CLEAR_STATE_FOR_HD_WALLET](context) {
     context.commit(MutationTypes.CLEAR_STATE_FOR_HD_WALLET)
   },

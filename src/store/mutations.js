@@ -113,8 +113,14 @@ export default {
   },
 
   [MutationTypes.DELETE_WALLET](state) {
+    const initState = initialState()
     Object.keys(state).forEach(key => {
-      state[key] = initialState()[key]
+      if (typeof initState[key] === 'object' && initState[key] !== null) {
+        Object.assign(state[key], initState[key])
+        // state[key] = { ...initState[key] }
+      } else {
+        state[key] = initState[key]
+      }
     })
     state.ui.isDrawerActive = true
   },
