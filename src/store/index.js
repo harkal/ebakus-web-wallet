@@ -70,6 +70,8 @@ store.subscribe(({ type }, state) => {
   if (typeof store.network.status !== 'undefined') {
     delete store.network.status
   }
+  delete store.network.isUsingHardwareWallet
+  delete store.network.ledger
 
   if (isSafari && state.isSafariAllowed && loadedInIframe()) {
     localStorageSetToParent(StorageNames.WALLET_STORE, JSON.stringify(store))

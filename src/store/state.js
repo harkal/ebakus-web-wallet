@@ -23,6 +23,10 @@ const initialState = {
     chainId: process.env.DEFAULT_NETWORK_ID,
     nodeAddress: '',
     status: NetworkStatus.DISCONNECTED,
+    isUsingHardwareWallet: false,
+    ledger: {
+      transport: null,
+    },
   },
 
   // custom ERC-20 tokens set by the dApp developer
