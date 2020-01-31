@@ -3,45 +3,56 @@
     <div class="wrapper">
       <img src="@/assets/img/ledger-logo.svg" width="97" alt="Ledger" />
 
-      <div v-if="supportedConnectionTypes.length > 0" class="dropdown-wrapper">
-        <select
-          v-model="connectionType"
-          class="dropdown"
-          @change="connectLedger"
+      <div v-if="supportedConnectionTypes.length > 0">
+        <div
+          v-if="supportedConnectionTypes.length > 0"
+          class="dropdown-wrapper"
         >
-          <option value="">Select connection method</option>
-          <option
-            v-for="key in supportedConnectionTypes"
-            :key="key"
-            :value="LedgerConnectionTypes[type]"
+          <select
+            v-model="connectionType"
+            class="dropdown"
+            @change="connectLedger"
           >
-            {{ type }}
-          </option>
-        </select>
+            <option value="">Select connection method</option>
+            <option
+              v-for="type in supportedConnectionTypes"
+              :key="type"
+              :value="LedgerConnectionTypes[type]"
+            >
+              {{ LedgerConnectionTypes[type] }}
+            </option>
+          </select>
+        </div>
+
+        <span v-if="error != ''" class="text-error">{{ error }}</span>
+
+        <div v-if="accounts.length > 0" class="select-account">
+          <h3>
+            Choose the account you want to import from below:
+          </h3>
+
+          <ul class="accounts">
+            <li v-for="(account, idx) in accounts" :key="account">
+              <input
+                :id="idx"
+                v-model="selectedAccount"
+                type="radio"
+                :value="account"
+              />
+              <label :for="idx">{{ account }}</label>
+            </li>
+          </ul>
+
+          <button class="full" @click="setAccount">
+            Next
+          </button>
+        </div>
       </div>
-
-      <span v-if="error != ''" class="text-error">{{ error }}</span>
-
-      <div v-if="accounts.length > 0" class="select-account">
+      <div v-else>
         <h3>
-          Choose the account you want to import from below:
+          Unfortunately the Ledger hardware wallet is not being supported in
+          this browser at this time. Please try again using Chrome browser.
         </h3>
-
-        <ul class="accounts">
-          <li v-for="(account, idx) in accounts" :key="account">
-            <input
-              :id="idx"
-              v-model="selectedAccount"
-              type="radio"
-              :value="account"
-            />
-            <label :for="idx">{{ account }}</label>
-          </li>
-        </ul>
-
-        <button class="full" @click="setAccount">
-          Next
-        </button>
       </div>
     </div>
   </div>
