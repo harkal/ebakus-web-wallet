@@ -86,6 +86,14 @@ const getBalance = async () => {
   } catch (err) {
     console.error('Failed to connect to network')
 
+    if (store.state.network.isUsingHardwareWallet) {
+      // TODO: handle reconnects
+      console.info(
+        'Wallet will not try to reconnect when Hardware wallet is being used'
+      )
+      return
+    }
+
     isWeb3Reconnecting = true
 
     await backOff(() => {
