@@ -6,6 +6,8 @@ import ProviderEngine from 'web3-provider-engine'
 import WebsocketSubprovider from 'web3-provider-engine/subproviders/websocket'
 import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
 
+import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger'
+
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
 
@@ -32,7 +34,8 @@ const isTypeSupported = async type => {
     // user can use U2F as alternative
     // return await TransportWebUSB.isSupported()
   } else if (type === ConnectionTypes.BLE) {
-    return await TransportWebBLE.isSupported()
+    // TODO: https://chromium-review.googlesource.com/c/chromium/src/+/657572
+    return (await TransportWebBLE.isSupported()) && !loadedInIframe()
   } else if (type === ConnectionTypes.U2F) {
     return await TransportU2F.isSupported()
   }
