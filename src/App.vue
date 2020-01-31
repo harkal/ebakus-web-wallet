@@ -289,6 +289,8 @@ export default {
               replyToParentWindow(self.publicAddress, null, currentJob)
             }
           }
+
+          setLedgerSupportedTypes()
         }
       }
     )
@@ -298,8 +300,6 @@ export default {
     } else {
       this.$store.commit(MutationTypes.INITIALISE_STORE)
     }
-
-    setLedgerSupportedTypes()
   },
   methods: {
     restyleWallet: function() {
