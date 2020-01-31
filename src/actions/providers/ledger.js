@@ -1,5 +1,5 @@
 import TransportWebBLE from '@ledgerhq/hw-transport-web-ble'
-import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
+// import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 import TransportU2F from '@ledgerhq/hw-transport-u2f'
 
 import ProviderEngine from 'web3-provider-engine'
@@ -15,9 +15,9 @@ import { getCurrentProviderEndpoint } from '../providers'
 import createLedgerSubprovider from './createLedgerSubprovider'
 
 const ConnectionTypes = {
-  USB: 'USB',
+  // USB: 'USB',
+  U2F: 'USB (using U2F)',
   BLE: 'Bluetooth',
-  U2F: 'U2F',
 }
 
 let _providerEngine = null
@@ -27,7 +27,10 @@ let _activeTransport = {
 
 const isTypeSupported = async type => {
   if (type === ConnectionTypes.USB) {
-    return await TransportWebUSB.isSupported()
+    return false
+    // disable USB for now for UX reasons
+    // user can use U2F as alternative
+    // return await TransportWebUSB.isSupported()
   } else if (type === ConnectionTypes.BLE) {
     return await TransportWebBLE.isSupported()
   } else if (type === ConnectionTypes.U2F) {
@@ -68,7 +71,10 @@ const getTransportWrapper = type => {
     let transport
 
     if (type === ConnectionTypes.USB) {
-      transport = await TransportWebUSB.create()
+      // transport = await TransportWebUSB.create()
+      return Promise.reject(
+        new Error('Ledger USB connection type is not supported at the moment')
+      )
     } else if (type === ConnectionTypes.BLE) {
       transport = await TransportWebBLE.create()
     } else if (type === ConnectionTypes.U2F) {
