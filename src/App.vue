@@ -52,7 +52,7 @@ import {
   getWhitelistDappTimer,
 } from '@/actions/whitelist'
 import { getStaked } from '@/actions/systemContract'
-import { init as initWeb3 } from '@/actions/web3ebakus'
+import { init as initWeb3, web3 } from '@/actions/web3ebakus'
 
 import { SpinnerState, DialogComponents } from '@/constants'
 
@@ -65,6 +65,7 @@ import {
   resizeFrameWidthInParentWindow,
   expandOverlayFrameInParentWindow,
   shrinkOverlayFrameInParentWindow,
+  frameEventAccountAddressChanged,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 
 import { RouteNames } from '@/router'
@@ -138,6 +139,16 @@ export default {
     },
   },
   watch: {
+    publicAddress: function(val, oldVal) {
+      if (
+        val &&
+        val !== oldVal &&
+        loadedInIframe() &&
+        web3.utils.isAddress(val)
+      ) {
+        frameEventAccountAddressChanged(val)
+      }
+    },
     isDrawerActive: function(val, oldVal) {
       if (val !== oldVal) {
         if (val) {
