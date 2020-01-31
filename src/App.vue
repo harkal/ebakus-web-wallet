@@ -105,6 +105,7 @@ export default {
       userTriggeredAnimatingWallet: false,
       parentOverlayShrinkTimeout: null,
       successTimeout: null,
+      cancelTimeout: null,
       closeWalletAfterAnimation: false,
     }
   },
@@ -191,6 +192,19 @@ export default {
             )
             self.successTimeout = null
           }, 800)
+        }
+
+        if (val === SpinnerState.TRANSACTION_SENT_CANCELLED) {
+          if (self.cancelTimeout) {
+            clearTimeout(self.cancelTimeout)
+          }
+          self.cancelTimeout = setTimeout(() => {
+            self.$store.dispatch(
+              MutationTypes.SET_SPINNER_STATE,
+              SpinnerState.CANCEL
+            )
+            self.cancelTimeout = null
+          }, 2000)
         }
 
         if (

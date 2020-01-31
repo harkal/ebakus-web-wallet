@@ -116,7 +116,7 @@ export default {
         whitelistNewDappFunc()
       }
 
-      calcWorkAndSendTx(this.$store.state.tx.object)
+      calcWorkAndSendTx(this.tx)
 
       console.log('Transaction Confirmed by user')
 

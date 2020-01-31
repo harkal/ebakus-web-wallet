@@ -61,14 +61,20 @@
 <script>
 import { mapState } from 'vuex'
 
+import { SpinnerState } from '@/constants'
+
+import { getBalance } from '@/actions/wallet'
 import {
   LedgerConnectionTypes,
   setLedgerProvider,
 } from '@/actions/providers/ledger'
 import { web3 } from '@/actions/web3ebakus'
+import { performWhitelistedAction } from '@/actions/whitelist'
 
 import { RouteNames } from '@/router'
 import MutationTypes from '@/store/mutation-types'
+
+import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger'
 
 export default {
   data() {
@@ -81,6 +87,7 @@ export default {
   },
   computed: {
     ...mapState({
+      isDrawerActiveByUser: state => state.ui.isDrawerActiveByUser,
       tx: state => state.tx.object,
       supportedConnectionTypes: state =>
         state.network.ledger.supportedConnectionTypes,
@@ -94,7 +101,12 @@ export default {
       }
     },
   },
-
+  mounted() {
+    this.$store.commit(
+      MutationTypes.SET_SPINNER_STATE,
+      SpinnerState.LEDGER_CONNECT
+    )
+  },
   methods: {
     connectLedger: async function() {
       if (!this.supportedConnectionTypes.includes(this.connectionType)) {
@@ -109,8 +121,22 @@ export default {
       try {
         await setLedgerProvider(this.connectionType)
 
+        this.$store.commit(
+          MutationTypes.SET_SPINNER_STATE,
+          SpinnerState.LEDGER_FETCH_ACCOUNTS
+        )
+
         const accounts = await web3.eth.getAccounts()
-        this.accounts = accounts
+
+        if (accounts.length === 0) {
+          throw new Error('No accounts found on Ledger')
+        }
+
+        this.accounts = accounts.map(account => {
+          console.log('TCL: account', account)
+
+          return web3.utils.toChecksumAddress(account)
+        })
       } catch (err) {
         console.error(
           `Connecting to ledger using ${this.connectionType} failed with error`,
@@ -119,6 +145,8 @@ export default {
 
         this.error =
           'Failed to connect to Ledger device. Please check that it is unlocked and the Ethereum app is opened.'
+      } finally {
+        this.$store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.NONE)
       }
     },
     setAccount: async function() {
@@ -137,6 +165,22 @@ export default {
 
       this.$store.dispatch(MutationTypes.CLEAR_DIALOG)
       this.$router.push({ name: RouteNames.HOME }, () => {})
+
+      if (loadedInIframe()) {
+        // just in order we are sure that balance has been fetched for connected account
+        try {
+          await getBalance()
+        } catch (err) {
+          console.error('Failed to fetch balance for Ledger account', err)
+        }
+
+        const { to, value, data } = this.tx
+        if (to || value || data) {
+          performWhitelistedAction()
+        } else if (!this.isDrawerActiveByUser) {
+          this.$store.dispatch(MutationTypes.DEACTIVATE_DRAWER)
+        }
+      }
     },
   },
 }

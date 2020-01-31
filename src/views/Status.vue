@@ -22,6 +22,7 @@
       v-if="
         !isDrawerActive &&
           [
+            SpinnerState.TRANSACTION_SENT_CANCELLED,
             SpinnerState.CALC_POW,
             SpinnerState.TRANSACTION_SENDING,
             SpinnerState.TRANSACTION_SENT_SUCCESS,
@@ -52,6 +53,13 @@
         Sent
 
         <img src="@/assets/img/ic_sent.svg" width="13" height="7" />
+      </span>
+
+      <span
+        v-else-if="spinnerState === SpinnerState.TRANSACTION_SENT_CANCELLED"
+        key="cancel"
+      >
+        Cancelled
       </span>
 
       <img
@@ -129,9 +137,12 @@
       v-if="
         isDrawerActive &&
           [
+            SpinnerState.TRANSACTION_SENT_CANCELLED,
             SpinnerState.CALC_POW,
             SpinnerState.TRANSACTION_SENDING,
             SpinnerState.TRANSACTION_SENT_SUCCESS,
+            SpinnerState.LEDGER_FETCH_ACCOUNTS,
+            SpinnerState.LEDGER_CONFIRM,
           ].includes(spinnerState)
       "
       key="openedState"
@@ -156,6 +167,28 @@
         Sent
 
         <img src="@/assets/img/ic_sent.svg" width="13" height="7" />
+      </span>
+
+      <span
+        v-else-if="spinnerState === SpinnerState.TRANSACTION_SENT_CANCELLED"
+        key="cancel"
+      >
+        Cancelled by user
+      </span>
+
+      <span
+        v-if="spinnerState === SpinnerState.LEDGER_FETCH_ACCOUNTS"
+        key="fetching-accounts"
+        class="animate-fade-in-out-slow"
+      >
+        Fetching accounts
+      </span>
+
+      <span
+        v-else-if="spinnerState === SpinnerState.LEDGER_CONFIRM"
+        key="confirm-ledger"
+      >
+        Confirm on Ledger
       </span>
     </div>
 
