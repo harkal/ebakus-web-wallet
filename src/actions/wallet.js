@@ -150,6 +150,14 @@ const generateWallet = () => {
 
 const secureWallet = pass => {
   return new Promise((resolve, reject) => {
+    if (
+      web3.eth.accounts.wallet.length == 0 ||
+      web3.eth.accounts.wallet[0].address !== store.state.wallet.address
+    ) {
+      // we have probably changed the web3 instance, and the account has been generated in the old instance
+      reject(new Error('Something is wrong. Please reload the page.'))
+    }
+
     const newAcc = web3.eth.accounts.wallet.save(pass)
     console.log(`Wallet with public key: ${store.state.wallet.address} saved.`)
 
