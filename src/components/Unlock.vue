@@ -1,16 +1,26 @@
 <template>
-  <div class="wrapper scroll-wrapper">
-    <label for="password">Password</label>
-    <input
-      ref="passField"
-      v-model="pass"
-      type="password"
-      name="password"
-      placeholder
-      @keyup.enter="unlockWallet"
-    />
-    <span class="text-error">{{ error }}</span>
-    <button class="full" @click="unlockWallet">Unlock</button>
+  <div class="wrapper scroll-wrapper unlock">
+    <div>
+      <label for="password">Password</label>
+      <input
+        ref="passField"
+        v-model="pass"
+        type="password"
+        name="password"
+        placeholder
+        @keyup.enter="unlockWallet"
+      />
+      <span class="text-error">{{ error }}</span>
+      <button class="full" @click="unlockWallet">Unlock</button>
+    </div>
+    <div>
+      <h3>
+        Additional options
+      </h3>
+      <button class="full outline ledger" @click="connectWithLedger">
+        Connect with Ledger
+      </button>
+    </div>
   </div>
 </template>
 
@@ -20,7 +30,7 @@ import { mapState } from 'vuex'
 import { unlockWallet as unlockWalletFunc } from '@/actions/wallet'
 import { performWhitelistedAction } from '@/actions/whitelist'
 
-import { SpinnerState } from '@/constants'
+import { SpinnerState, DialogComponents } from '@/constants'
 
 import { RouteNames } from '@/router'
 
@@ -105,6 +115,37 @@ export default {
           }
         })
     },
+    connectWithLedger: function() {
+      this.$store.commit(MutationTypes.SHOW_DIALOG, {
+        component: DialogComponents.LEDGER,
+        title: 'Connect with Ledger',
+      })
+    },
   },
 }
 </script>
+
+<style scoped lang="scss">
+.unlock {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-content: stretch;
+  // align-items: center;
+
+  height: calc(
+    (var(--vh, 1vh) * 100) - (var(--status-bar-vh, 1vh) * 100)
+  ); /* --vh is set at App.vue and --status-bar-vh at Status.vue */
+
+  > div {
+    flex: 0 1 auto;
+
+    &:nth-child(2) {
+      h3 {
+        padding-top: 0;
+      }
+    }
+  }
+}
+</style>

@@ -262,6 +262,10 @@ export default {
           this.$route.name
         )
       ) {
+        if ([DialogComponents.LEDGER].includes(this.dialog.component)) {
+          return ButtonStates.EXIT
+        }
+
         return ButtonStates.UNLOCK
       } else if (this.$route.name == RouteNames.WHITELIST_DAPP) {
         return ButtonStates.NONE
@@ -323,7 +327,11 @@ export default {
     },
     exit: function() {
       if (this.$route.name == RouteNames.NEW) {
-        this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
+        if (this.isDialog) {
+          this.$store.commit(MutationTypes.CLEAR_DIALOG)
+        } else {
+          this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
+        }
       } else if (this.$route.name == RouteNames.IMPORT) {
         const redirectFrom = this.$route.query.redirectFrom || RouteNames.HOME
         this.$router.push({ name: redirectFrom }, () => {})
