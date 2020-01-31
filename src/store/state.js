@@ -85,7 +85,8 @@ const initialState = {
     },
   },
 
-  isSafariAllowed: false, // warn users that dapps doesn't share same wallet on behalf of privacy
+  // isSafariAllowed: false, // warn users that dapps doesn't share same wallet on behalf of privacy
+  isSafariAllowed: true, // we decided to allow Safari for better UX for now
 }
 
 export default () => ({
