@@ -4,6 +4,7 @@ import TransportU2F from '@ledgerhq/hw-transport-u2f'
 
 import ProviderEngine from 'web3-provider-engine'
 import WebsocketSubprovider from 'web3-provider-engine/subproviders/websocket'
+import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
 
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
@@ -19,6 +20,7 @@ const ConnectionTypes = {
   U2F: 'U2F',
 }
 
+let _providerEngine = null
 let _activeTransport = {
   /* type, transport */
 }
@@ -102,18 +104,27 @@ const setProvider = async type => {
 
   engine.addProvider(ledger)
 
-  // TODO: handle rpc, ws, ipc endpoints
-
-  // Web3.providers.WebsocketProvider.prototype.sendAsync = Web3.providers.WebsocketProvider.prototype.send
-  // const ws = new Web3.providers.WebsocketProvider('wss://ws.ebakus.test')
-  // const wsSubprovider = new ProviderSubprovider(ws)
-  // engine.addProvider(wsSubprovider);
-
   const currentEndpoint = getCurrentProviderEndpoint()
 
-  engine.addProvider(new WebsocketSubprovider({ rpcUrl: currentEndpoint }))
+  // autodetect provider
+  if (currentEndpoint && typeof currentEndpoint === 'string') {
+    // HTTP
+    if (/^http(s)?:\/\//i.test(currentEndpoint)) {
+      engine.addProvider(new RpcSubprovider({ rpcUrl: currentEndpoint }))
 
-  // engine.addProvider(new RpcSubprovider({ rpcUrl: 'http://localhost:8545' }));
+      // WS
+    } else if (/^ws(s)?:\/\//i.test(currentEndpoint)) {
+      engine.addProvider(new WebsocketSubprovider({ rpcUrl: currentEndpoint }))
+    } else {
+      return Promise.reject(
+        new Error("This provider endpoint can't be handled with Ledger")
+      )
+    }
+  }
+
+  // reset the old one before changing, if still connected
+  if (_providerEngine !== null) _providerEngine.stop()
+  _providerEngine = engine
 
   engine.start()
 
