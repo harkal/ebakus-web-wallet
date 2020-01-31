@@ -327,7 +327,10 @@ export default {
     },
     exit: function() {
       if (this.$route.name == RouteNames.NEW) {
-        if (this.isDialog) {
+        if (
+          this.isDialog &&
+          [DialogComponents.LEDGER].includes(this.dialog.component)
+        ) {
           this.$store.commit(MutationTypes.CLEAR_DIALOG)
         } else {
           this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
@@ -337,7 +340,9 @@ export default {
         this.$router.push({ name: redirectFrom }, () => {})
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
       } else if (this.$route.name == RouteNames.SETTINGS) {
-        this.$router.push({ name: RouteNames.HOME }, () => {})
+        if (![DialogComponents.LEDGER].includes(this.dialog.component)) {
+          this.$router.push({ name: RouteNames.HOME }, () => {})
+        }
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
       } else if (this.$route.name == RouteNames.STAKE) {
         this.$router.go(-1)

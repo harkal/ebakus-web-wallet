@@ -70,6 +70,10 @@
         Export Private Key
       </button>
 
+      <button class="full ledger" @click="connectWithLedger">
+        Connect with Ledger
+      </button>
+
       <div class="danger-zone">
         <h2>Danger Zone</h2>
         <button class="full cta" @click="importKey">
@@ -77,13 +81,6 @@
         </button>
         <button class="full cta" @click="deleteWallet">
           Delete your Account
-        </button>
-        <button
-          class="full cta ledger"
-          :disabled="supportsLedger"
-          @click="connectWithLedger"
-        >
-          Connect with Ledger
         </button>
       </div>
 
@@ -204,8 +201,6 @@ export default {
     ...mapState({
       isSpinnerActive: state => state.ui.isSpinnerActive,
       spinnerState: state => state.ui.currentSpinnerState,
-      supportsLedger: state =>
-        state.network.ledger.supportedConnectionTypes.length > 0,
     }),
 
     maxWhitelistDelay: () => MAX_WHITELIST_DELAY,
