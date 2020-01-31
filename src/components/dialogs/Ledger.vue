@@ -15,11 +15,11 @@
           >
             <option value="">Select connection method</option>
             <option
-              v-for="type in supportedConnectionTypes"
-              :key="type"
-              :value="LedgerConnectionTypes[type]"
+              v-for="key in supportedConnectionTypes"
+              :key="key"
+              :value="key"
             >
-              {{ LedgerConnectionTypes[type] }}
+              {{ LedgerConnectionTypes[key] }}
             </option>
           </select>
         </div>
@@ -97,11 +97,7 @@ export default {
 
   methods: {
     connectLedger: async function() {
-      if (
-        !Object.values(this.supportedConnectionTypes).includes(
-          this.connectionType
-        )
-      ) {
+      if (!this.supportedConnectionTypes.includes(this.connectionType)) {
         this.error = 'Please select a valid connection type.'
         return
       }

@@ -70,14 +70,14 @@ const getTransportWrapper = type => {
 
     let transport
 
-    if (type === ConnectionTypes.USB) {
+    if (ConnectionTypes[type] === ConnectionTypes.USB) {
       // transport = await TransportWebUSB.create()
       return Promise.reject(
         new Error('Ledger USB connection type is not supported at the moment')
       )
-    } else if (type === ConnectionTypes.BLE) {
+    } else if (ConnectionTypes[type] === ConnectionTypes.BLE) {
       transport = await TransportWebBLE.create()
-    } else if (type === ConnectionTypes.U2F) {
+    } else if (ConnectionTypes[type] === ConnectionTypes.U2F) {
       transport = await TransportU2F.create()
     }
 
@@ -93,7 +93,7 @@ const getTransportWrapper = type => {
 }
 
 const setProvider = async type => {
-  if (!Object.values(ConnectionTypes).includes(type)) {
+  if (!Object.keys(ConnectionTypes).includes(type)) {
     return Promise.reject(
       new Error('This is not a valid transport connection type for Ledger')
     )
