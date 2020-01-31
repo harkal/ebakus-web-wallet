@@ -46,11 +46,14 @@ export default {
       const web3data = JSON.parse(
         localStorage.getItem(StorageNames.WEB3_WALLET)
       )
-      const tempWeb3 = new Web3()
-      const address = tempWeb3.utils.toChecksumAddress(web3data[0].address)
-      newState = {
-        ...newState,
-        wallet: { ...newState.wallet, address: address },
+      if (web3data && web3data.length > 0) {
+        const address = Web3.utils.toChecksumAddress(web3data[0].address)
+        newState = {
+          ...newState,
+          wallet: { ...newState.wallet, address: address },
+        }
+      } else {
+        localStorage.removeItem(StorageNames.WEB3_WALLET)
       }
     }
 

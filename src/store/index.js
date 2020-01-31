@@ -61,8 +61,8 @@ store.subscribe(({ type }, state) => {
 
   let store = {
     version: state.version,
-    network: state.network,
-    whitelist: state.whitelist,
+    network: { ...state.network },
+    whitelist: { ...state.whitelist },
     amountOfWork: state.amountOfWork,
     isSafariAllowed: state.isSafariAllowed,
   }
