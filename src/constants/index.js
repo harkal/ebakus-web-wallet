@@ -69,6 +69,7 @@ const DialogComponents = {
   FAILED_TX: 'FailedTx',
   NO_FUNDS: 'NoFunds',
   DELETE_WALLET: 'DeleteWallet',
+  LEDGER: 'Ledger',
 }
 
 const StorageNames = {

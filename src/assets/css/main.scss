@@ -112,25 +112,6 @@ button {
   width: 106px;
   border: 1px solid transparent;
 
-  &:hover {
-    background-color: rgba(253, 49, 95, 0.9);
-    background-repeat: no-repeat;
-    border: 1px solid transparent;
-    color: #fff;
-  }
-
-  &:focus {
-    outline: none;
-  }
-
-  &:disabled,
-  &[disabled] {
-    &:hover {
-      cursor: not-allowed;
-      background-color: rgb(229, 229, 229);
-    }
-  }
-
   &.secondary {
     color: black;
     background: white;
@@ -163,6 +144,50 @@ button {
   }
   &.cta {
     background: #fd315f;
+  }
+
+  &.outline {
+    background: transparent;
+    border: 1px solid #000;
+    color:#000;
+  }
+
+  &.ledger {
+    position: relative;
+
+    &:before {
+      content: '';
+      position: absolute;
+      display: block;
+      left: 10px;
+      width: 18px;
+      height: 18px;
+      background: url(../img/ic_ledger.svg) no-repeat center center;
+
+    }
+
+    &:not(.outline):before {
+      filter: invert(1);
+    }
+  }
+
+  &:hover {
+    background-color: rgba(253, 49, 95, 0.9);
+    background-repeat: no-repeat;
+    border: 1px solid transparent;
+    color: #fff;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:disabled,
+  &[disabled] {
+    &:hover {
+      cursor: not-allowed;
+      background-color: rgb(229, 229, 229);
+    }
   }
 }
 

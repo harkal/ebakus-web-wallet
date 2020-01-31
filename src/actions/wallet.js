@@ -35,6 +35,9 @@ let isWeb3Reconnecting = false
 
 const getBalance = async () => {
   const { address, tokenSymbol } = store.state.wallet
+  const preflightIsUsingHardwareWallet =
+    store.state.network.isUsingHardwareWallet
+
   if (!address) {
     return Promise.reject(new Error('No wallet has been created'))
   }
@@ -61,6 +64,13 @@ const getBalance = async () => {
     }
 
     if (parseFloat(wei) != parseFloat(store.state.wallet.balance)) {
+      if (
+        preflightIsUsingHardwareWallet !==
+        store.state.network.isUsingHardwareWallet
+      ) {
+        return Promise.reject(new Error('User changed to hardware wallet'))
+      }
+
       store.dispatch(MutationTypes.SET_WALLET_BALANCE, String(wei))
 
       getStaked()

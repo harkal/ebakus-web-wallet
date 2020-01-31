@@ -201,6 +201,9 @@ export default {
     state.network.isUsingHardwareWallet = typeof getTransport === 'function'
     state.network.ledger = { ...state.network.ledger, getTransport }
   },
+  [MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES](state, types) {
+    state.network.ledger.supportedConnectionTypes = types
+  },
 
   [MutationTypes.SET_OVERLAY_COLOR](state, color) {
     state.ui.overlayColor = color

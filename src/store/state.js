@@ -25,6 +25,7 @@ const initialState = {
     status: NetworkStatus.DISCONNECTED,
     isUsingHardwareWallet: false,
     ledger: {
+      supportedConnectionTypes: [],
       transport: null,
     },
   },

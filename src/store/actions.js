@@ -127,6 +127,9 @@ export default {
       getTransport
     )
   },
+  [MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES](context, types) {
+    context.commit(MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES, types)
+  },
 
   [MutationTypes.UNSET_OVERLAY_COLOR](context) {
     context.commit(MutationTypes.UNSET_OVERLAY_COLOR)

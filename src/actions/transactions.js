@@ -83,6 +83,11 @@ const calcWork = async tx => {
       difficulty
     )
 
+    // hack for hardware wallets that don't know how to parse workNonce
+    if (store.state.network.isUsingHardwareWallet) {
+      txWithPow.gasPrice = txWithPow.workNonce
+    }
+
     store.dispatch(MutationTypes.SET_TX_OBJECT, txWithPow)
 
     return txWithPow
@@ -116,6 +121,15 @@ const calcWorkAndSendTx = async (tx, handleErrorUI = true) => {
       store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.CALC_POW)
 
       tx = await calcWork(tx)
+    }
+
+    // hack for hardware wallets that don't know how to parse workNonce
+    if (
+      store.state.network.isUsingHardwareWallet &&
+      tx.workNonce &&
+      !tx.gasPrice
+    ) {
+      tx.gasPrice = tx.workNonce
     }
 
     store.dispatch(

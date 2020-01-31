@@ -44,7 +44,8 @@ import debounce from 'lodash/debounce'
 import { mapState } from 'vuex'
 
 import { checkNodeConnection } from '@/actions/providers'
-import { getBalance } from '@/actions/wallet'
+import { setLedgerSupportedTypes } from '@/actions/providers/ledger'
+import { hasWallet, getBalance } from '@/actions/wallet'
 import {
   isContractCall,
   isContractCallWhitelisted,
@@ -94,6 +95,8 @@ export default {
       ),
     NoFunds: () =>
       import(/* webpackChunkName: "no-funds" */ './components/dialogs/NoFunds'),
+    Ledger: () =>
+      import(/* webpackChunkName: "ledger" */ './components/dialogs/Ledger'),
   },
   data() {
     return {
@@ -109,7 +112,7 @@ export default {
       isDrawerActive: state => state.ui.isDrawerActive,
       isSpinnerActive: state => state.ui.isSpinnerActive,
       spinnerState: state => state.ui.currentSpinnerState,
-      isLocked: state => state.wallet.locked,
+      isLocked: state => state.wallet.locked && hasWallet(),
       publicAddress: state => state.wallet.address,
       balance: state => state.wallet.balance,
       overlayColor: state => state.ui.overlayColor,
@@ -270,6 +273,8 @@ export default {
     } else {
       this.$store.commit(MutationTypes.INITIALISE_STORE)
     }
+
+    setLedgerSupportedTypes()
   },
   methods: {
     restyleWallet: function() {
