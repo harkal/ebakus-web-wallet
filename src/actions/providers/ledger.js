@@ -35,7 +35,7 @@ const isTypeSupported = async type => {
     // return await TransportWebUSB.isSupported()
   } else if (type === ConnectionTypes.BLE) {
     // TODO: https://chromium-review.googlesource.com/c/chromium/src/+/657572
-    return (await TransportWebBLE.isSupported()) && !loadedInIframe()
+    return !loadedInIframe() && (await TransportWebBLE.isSupported())
   } else if (type === ConnectionTypes.U2F) {
     return await TransportU2F.isSupported()
   }
