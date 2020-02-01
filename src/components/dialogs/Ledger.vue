@@ -132,11 +132,9 @@ export default {
           throw new Error('No accounts found on Ledger')
         }
 
-        this.accounts = accounts.map(account => {
-          console.log('TCL: account', account)
-
-          return web3.utils.toChecksumAddress(account)
-        })
+        this.accounts = accounts.map(account =>
+          web3.utils.toChecksumAddress(account)
+        )
       } catch (err) {
         console.error(
           `Connecting to ledger using ${this.connectionType} failed with error`,
