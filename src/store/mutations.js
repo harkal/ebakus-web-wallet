@@ -46,11 +46,14 @@ export default {
       const web3data = JSON.parse(
         localStorage.getItem(StorageNames.WEB3_WALLET)
       )
-      const tempWeb3 = new Web3()
-      const address = tempWeb3.utils.toChecksumAddress(web3data[0].address)
-      newState = {
-        ...newState,
-        wallet: { ...newState.wallet, address: address },
+      if (web3data && web3data.length > 0) {
+        const address = Web3.utils.toChecksumAddress(web3data[0].address)
+        newState = {
+          ...newState,
+          wallet: { ...newState.wallet, address: address },
+        }
+      } else {
+        localStorage.removeItem(StorageNames.WEB3_WALLET)
       }
     }
 
@@ -113,10 +116,34 @@ export default {
   },
 
   [MutationTypes.DELETE_WALLET](state) {
+    const initState = initialState()
     Object.keys(state).forEach(key => {
-      state[key] = initialState()[key]
+      if (typeof initState[key] === 'object' && initState[key] !== null) {
+        Object.assign(state[key], initState[key])
+        // state[key] = { ...initState[key] }
+      } else {
+        state[key] = initState[key]
+      }
     })
     state.ui.isDrawerActive = true
+  },
+
+  [MutationTypes.CLEAR_STATE_FOR_HD_WALLET](state) {
+    const initState = initialState()
+
+    const cleanDataKeys = ['wallet', 'history']
+
+    Object.keys(state).forEach(key => {
+      if (!cleanDataKeys.includes(key)) {
+        return
+      }
+
+      if (typeof initState[key] === 'object' && initState[key] !== null) {
+        Object.assign(state[key], initState[key])
+      } else {
+        state[key] = initState[key]
+      }
+    })
   },
 
   [MutationTypes.SET_TOKENS](state, tokens) {
@@ -153,8 +180,7 @@ export default {
     state.amountOfWork = typeof work === 'number' ? work : true
   },
   [MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK](state, work) {
-    state.singleTxAmountOfWork =
-      work === null ? null : typeof work === 'number' ? work : true
+    state.singleTxAmountOfWork = typeof work === 'number' ? work : true
   },
 
   [MutationTypes.SET_NETWORK](state, data) {
@@ -170,6 +196,16 @@ export default {
   },
   [MutationTypes.SET_NETWORK_STATUS](state, status) {
     state.network.status = status
+  },
+  [MutationTypes.SET_LEDGER_TRANSPORT_GETTER_INTERNAL_MUTATE](
+    state,
+    getTransport
+  ) {
+    state.network.isUsingHardwareWallet = typeof getTransport === 'function'
+    state.network.ledger = { ...state.network.ledger, getTransport }
+  },
+  [MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES](state, types) {
+    state.network.ledger.supportedConnectionTypes = types
   },
 
   [MutationTypes.SET_OVERLAY_COLOR](state, color) {

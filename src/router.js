@@ -13,9 +13,8 @@ import Settings from '@/components/Settings.vue'
 
 import store from '@/store'
 
-import { isSafari } from '@/utils'
-
-import styleAnimationVariables from '@/assets/css/_animations.scss'
+// import { isSafari } from '@/utils'
+// import styleAnimationVariables from '@/assets/css/_animations.scss'
 
 Vue.use(Router)
 
@@ -108,31 +107,32 @@ const router = new Router({
         import(/* webpackChunkName: "stake" */ '@/components/Stake'),
     },
 
-    {
-      path: '/safari-warning',
-      name: RouteNames.SAFARI_WARNING,
-      component: () =>
-        import(
-          /* webpackChunkName: "safari-warning" */ '@/components/SafariWarning'
-        ),
-    },
+    // {
+    //   path: '/safari-warning',
+    //   name: RouteNames.SAFARI_WARNING,
+    //   component: () =>
+    //     import(
+    //       /* webpackChunkName: "safari-warning" */ '@/components/SafariWarning'
+    //     ),
+    // },
   ],
 })
 
 router.beforeEach((to, from, next) => {
+  // if (
+  //   isSafari &&
+  //   from.name !== null && // check that it is not initial render
+  //   to.name !== RouteNames.SAFARI_WARNING &&
+  //   !store.state.isSafariAllowed
+  // ) {
+  //   setTimeout(() => {
+  //     next({
+  //       name: RouteNames.SAFARI_WARNING,
+  //       query: { redirectFrom: to.name },
+  //     })
+  //   }, styleAnimationVariables.animationWallet)
+  // } else
   if (
-    isSafari &&
-    from.name !== null && // check that it is not initial render
-    to.name !== RouteNames.SAFARI_WARNING &&
-    !store.state.isSafariAllowed
-  ) {
-    setTimeout(() => {
-      next({
-        name: RouteNames.SAFARI_WARNING,
-        query: { redirectFrom: to.name },
-      })
-    }, styleAnimationVariables.animationWallet)
-  } else if (
     ![
       RouteNames.NEW,
       RouteNames.IMPORT,

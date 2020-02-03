@@ -44,14 +44,15 @@ import debounce from 'lodash/debounce'
 import { mapState } from 'vuex'
 
 import { checkNodeConnection } from '@/actions/providers'
-import { getBalance } from '@/actions/wallet'
+import { setLedgerSupportedTypes } from '@/actions/providers/ledger'
+import { hasWallet, getBalance } from '@/actions/wallet'
 import {
   isContractCall,
   isContractCallWhitelisted,
   getWhitelistDappTimer,
 } from '@/actions/whitelist'
 import { getStaked } from '@/actions/systemContract'
-import { init as initWeb3 } from '@/actions/web3ebakus'
+import { init as initWeb3, web3 } from '@/actions/web3ebakus'
 
 import { SpinnerState, DialogComponents } from '@/constants'
 
@@ -64,6 +65,7 @@ import {
   resizeFrameWidthInParentWindow,
   expandOverlayFrameInParentWindow,
   shrinkOverlayFrameInParentWindow,
+  frameEventAccountAddressChanged,
 } from '@/parentFrameMessenger/parentFrameMessenger'
 
 import { RouteNames } from '@/router'
@@ -94,6 +96,8 @@ export default {
       ),
     NoFunds: () =>
       import(/* webpackChunkName: "no-funds" */ './components/dialogs/NoFunds'),
+    Ledger: () =>
+      import(/* webpackChunkName: "ledger" */ './components/dialogs/Ledger'),
   },
   data() {
     return {
@@ -101,6 +105,7 @@ export default {
       userTriggeredAnimatingWallet: false,
       parentOverlayShrinkTimeout: null,
       successTimeout: null,
+      cancelTimeout: null,
       closeWalletAfterAnimation: false,
     }
   },
@@ -109,7 +114,7 @@ export default {
       isDrawerActive: state => state.ui.isDrawerActive,
       isSpinnerActive: state => state.ui.isSpinnerActive,
       spinnerState: state => state.ui.currentSpinnerState,
-      isLocked: state => state.wallet.locked,
+      isLocked: state => state.wallet.locked && hasWallet(),
       publicAddress: state => state.wallet.address,
       balance: state => state.wallet.balance,
       overlayColor: state => state.ui.overlayColor,
@@ -135,6 +140,16 @@ export default {
     },
   },
   watch: {
+    publicAddress: function(val, oldVal) {
+      if (
+        val &&
+        val !== oldVal &&
+        loadedInIframe() &&
+        web3.utils.isAddress(val)
+      ) {
+        frameEventAccountAddressChanged(val)
+      }
+    },
     isDrawerActive: function(val, oldVal) {
       if (val !== oldVal) {
         if (val) {
@@ -177,6 +192,19 @@ export default {
             )
             self.successTimeout = null
           }, 800)
+        }
+
+        if (val === SpinnerState.TRANSACTION_SENT_CANCELLED) {
+          if (self.cancelTimeout) {
+            clearTimeout(self.cancelTimeout)
+          }
+          self.cancelTimeout = setTimeout(() => {
+            self.$store.dispatch(
+              MutationTypes.SET_SPINNER_STATE,
+              SpinnerState.CANCEL
+            )
+            self.cancelTimeout = null
+          }, 2000)
         }
 
         if (
@@ -261,6 +289,8 @@ export default {
               replyToParentWindow(self.publicAddress, null, currentJob)
             }
           }
+
+          setLedgerSupportedTypes()
         }
       }
     )

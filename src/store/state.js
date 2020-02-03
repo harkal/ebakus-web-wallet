@@ -15,7 +15,7 @@ const initialState = {
   },
 
   amountOfWork: true, // true: for auto estimation, number: for a pre-specified value
-  singleTxAmountOfWork: null, // true: for auto estimation, number: for a pre-specified value
+  singleTxAmountOfWork: false, // true: for auto estimation, number: for a pre-specified value
 
   // network preferences
   network: {
@@ -23,6 +23,11 @@ const initialState = {
     chainId: process.env.DEFAULT_NETWORK_ID,
     nodeAddress: '',
     status: NetworkStatus.DISCONNECTED,
+    isUsingHardwareWallet: false,
+    ledger: {
+      supportedConnectionTypes: [],
+      transport: null,
+    },
   },
 
   // custom ERC-20 tokens set by the dApp developer
@@ -80,7 +85,8 @@ const initialState = {
     },
   },
 
-  isSafariAllowed: false, // warn users that dapps doesn't share same wallet on behalf of privacy
+  // isSafariAllowed: false, // warn users that dapps doesn't share same wallet on behalf of privacy
+  isSafariAllowed: true, // we decided to allow Safari for better UX for now
 }
 
 export default () => ({

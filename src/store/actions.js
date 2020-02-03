@@ -87,6 +87,13 @@ export default {
     context.commit(MutationTypes.SET_WALLET_STAKED, staked)
   },
 
+  [MutationTypes.DELETE_WALLET](context) {
+    context.commit(MutationTypes.DELETE_WALLET)
+  },
+  [MutationTypes.CLEAR_STATE_FOR_HD_WALLET](context) {
+    context.commit(MutationTypes.CLEAR_STATE_FOR_HD_WALLET)
+  },
+
   [MutationTypes.PUSH_LOGS](context, data) {
     context.commit(MutationTypes.PUSH_LOGS, data)
   },
@@ -108,6 +115,20 @@ export default {
   },
   [MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK](context, work) {
     context.commit(MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK, work)
+  },
+
+  [MutationTypes.SET_LEDGER_TRANSPORT_GETTER](context, getTransport) {
+    if (typeof getTransport === 'function') {
+      context.commit(MutationTypes.CLEAR_STATE_FOR_HD_WALLET)
+    }
+
+    context.commit(
+      MutationTypes.SET_LEDGER_TRANSPORT_GETTER_INTERNAL_MUTATE,
+      getTransport
+    )
+  },
+  [MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES](context, types) {
+    context.commit(MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES, types)
   },
 
   [MutationTypes.UNSET_OVERLAY_COLOR](context) {

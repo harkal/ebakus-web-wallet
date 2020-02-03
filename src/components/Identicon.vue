@@ -134,33 +134,33 @@ export default {
     border-color: #fff;
   }
 
-  &.safari {
-    border-color: transparent;
-    border-radius: 0;
-    background-image: url(../assets/img/ic-safari-disabled.png);
-    background-image: image-set(
-      url(../assets/img/ic-safari-disabled.png) 1x,
-      url(../assets/img/ic-safari-disabled@2x.png) 2x,
-      url(../assets/img/ic-safari-disabled@3x.png) 3x
-    );
-    background-repeat: no-repeat;
+  // &.safari {
+  //   border-color: transparent;
+  //   border-radius: 0;
+  //   background-image: url(../assets/img/ic-safari-disabled.png);
+  //   background-image: image-set(
+  //     url(../assets/img/ic-safari-disabled.png) 1x,
+  //     url(../assets/img/ic-safari-disabled@2x.png) 2x,
+  //     url(../assets/img/ic-safari-disabled@3x.png) 3x
+  //   );
+  //   background-repeat: no-repeat;
 
-    background-position: center center;
-    background-size: var(--widget-size);
+  //   background-position: center center;
+  //   background-size: var(--widget-size);
 
-    .opened & {
-      background-position: -7px -5px;
-      background-size: calc(var(--widget-size) + 8px);
-    }
+  //   .opened & {
+  //     background-position: -7px -5px;
+  //     background-size: calc(var(--widget-size) + 8px);
+  //   }
 
-    &::before {
-      display: none;
-    }
+  //   &::before {
+  //     display: none;
+  //   }
 
-    .identicon ::v-deep > div {
-      display: none !important;
-    }
-  }
+  //   .identicon ::v-deep > div {
+  //     display: none !important;
+  //   }
+  // }
 }
 
 .identicon {

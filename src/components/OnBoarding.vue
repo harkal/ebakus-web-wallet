@@ -10,16 +10,29 @@
     <div class="scroll-wrapper">
       <div class="pane create" :class="{ display: activePane == Panes.CREATE }">
         <div class="wrapper">
-          <h1>Hello!</h1>
-          <h2>Let's start by securing your account</h2>
-          <button class="full" @click="requestNewPassword">Next</button>
-
-          <h3>
-            Already have an account? <br />
-            <router-link :to="{ name: RouteNames.IMPORT }">
-              Click here to import it
+          <div>
+            <h1>Hello!</h1>
+            <h2>Let's start by securing your account</h2>
+            <button class="full" @click="requestNewPassword">Next</button>
+          </div>
+          <div>
+            <h3>
+              Additional options
+            </h3>
+            <router-link
+              :to="{
+                name: RouteNames.IMPORT,
+                query: { redirectFrom: RouteNames.NEW },
+              }"
+              class="full outline"
+              tag="button"
+            >
+              Import wallet backup
             </router-link>
-          </h3>
+            <button class="full outline ledger" @click="connectWithLedger">
+              Connect with Ledger
+            </button>
+          </div>
         </div>
       </div>
       <div class="pane secure" :class="{ display: activePane == Panes.SECURE }">
@@ -191,6 +204,13 @@ export default {
         }
       }, 1200)
     },
+
+    connectWithLedger: function() {
+      this.$store.commit(MutationTypes.SHOW_DIALOG, {
+        component: DialogComponents.LEDGER,
+        title: 'Connect with Ledger',
+      })
+    },
   },
 }
 </script>
@@ -255,6 +275,29 @@ export default {
 
   @media only screen and (max-width: 600px) {
     padding-bottom: 200px;
+  }
+}
+
+.pane.create .wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-content: stretch;
+  // align-items: center;
+
+  height: calc(
+    (var(--vh, 1vh) * 100) - (var(--status-bar-vh, 1vh) * 100) - 94px
+  ); /* --vh is set at App.vue and --status-bar-vh at Status.vue */
+
+  > div {
+    flex: 0 1 auto;
+
+    &:nth-child(2) {
+      h3 {
+        padding-top: 0;
+      }
+    }
   }
 }
 

@@ -35,6 +35,9 @@ let isWeb3Reconnecting = false
 
 const getBalance = async () => {
   const { address, tokenSymbol } = store.state.wallet
+  const preflightIsUsingHardwareWallet =
+    store.state.network.isUsingHardwareWallet
+
   if (!address) {
     return Promise.reject(new Error('No wallet has been created'))
   }
@@ -61,6 +64,13 @@ const getBalance = async () => {
     }
 
     if (parseFloat(wei) != parseFloat(store.state.wallet.balance)) {
+      if (
+        preflightIsUsingHardwareWallet !==
+        store.state.network.isUsingHardwareWallet
+      ) {
+        return Promise.reject(new Error('User changed to hardware wallet'))
+      }
+
       store.dispatch(MutationTypes.SET_WALLET_BALANCE, String(wei))
 
       getStaked()
@@ -75,6 +85,14 @@ const getBalance = async () => {
     return Promise.resolve(wei)
   } catch (err) {
     console.error('Failed to connect to network')
+
+    if (store.state.network.isUsingHardwareWallet) {
+      // TODO: handle reconnects
+      console.info(
+        'Wallet will not try to reconnect when Hardware wallet is being used'
+      )
+      return
+    }
 
     isWeb3Reconnecting = true
 
@@ -132,6 +150,14 @@ const generateWallet = () => {
 
 const secureWallet = pass => {
   return new Promise((resolve, reject) => {
+    if (
+      web3.eth.accounts.wallet.length == 0 ||
+      web3.eth.accounts.wallet[0].address !== store.state.wallet.address
+    ) {
+      // we have probably changed the web3 instance, and the account has been generated in the old instance
+      reject(new Error('Something is wrong. Please reload the page.'))
+    }
+
     const newAcc = web3.eth.accounts.wallet.save(pass)
     console.log(`Wallet with public key: ${store.state.wallet.address} saved.`)
 

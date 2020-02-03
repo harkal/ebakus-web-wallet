@@ -28,13 +28,13 @@
       </div>
 
       <input
-        v-if="isContractCall"
+        v-if="isWhitelistingAllowed"
         id="whitelist"
         v-model="whitelistSimilar"
         type="checkbox"
         class="checkbox"
       />
-      <label v-if="isContractCall" for="whitelist"
+      <label v-if="isWhitelistingAllowed" for="whitelist"
         >Whitelist similar transactions</label
       >
 
@@ -84,8 +84,10 @@ export default {
       isDialog: state => state.ui.dialog.active,
       dialog: state => state.ui.dialog,
       tx: state => state.tx.object,
+      isUsingHardwareWallet: state => state.network.isUsingHardwareWallet,
     }),
-    isContractCall: () => isContractCall(),
+    isWhitelistingAllowed: () =>
+      !this.isUsingHardwareWallet && isContractCall(),
   },
   mounted: async function() {
     if (!checkIfEnoughBalance()) {
@@ -116,7 +118,7 @@ export default {
         whitelistNewDappFunc()
       }
 
-      calcWorkAndSendTx(this.$store.state.tx.object)
+      calcWorkAndSendTx(this.tx)
 
       console.log('Transaction Confirmed by user')
 

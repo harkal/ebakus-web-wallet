@@ -66,15 +66,29 @@
         </div>
       </div>
 
-      <button class="full" @click="importKey">Import another Account</button>
-      <button class="full" @click="deleteWallet">Delete your Account</button>
-      <button class="full" @click="exportPrivateKey">Export Private Key</button>
+      <button class="full" @click="exportPrivateKey">
+        Export Private Key
+      </button>
+
+      <button class="full ledger" @click="connectWithLedger">
+        Connect with Ledger
+      </button>
+
+      <div class="danger-zone">
+        <h2>Danger Zone</h2>
+        <button class="full cta" @click="importKey">
+          Import another Account
+        </button>
+        <button class="full cta" @click="deleteWallet">
+          Delete your Account
+        </button>
+      </div>
 
       <div class="staking">
         <h2>EBK Staking</h2>
-        <router-link :to="{ name: RouteNames.STAKE }" class="full" tag="button"
-          >Stake EBK</router-link
-        >
+        <router-link :to="{ name: RouteNames.STAKE }" class="full" tag="button">
+          Stake EBK
+        </router-link>
         <h3>Staking EBK enhances quality of service and enables voting.</h3>
       </div>
 
@@ -243,6 +257,12 @@ export default {
     exportPrivateKey: function() {
       this.activePane = Panes.BACKUP
     },
+    connectWithLedger: function() {
+      this.$store.commit(MutationTypes.SHOW_DIALOG, {
+        component: DialogComponents.LEDGER,
+        title: 'Connect with Ledger',
+      })
+    },
     setWhitelistDelay({ target: { valueAsNumber } }) {
       const delay = valueAsNumber * 1000 // in ms
       setWhitelistDappTimer(delay)
@@ -344,6 +364,7 @@ hr {
   border-top: 1px solid #d8d8d8;
 }
 
+.danger-zone,
 .staking,
 .work-adjustment-wrapper {
   margin-top: 30px;

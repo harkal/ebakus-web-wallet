@@ -53,7 +53,7 @@ export default {
     },
     exit: function() {
       this.$store.commit(MutationTypes.CLEAR_TX)
-      this.$store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.CANCEL)
+      this.$store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.NONE)
 
       exitDialog()
     },

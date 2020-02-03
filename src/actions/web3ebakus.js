@@ -3,10 +3,14 @@ import ebakus from 'web3-ebakus'
 
 import { getProvider } from './providers'
 
-let web3
+let web3 = null
 
 const init = provider => {
-  web3 = ebakus(new Web3(getProvider(provider)))
+  if (web3 === null) {
+    web3 = ebakus(new Web3(getProvider(provider)))
+  } else {
+    web3.setProvider(getProvider(provider))
+  }
   return web3
 }
 

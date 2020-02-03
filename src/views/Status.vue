@@ -25,6 +25,8 @@
             SpinnerState.CALC_POW,
             SpinnerState.TRANSACTION_SENDING,
             SpinnerState.TRANSACTION_SENT_SUCCESS,
+            SpinnerState.TRANSACTION_SENT_CANCELLED,
+            SpinnerState.LEDGER_CONFIRM,
             SpinnerState.NODE_CONNECT,
             SpinnerState.NODE_CONNECTED,
             SpinnerState.NODE_DISCONNECTED,
@@ -52,6 +54,20 @@
         Sent
 
         <img src="@/assets/img/ic_sent.svg" width="13" height="7" />
+      </span>
+
+      <span
+        v-else-if="spinnerState === SpinnerState.TRANSACTION_SENT_CANCELLED"
+        key="cancel"
+      >
+        Cancelled
+      </span>
+
+      <span
+        v-else-if="spinnerState === SpinnerState.LEDGER_CONFIRM"
+        key="confirm-ledger"
+      >
+        Confirm on Ledger
       </span>
 
       <img
@@ -129,9 +145,12 @@
       v-if="
         isDrawerActive &&
           [
+            SpinnerState.TRANSACTION_SENT_CANCELLED,
             SpinnerState.CALC_POW,
             SpinnerState.TRANSACTION_SENDING,
             SpinnerState.TRANSACTION_SENT_SUCCESS,
+            SpinnerState.LEDGER_FETCH_ACCOUNTS,
+            SpinnerState.LEDGER_CONFIRM,
           ].includes(spinnerState)
       "
       key="openedState"
@@ -156,6 +175,28 @@
         Sent
 
         <img src="@/assets/img/ic_sent.svg" width="13" height="7" />
+      </span>
+
+      <span
+        v-else-if="spinnerState === SpinnerState.TRANSACTION_SENT_CANCELLED"
+        key="cancel"
+      >
+        Cancelled by user
+      </span>
+
+      <span
+        v-if="spinnerState === SpinnerState.LEDGER_FETCH_ACCOUNTS"
+        key="fetching-accounts"
+        class="animate-fade-in-out-slow"
+      >
+        Fetching accounts
+      </span>
+
+      <span
+        v-else-if="spinnerState === SpinnerState.LEDGER_CONFIRM"
+        key="confirm-ledger"
+      >
+        Confirm on Ledger
       </span>
     </div>
 
@@ -262,6 +303,10 @@ export default {
           this.$route.name
         )
       ) {
+        if ([DialogComponents.LEDGER].includes(this.dialog.component)) {
+          return ButtonStates.EXIT
+        }
+
         return ButtonStates.UNLOCK
       } else if (this.$route.name == RouteNames.WHITELIST_DAPP) {
         return ButtonStates.NONE
@@ -323,13 +368,22 @@ export default {
     },
     exit: function() {
       if (this.$route.name == RouteNames.NEW) {
-        this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
+        if (
+          this.isDialog &&
+          [DialogComponents.LEDGER].includes(this.dialog.component)
+        ) {
+          this.$store.commit(MutationTypes.CLEAR_DIALOG)
+        } else {
+          this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
+        }
       } else if (this.$route.name == RouteNames.IMPORT) {
         const redirectFrom = this.$route.query.redirectFrom || RouteNames.HOME
         this.$router.push({ name: redirectFrom }, () => {})
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
       } else if (this.$route.name == RouteNames.SETTINGS) {
-        this.$router.push({ name: RouteNames.HOME }, () => {})
+        if (![DialogComponents.LEDGER].includes(this.dialog.component)) {
+          this.$router.push({ name: RouteNames.HOME }, () => {})
+        }
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
       } else if (this.$route.name == RouteNames.STAKE) {
         this.$router.go(-1)

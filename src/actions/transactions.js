@@ -28,9 +28,12 @@ const addPendingTx = async tx => {
   const txObject = {
     chainId: web3.utils.toHex(store.state.network.chainId),
     ...tx,
-    to: web3.utils.toChecksumAddress(tx.to),
     from,
     nonce,
+  }
+
+  if (tx.to) {
+    txObject.to = web3.utils.toChecksumAddress(tx.to)
   }
 
   if (!txObject.gas) {
@@ -83,6 +86,11 @@ const calcWork = async tx => {
       difficulty
     )
 
+    // hack for hardware wallets that don't know how to parse workNonce
+    if (store.state.network.isUsingHardwareWallet) {
+      txWithPow.gasPrice = txWithPow.workNonce
+    }
+
     store.dispatch(MutationTypes.SET_TX_OBJECT, txWithPow)
 
     return txWithPow
@@ -97,7 +105,7 @@ const calcWork = async tx => {
       })
     }
   } finally {
-    store.dispatch(MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK, null)
+    store.dispatch(MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK, false)
   }
 }
 
@@ -118,10 +126,26 @@ const calcWorkAndSendTx = async (tx, handleErrorUI = true) => {
       tx = await calcWork(tx)
     }
 
-    store.dispatch(
-      MutationTypes.SET_SPINNER_STATE,
-      SpinnerState.TRANSACTION_SENDING
-    )
+    // hack for hardware wallets that don't know how to parse workNonce
+    if (
+      store.state.network.isUsingHardwareWallet &&
+      tx.workNonce &&
+      !tx.gasPrice
+    ) {
+      tx.gasPrice = tx.workNonce
+    }
+
+    if (store.state.network.isUsingHardwareWallet) {
+      store.dispatch(
+        MutationTypes.SET_SPINNER_STATE,
+        SpinnerState.LEDGER_CONFIRM
+      )
+    } else {
+      store.dispatch(
+        MutationTypes.SET_SPINNER_STATE,
+        SpinnerState.TRANSACTION_SENDING
+      )
+    }
 
     const receipt = await web3.eth.sendTransaction(tx)
 
@@ -144,7 +168,18 @@ const calcWorkAndSendTx = async (tx, handleErrorUI = true) => {
 
     store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
 
-    if (handleErrorUI) {
+    const hasCancelledOnLedger =
+      err.name === 'TransportStatusError' &&
+      (err.statusCode == 27013 ||
+        err.statusText === 'CONDITIONS_OF_USE_NOT_SATISFIED')
+
+    if (hasCancelledOnLedger) {
+      cancelPendingTx()
+      if (!handleErrorUI) {
+        return Promise.reject(err)
+      }
+      return
+    } else if (handleErrorUI) {
       activateDrawerIfClosed()
 
       store.commit(MutationTypes.SHOW_DIALOG, {
@@ -178,7 +213,10 @@ const getTokenSymbolPrefix = (chainId = store.state.network.chainId) => {
 const cancelPendingTx = () => {
   console.log('Transaction Cancelled by user')
 
-  store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.CANCEL)
+  store.commit(
+    MutationTypes.SET_SPINNER_STATE,
+    SpinnerState.TRANSACTION_SENT_CANCELLED
+  )
 
   if (loadedInIframe()) {
     replyToParentWindow(null, {
