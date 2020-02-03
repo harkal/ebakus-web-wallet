@@ -102,6 +102,9 @@ const setProvider = async type => {
     )
   }
 
+  // reset the old one before changing, if still connected
+  if (_providerEngine !== null) _providerEngine.stop()
+
   const getTransport = getTransportWrapper(type)
 
   const engine = new ProviderEngine()
@@ -131,8 +134,6 @@ const setProvider = async type => {
     }
   }
 
-  // reset the old one before changing, if still connected
-  if (_providerEngine !== null) _providerEngine.stop()
   _providerEngine = engine
 
   engine.start()

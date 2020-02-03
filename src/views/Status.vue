@@ -22,10 +22,11 @@
       v-if="
         !isDrawerActive &&
           [
-            SpinnerState.TRANSACTION_SENT_CANCELLED,
             SpinnerState.CALC_POW,
             SpinnerState.TRANSACTION_SENDING,
             SpinnerState.TRANSACTION_SENT_SUCCESS,
+            SpinnerState.TRANSACTION_SENT_CANCELLED,
+            SpinnerState.LEDGER_CONFIRM,
             SpinnerState.NODE_CONNECT,
             SpinnerState.NODE_CONNECTED,
             SpinnerState.NODE_DISCONNECTED,
@@ -60,6 +61,13 @@
         key="cancel"
       >
         Cancelled
+      </span>
+
+      <span
+        v-else-if="spinnerState === SpinnerState.LEDGER_CONFIRM"
+        key="confirm-ledger"
+      >
+        Confirm on Ledger
       </span>
 
       <img

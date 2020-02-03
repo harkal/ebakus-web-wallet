@@ -111,6 +111,7 @@ export default {
     connectLedger: async function() {
       if (!this.supportedConnectionTypes.includes(this.connectionType)) {
         this.error = 'Please select a valid connection type.'
+        this.$store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.NONE)
         return
       }
 
@@ -149,7 +150,7 @@ export default {
     },
     setAccount: async function() {
       if (!this.selectedAccount || this.selectedAccount === '') {
-        this.error = `The account selected "${this.selectedAccount}" is not available, please check your ledger`
+        this.error = `The account selected "${this.selectedAccount}" is not available, please check your ledger.`
         return
       }
 
