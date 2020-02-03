@@ -1,5 +1,3 @@
-import Web3 from 'web3'
-
 import {
   localStorageGetFromParent,
   getTargetOrigin,
@@ -45,16 +43,6 @@ export default {
       }
 
       localStorage.setItem(StorageNames.WEB3_WALLET, web3data)
-
-      let parsedWeb3data = JSON.parse(web3data)
-      const tempWeb3 = new Web3()
-      const address = tempWeb3.utils.toChecksumAddress(
-        parsedWeb3data[0].address
-      )
-      newState = {
-        ...newState,
-        wallet: { address: address },
-      }
     }
 
     if (Object.keys(newState).length > 0) {

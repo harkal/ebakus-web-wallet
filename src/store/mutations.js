@@ -1,4 +1,3 @@
-import Web3 from 'web3'
 import merge from 'lodash/merge'
 
 import { version } from '../../package.json'
@@ -39,21 +38,6 @@ export default {
           ...newState.history,
           local: [...newState.history.local, ...logs],
         },
-      }
-    }
-
-    if (localStorage.getItem(StorageNames.WEB3_WALLET)) {
-      const web3data = JSON.parse(
-        localStorage.getItem(StorageNames.WEB3_WALLET)
-      )
-      if (web3data && web3data.length > 0) {
-        const address = Web3.utils.toChecksumAddress(web3data[0].address)
-        newState = {
-          ...newState,
-          wallet: { ...newState.wallet, address: address },
-        }
-      } else {
-        localStorage.removeItem(StorageNames.WEB3_WALLET)
       }
     }
 

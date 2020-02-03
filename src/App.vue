@@ -314,7 +314,7 @@ export default {
       if (this.publicAddress !== null && !this.isLocked) {
         console.log('Wallet is loaded')
         // console.log('Wallet Locked')
-      } else if (this.publicAddress !== null && this.isLocked) {
+      } else if (hasWallet() && this.isLocked) {
         this.$router.push({ name: RouteNames.UNLOCK }, () => {})
       } else if (this.$route.name !== RouteNames.NEW) {
         this.$router.push({ name: RouteNames.NEW }, () => {})
