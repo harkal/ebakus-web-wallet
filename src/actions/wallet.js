@@ -266,10 +266,11 @@ const unlockWallet = pass => {
       typeof wallet[0] !== 'undefined' &&
       typeof wallet[0].address !== 'undefined'
     ) {
-      const address = wallet[0].address
-      console.log('wallet unlocked', wallet[0].address)
-      web3.eth.defaultAccount = web3.utils.toChecksumAddress(address)
+      const address = web3.utils.toChecksumAddress(wallet[0].address)
+      console.log('wallet unlocked', address)
+      web3.eth.defaultAccount = address
 
+      store.dispatch(MutationTypes.SET_WALLET_ADDRESS, address)
       store.dispatch(MutationTypes.UNLOCK_WALLET)
       resolve(address)
     } else {
