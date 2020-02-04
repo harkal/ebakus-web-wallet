@@ -287,13 +287,14 @@ export default {
       spinnerState: state => state.ui.currentSpinnerState,
       isDialog: state => state.ui.dialog.active,
       dialog: state => state.ui.dialog,
-      isLocked: state => state.wallet.locked,
       publicAddress: state => state.wallet.address,
       balance: state => state.wallet.balance,
       tokenSymbol: state => state.wallet.tokenSymbol,
       staked: state => state.wallet.staked,
     }),
-
+    isLocked: function() {
+      return this.$store.getters.wallet.locked
+    },
     SpinnerState: () => SpinnerState,
     ButtonStates: () => ButtonStates,
 

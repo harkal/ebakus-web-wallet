@@ -148,11 +148,13 @@ export default {
   },
   watch: {
     publicAddress: function(val, oldVal) {
-      if (val !== oldVal && val) {
+      if (val !== oldVal && val != null) {
         const isAddress = web3.utils.isAddress(val)
         if (isAddress) {
           if (!this.isLocked) {
             this.startBalanceUpdater()
+          } else {
+            this.$store.commit(MutationTypes.SET_WALLET_ADDRESS, null)
           }
 
           if (loadedInIframe()) {

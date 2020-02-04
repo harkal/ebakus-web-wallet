@@ -117,7 +117,6 @@ export default {
     Panes: () => Panes,
     ...mapState({
       isDrawerActive: state => state.ui.isDrawerActive,
-      isLocked: state => state.wallet.locked,
       publicAddress: state => state.wallet.address,
       dialogComponent: state => state.ui.dialog.component,
     }),

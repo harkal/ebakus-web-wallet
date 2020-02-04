@@ -92,7 +92,10 @@ export default {
     state.wallet.locked = false
   },
   [MutationTypes.SET_WALLET_ADDRESS](state, address) {
-    state.wallet.address = web3.utils.toChecksumAddress(address)
+    state.wallet.address =
+      address !== null && web3.utils.isAddress(address)
+        ? web3.utils.toChecksumAddress(address)
+        : null
   },
   [MutationTypes.SET_WALLET_BALANCE](state, balance) {
     state.wallet.balance = balance

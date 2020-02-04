@@ -160,7 +160,9 @@ export default {
           this.selectedAccount
         )
 
-        const accountIndex = this.accounts.findIndex(this.selectedAccount)
+        const accountIndex = this.accounts.findIndex(
+          acct => acct === this.selectedAccount
+        )
         if (accountIndex >= 0) {
           this.$store.commit(
             MutationTypes.SET_HARDWARE_WALLET_TYPE_ACCOUNT_INDEX,
@@ -168,7 +170,6 @@ export default {
           )
         }
 
-        // Add to log
         this.$store.commit(MutationTypes.ADD_LOCAL_LOG, {
           title: 'Account loaded',
           address: this.selectedAccount,
