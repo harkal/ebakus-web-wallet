@@ -15,9 +15,11 @@ import {
 } from './parentFrameMessenger'
 
 const unlockWallet = () => {
+  const { locked } = store.getters.wallet
   const routeName = router.app.$route.name
 
   if (
+    locked &&
     [RouteNames.NEW, RouteNames.UNLOCK, RouteNames.SAFARI_WARNING].includes(
       routeName
     )
