@@ -22,6 +22,7 @@ import { getTokenInfoForSymbol, getBalanceOfAddressForToken } from './tokens'
 import { loadTxsInfoFromExplorer } from './transactions'
 import { web3 } from './web3ebakus'
 import { getStaked } from './systemContract'
+import { setLedgerSupportedTypes } from './providers/ledger'
 
 const BACKOFF_SETTINGS = {
   jitter: 'full',
@@ -244,6 +245,8 @@ const deleteWallet = () => {
 
   store.commit(MutationTypes.DELETE_WALLET)
   store.commit(MutationTypes.RESET_LOGS)
+
+  setLedgerSupportedTypes()
 }
 
 const unlockWallet = pass => {

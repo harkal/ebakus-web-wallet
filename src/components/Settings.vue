@@ -86,7 +86,7 @@
         <button class="full cta" @click="importKey">
           Import another Account
         </button>
-        <button class="full cta" @click="deleteWallet">
+        <button v-if="hasWallet()" class="full cta" @click="deleteWallet">
           Delete your Account
         </button>
       </div>
@@ -166,7 +166,7 @@ import {
   HardwareWalletTypes,
 } from '@/constants'
 
-import { hasWallet } from '@/actions/wallet'
+import { hasWallet as hasWalletFunc } from '@/actions/wallet'
 import {
   isDappWhitelisted,
   showWhitelistNewDappView,
@@ -288,6 +288,7 @@ export default {
         title: 'Connect with Ledger',
       })
     },
+    hasWallet: hasWalletFunc,
     disconnectLedger: function() {
       web3.eth.accounts.wallet.clear()
 
@@ -297,7 +298,7 @@ export default {
 
       this.$store.dispatch(MutationTypes.CLEAR_DIALOG)
 
-      const routeName = !hasWallet() ? RouteNames.NEW : RouteNames.UNLOCK
+      const routeName = !this.hasWallet() ? RouteNames.NEW : RouteNames.UNLOCK
 
       this.$router.push({ name: routeName }, () => {})
 
