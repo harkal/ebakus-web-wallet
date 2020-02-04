@@ -8,8 +8,6 @@ import store from '@/store'
 
 import {
   loadedInIframe,
-  getParentWindowCurrentJob,
-  replyToParentWindow,
   localStorageSetToParent,
   localStorageRemoveFromParent,
   frameEventBalanceUpdated,
@@ -125,21 +123,11 @@ const generateWallet = () => {
 
     store.dispatch(MutationTypes.SET_WALLET_ADDRESS, newAcc.address)
 
-    if (loadedInIframe()) {
-      const currentJob = getParentWindowCurrentJob()
-      const { data: { cmd } = {} } = currentJob || {}
-      if (cmd === 'defaultAddress') {
-        replyToParentWindow(newAcc.address, null, currentJob)
-      }
-    }
-
-    // Add to log
-    const newAccLog = {
+    store.dispatch(MutationTypes.ADD_LOCAL_LOG, {
       title: 'Account created',
       address: newAcc.address,
       local: true,
-    }
-    store.dispatch(MutationTypes.ADD_LOCAL_LOG, newAccLog)
+    })
 
     if (newAcc) {
       resolve(mnemonic)

@@ -58,8 +58,6 @@ import { SpinnerState, DialogComponents } from '@/constants'
 
 import {
   loadedInIframe,
-  getParentWindowCurrentJob,
-  replyToParentWindow,
   shrinkFrameInParentWindow,
   expandFrameInParentWindow,
   resizeFrameWidthInParentWindow,
@@ -281,14 +279,6 @@ export default {
           }
 
           self.loadWalletState()
-
-          if (self.publicAddress !== null && loadedInIframe()) {
-            const currentJob = getParentWindowCurrentJob()
-            const { data: { cmd } = {} } = currentJob || {}
-            if (cmd === 'defaultAddress') {
-              replyToParentWindow(self.publicAddress, null, currentJob)
-            }
-          }
 
           setLedgerSupportedTypes()
         }
