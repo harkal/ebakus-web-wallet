@@ -153,8 +153,6 @@ export default {
         if (isAddress) {
           if (!this.isLocked) {
             this.startBalanceUpdater()
-          } else {
-            this.$store.commit(MutationTypes.SET_WALLET_ADDRESS, null)
           }
 
           if (loadedInIframe()) {

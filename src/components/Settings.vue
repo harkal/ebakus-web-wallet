@@ -70,7 +70,14 @@
         Export Private Key
       </button>
 
-      <button class="full ledger" @click="connectWithLedger">
+      <button
+        v-if="isSignedInWithLedger"
+        class="full cta ledger"
+        @click="disconnectLedger"
+      >
+        Sign out Ledger account
+      </button>
+      <button v-else class="full ledger" @click="connectWithLedger">
         Connect with Ledger
       </button>
 
@@ -152,8 +159,14 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 
-import { DialogComponents, SpinnerState, Networks } from '@/constants'
+import {
+  DialogComponents,
+  SpinnerState,
+  Networks,
+  HardwareWalletTypes,
+} from '@/constants'
 
+import { hasWallet } from '@/actions/wallet'
 import {
   isDappWhitelisted,
   showWhitelistNewDappView,
@@ -162,6 +175,7 @@ import {
   removeDappFromWhitelist,
 } from '@/actions/whitelist'
 import { setProvider, getCurrentProviderEndpoint } from '@/actions/providers'
+import { setLedgerSupportedTypes } from '@/actions/providers/ledger'
 
 import { web3 } from '@/actions/web3ebakus'
 
@@ -202,6 +216,17 @@ export default {
       isSpinnerActive: state => state.ui.isSpinnerActive,
       spinnerState: state => state.ui.currentSpinnerState,
     }),
+
+    isSignedInWithLedger: function() {
+      const {
+        isUsingHardwareWallet,
+        locked,
+        hardwareWallet: { type },
+      } = this.$store.getters.wallet
+      return (
+        isUsingHardwareWallet && !locked && type === HardwareWalletTypes.LEDGER
+      )
+    },
 
     maxWhitelistDelay: () => MAX_WHITELIST_DELAY,
     SpinnerState: () => SpinnerState,
@@ -262,6 +287,21 @@ export default {
         component: DialogComponents.LEDGER,
         title: 'Connect with Ledger',
       })
+    },
+    disconnectLedger: function() {
+      web3.eth.accounts.wallet.clear()
+
+      // this will clear the HDwallet logs from localStorage too
+      this.$store.commit(MutationTypes.RESET_LOGS)
+      this.$store.commit(MutationTypes.SIGN_OUT_WALLET)
+
+      this.$store.dispatch(MutationTypes.CLEAR_DIALOG)
+
+      const routeName = !hasWallet() ? RouteNames.NEW : RouteNames.UNLOCK
+
+      this.$router.push({ name: routeName }, () => {})
+
+      setLedgerSupportedTypes()
     },
     setWhitelistDelay({ target: { valueAsNumber } }) {
       const delay = valueAsNumber * 1000 // in ms

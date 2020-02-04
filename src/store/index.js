@@ -61,6 +61,9 @@ store.subscribe(({ type }, state) => {
       MutationTypes.SET_AMOUNT_OF_WORK,
       MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK,
       MutationTypes.GRANT_SAFARI_ACCESS,
+      MutationTypes.SIGN_OUT_WALLET,
+      MutationTypes.DELETE_WALLET,
+      MutationTypes.CLEAR_STATE_FOR_HD_WALLET,
     ].includes(type)
   ) {
     return
@@ -68,7 +71,7 @@ store.subscribe(({ type }, state) => {
 
   // drop properties we don't want to be stored in our stores
   /* eslint-disable no-unused-vars */
-  const { status, hardwareWallets, ...newNetwork } = state.network
+  const { status, ...newNetwork } = state.network
   const { balance, staked, ...newWallet } = state.wallet
   /* eslint-enable no-unused-vars */
 

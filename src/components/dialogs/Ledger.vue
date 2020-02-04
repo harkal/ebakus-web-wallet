@@ -165,7 +165,7 @@ export default {
         )
         if (accountIndex >= 0) {
           this.$store.commit(
-            MutationTypes.SET_HARDWARE_WALLET_TYPE_ACCOUNT_INDEX,
+            MutationTypes.SET_HARDWARE_WALLET_ACCOUNT_INDEX,
             accountIndex
           )
         }

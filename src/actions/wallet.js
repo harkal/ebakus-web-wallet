@@ -145,7 +145,7 @@ const secureWallet = pass => {
       web3.eth.accounts.wallet[0].address !== store.state.wallet.address
     ) {
       // we have probably changed the web3 instance, and the account has been generated in the old instance
-      reject(new Error('Something is wrong. Please reload the page.'))
+      return reject(new Error('Something is wrong. Please reload the page.'))
     }
 
     const newAcc = web3.eth.accounts.wallet.save(pass)

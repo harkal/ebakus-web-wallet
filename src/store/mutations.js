@@ -118,19 +118,38 @@ export default {
 
     state.network.hardwareWallets.ledger.connectionType = connectionType
   },
-  [MutationTypes.SET_HARDWARE_WALLET_TYPE_ACCOUNT_INDEX](state, index) {
+  [MutationTypes.SET_HARDWARE_WALLET_ACCOUNT_INDEX](state, index) {
     state.wallet.hardwareWallet = {
       ...state.wallet.hardwareWallet,
       accountIndex: index,
     }
   },
 
+  [MutationTypes.SIGN_OUT_WALLET](state) {
+    const initState = initialState()
+
+    const cleanDataKeys = ['wallet', 'history', 'network']
+
+    Object.keys(state).forEach(key => {
+      if (!cleanDataKeys.includes(key)) {
+        return
+      }
+
+      if (typeof initState[key] === 'object' && initState[key] !== null) {
+        // Object.assign({}, initState[key])
+        state[key] = { ...initState[key] }
+      } else {
+        state[key] = initState[key]
+      }
+    })
+  },
+
   [MutationTypes.DELETE_WALLET](state) {
     const initState = initialState()
     Object.keys(state).forEach(key => {
       if (typeof initState[key] === 'object' && initState[key] !== null) {
-        Object.assign(state[key], initState[key])
         // state[key] = { ...initState[key] }
+        state[key] = { ...initState[key] }
       } else {
         state[key] = initState[key]
       }
@@ -149,7 +168,7 @@ export default {
       }
 
       if (typeof initState[key] === 'object' && initState[key] !== null) {
-        Object.assign(state[key], initState[key])
+        state[key] = { ...initState[key] }
       } else {
         state[key] = initState[key]
       }
