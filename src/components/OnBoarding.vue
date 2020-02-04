@@ -132,21 +132,7 @@ export default {
     },
   },
   async mounted() {
-    const self = this
-
     this.$store.commit(MutationTypes.SHOW_DIALOG)
-
-    if (this.publicAddress === null && this.isLocked) {
-      try {
-        const mnemonic = await generateWallet()
-        console.log('New Wallet Created', this.publicAddress)
-        if (mnemonic) {
-          self.mnemonic = mnemonic.split(' ')
-        }
-      } catch (err) {
-        console.log('Failed to create new wallet', err)
-      }
-    }
   },
   beforeDestroy() {
     if (this.dialogComponent === '') {
@@ -159,6 +145,16 @@ export default {
     },
 
     secureWallet: async function() {
+      try {
+        const mnemonic = await generateWallet()
+        console.log('New Wallet Created', this.publicAddress)
+        if (mnemonic) {
+          this.mnemonic = mnemonic.split(' ')
+        }
+      } catch (err) {
+        console.log('Failed to create new wallet', err)
+      }
+
       this.$store.dispatch(
         MutationTypes.SET_SPINNER_STATE,
         SpinnerState.WALLET_ENCRYPT
