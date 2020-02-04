@@ -32,10 +32,19 @@ const currentProviderEndpoint = payload => {
 }
 
 const defaultAddress = payload => {
-  const localAddr = store.state.wallet.address
+  const { locked, address } = store.getters.wallet
 
-  if (localAddr) {
-    replyToParentWindow(localAddr, null, payload)
+  if (!locked && address) {
+    replyToParentWindow(address, null, payload)
+  } else {
+    replyToParentWindow(
+      null,
+      {
+        code: 'wallet_locked',
+        msg: 'Wallet is either locked or no account has been linked to it',
+      },
+      payload
+    )
   }
 }
 
