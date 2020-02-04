@@ -19,9 +19,16 @@ import { DialogComponents } from '../constants'
 import { isVotingCall } from './systemContract'
 
 const addPendingTx = async tx => {
+  const walletPublicAddress = store.state.wallet.address
   const from = web3.utils.toChecksumAddress(
     tx.from || store.state.wallet.address
   )
+
+  if (from !== walletPublicAddress) {
+    throw new Error(
+      `Transaction sender "${tx.from}" is not the same with the wallet account "${walletPublicAddress}"`
+    )
+  }
 
   const nonce = await web3.eth.getTransactionCount(from)
 
@@ -116,8 +123,15 @@ const calcWorkAndSendTx = async (tx, handleErrorUI = true) => {
 
   const originalPendingTxJobId = store.state.tx.jobId
   const originalPendingTx = store.state.tx.object
+  const walletPublicAddress = store.state.wallet.address
 
   store.dispatch(MutationTypes.CLEAR_TX)
+
+  if (tx.from !== walletPublicAddress) {
+    throw new Error(
+      `Transaction sender "${tx.from}" is not the same with the wallet account "${walletPublicAddress}"`
+    )
+  }
 
   try {
     if (!tx.workNonce) {
