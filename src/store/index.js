@@ -45,6 +45,8 @@ store.subscribe(({ type }, state) => {
     return
   } else if (
     ![
+      MutationTypes.SET_WALLET_ADDRESS,
+      MutationTypes.SET_ACTIVE_TOKEN,
       MutationTypes.SET_NETWORK,
       MutationTypes.SET_NETWORK_CHAIN_ID,
       MutationTypes.SET_DAPP_WHITELIST,
@@ -59,19 +61,20 @@ store.subscribe(({ type }, state) => {
     return
   }
 
+  // drop properties we don't want to be stored in our stores
+  /* eslint-disable no-unused-vars */
+  const { status, hardwareWallets, ...newNetwork } = state.network
+  const { balance, staked, ...newWallet } = state.wallet
+  /* eslint-enable no-unused-vars */
+
   let store = {
     version: state.version,
-    network: { ...state.network },
+    network: newNetwork,
     whitelist: { ...state.whitelist },
+    wallet: newWallet,
     amountOfWork: state.amountOfWork,
     isSafariAllowed: state.isSafariAllowed,
   }
-
-  if (typeof store.network.status !== 'undefined') {
-    delete store.network.status
-  }
-  delete store.network.isUsingHardwareWallet
-  delete store.network.ledger
 
   if (isSafari && state.isSafariAllowed && loadedInIframe()) {
     localStorageSetToParent(StorageNames.WALLET_STORE, JSON.stringify(store))

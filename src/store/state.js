@@ -23,10 +23,11 @@ const initialState = {
     chainId: process.env.DEFAULT_NETWORK_ID,
     nodeAddress: '',
     status: NetworkStatus.DISCONNECTED,
-    isUsingHardwareWallet: false,
-    ledger: {
-      supportedConnectionTypes: [],
-      transport: null,
+
+    hardwareWallets: {
+      ledger: {
+        supportedConnectionTypes: [],
+      },
     },
   },
 
@@ -55,6 +56,12 @@ const initialState = {
     balance: '0',
     staked: 0,
     tokenSymbol: DefaultToken,
+
+    // isUsingHardwareWallet: false,
+    hardwareWallet: {
+      type: null,
+      accountIndex: null,
+    },
   },
 
   // transaction history, each entry will have a timestamp (sort)

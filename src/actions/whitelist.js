@@ -185,8 +185,10 @@ const cancelWhitelistDapp = () => {
 }
 
 const performWhitelistedAction = async () => {
-  const isUsingHardwareWallet = store.state.network.isUsingHardwareWallet
-  const activePublicAddress = store.state.wallet.address
+  const {
+    address: activePublicAddress,
+    isUsingHardwareWallet,
+  } = store.getters.wallet
   let tx = store.state.tx.object
 
   // hack for handling switching account to Ledger

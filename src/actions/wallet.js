@@ -34,9 +34,11 @@ const BACKOFF_SETTINGS = {
 let isWeb3Reconnecting = false
 
 const getBalance = async () => {
-  const { address, tokenSymbol } = store.state.wallet
-  const preflightIsUsingHardwareWallet =
-    store.state.network.isUsingHardwareWallet
+  const {
+    address,
+    tokenSymbol,
+    isUsingHardwareWallet: preflightIsUsingHardwareWallet,
+  } = store.getters.wallet
 
   if (!address) {
     return Promise.reject(new Error('No wallet has been created'))
@@ -66,7 +68,7 @@ const getBalance = async () => {
     if (parseFloat(wei) != parseFloat(store.state.wallet.balance)) {
       if (
         preflightIsUsingHardwareWallet !==
-        store.state.network.isUsingHardwareWallet
+        store.getters.wallet.isUsingHardwareWallet
       ) {
         return Promise.reject(new Error('User changed to hardware wallet'))
       }
@@ -86,7 +88,7 @@ const getBalance = async () => {
   } catch (err) {
     console.error('Failed to connect to network')
 
-    if (store.state.network.isUsingHardwareWallet) {
+    if (store.getters.wallet.isUsingHardwareWallet) {
       // TODO: handle reconnects
       console.info(
         'Wallet will not try to reconnect when Hardware wallet is being used'

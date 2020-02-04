@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 import {
   checkIfEnoughBalance,
@@ -80,11 +80,13 @@ export default {
     }
   },
   computed: {
+    ...mapGetters({
+      isUsingHardwareWallet: getters => getters.wallet.isUsingHardwareWallet,
+    }),
     ...mapState({
       isDialog: state => state.ui.dialog.active,
       dialog: state => state.ui.dialog,
       tx: state => state.tx.object,
-      isUsingHardwareWallet: state => state.network.isUsingHardwareWallet,
     }),
     isWhitelistingAllowed: () =>
       !this.isUsingHardwareWallet && isContractCall(),

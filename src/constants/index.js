@@ -84,6 +84,10 @@ const StorageNames = {
   WEB3_OLD_WALLET_BACKUP: 'web3js_backup',
 }
 
+const HardwareWalletTypes = {
+  LEDGER: 'ledger',
+}
+
 export {
   DefaultToken,
   DefaultDappWhitelistTimer,
@@ -92,4 +96,5 @@ export {
   NetworkStatus,
   DialogComponents,
   StorageNames,
+  HardwareWalletTypes,
 }

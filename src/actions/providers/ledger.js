@@ -15,6 +15,7 @@ import { web3 } from '../web3ebakus'
 import { getCurrentProviderEndpoint } from '../providers'
 
 import createLedgerSubprovider from './createLedgerSubprovider'
+import { HardwareWalletTypes } from '../../constants'
 
 const ConnectionTypes = {
   // USB: 'USB',
@@ -141,7 +142,10 @@ const setProvider = async type => {
   // clear loaded wallet accounts
   web3.eth.accounts.wallet.clear()
 
-  store.dispatch(MutationTypes.SET_LEDGER_TRANSPORT_GETTER, getTransport)
+  store.dispatch(
+    MutationTypes.SET_HARDWARE_WALLET_TYPE,
+    HardwareWalletTypes.LEDGER
+  )
 
   web3.setProvider(engine)
 }

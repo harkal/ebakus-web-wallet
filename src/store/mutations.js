@@ -99,6 +99,19 @@ export default {
     state.wallet.tokenSymbol = tokenSymbol
   },
 
+  [MutationTypes.SET_HARDWARE_WALLET_TYPE_INTERNAL_MUTATE](state, type) {
+    state.wallet.hardwareWallet = {
+      ...state.wallet.hardwareWallet,
+      type,
+    }
+  },
+  [MutationTypes.SET_HARDWARE_WALLET_TYPE_ACCOUNT_INDEX](state, index) {
+    state.wallet.hardwareWallet = {
+      ...state.wallet.hardwareWallet,
+      accountIndex: index,
+    }
+  },
+
   [MutationTypes.DELETE_WALLET](state) {
     const initState = initialState()
     Object.keys(state).forEach(key => {
@@ -181,15 +194,8 @@ export default {
   [MutationTypes.SET_NETWORK_STATUS](state, status) {
     state.network.status = status
   },
-  [MutationTypes.SET_LEDGER_TRANSPORT_GETTER_INTERNAL_MUTATE](
-    state,
-    getTransport
-  ) {
-    state.network.isUsingHardwareWallet = typeof getTransport === 'function'
-    state.network.ledger = { ...state.network.ledger, getTransport }
-  },
   [MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES](state, types) {
-    state.network.ledger.supportedConnectionTypes = types
+    state.network.hardwareWallets.ledger.supportedConnectionTypes = types
   },
 
   [MutationTypes.SET_OVERLAY_COLOR](state, color) {

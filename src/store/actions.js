@@ -105,15 +105,9 @@ export default {
     context.commit(MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK, work)
   },
 
-  [MutationTypes.SET_LEDGER_TRANSPORT_GETTER](context, getTransport) {
-    if (typeof getTransport === 'function') {
-      context.commit(MutationTypes.CLEAR_STATE_FOR_HD_WALLET)
-    }
-
-    context.commit(
-      MutationTypes.SET_LEDGER_TRANSPORT_GETTER_INTERNAL_MUTATE,
-      getTransport
-    )
+  [MutationTypes.SET_HARDWARE_WALLET_TYPE](context, type) {
+    context.commit(MutationTypes.CLEAR_STATE_FOR_HD_WALLET)
+    context.commit(MutationTypes.SET_HARDWARE_WALLET_TYPE_INTERNAL_MUTATE, type)
   },
   [MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES](context, types) {
     context.commit(MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES, types)
