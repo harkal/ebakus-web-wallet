@@ -227,14 +227,12 @@ const importWallet = _seed => {
 
     store.dispatch(MutationTypes.SET_WALLET_ADDRESS, newAcc.address)
 
-    // Add to log
-    const newAcc_log = {
+    store.dispatch(MutationTypes.RESET_LOGS)
+    store.dispatch(MutationTypes.ADD_LOCAL_LOG, {
       title: 'Account Imported',
       address: newAcc.address,
       local: true,
-    }
-    store.dispatch(MutationTypes.RESET_LOGS)
-    store.dispatch(MutationTypes.ADD_LOCAL_LOG, newAcc_log)
+    })
 
     if (newAcc) {
       resolve(newAcc.address)
@@ -251,6 +249,7 @@ const deleteWallet = () => {
   if (loadedInIframe()) {
     localStorageRemoveFromParent(StorageNames.WALLET_STORE)
     localStorageRemoveFromParent(StorageNames.LOGS)
+    localStorageRemoveFromParent(StorageNames.HARDWARE_WALLET_LOGS)
     localStorageRemoveFromParent(StorageNames.WEB3_WALLET)
     localStorageRemoveFromParent(StorageNames.WEB3_OLD_WALLET_BACKUP)
   }

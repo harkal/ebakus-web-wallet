@@ -167,6 +167,13 @@ export default {
             accountIndex
           )
         }
+
+        // Add to log
+        this.$store.commit(MutationTypes.ADD_LOCAL_LOG, {
+          title: 'Account loaded',
+          address: this.selectedAccount,
+          local: true,
+        })
       }
 
       this.$store.dispatch(MutationTypes.CLEAR_DIALOG)

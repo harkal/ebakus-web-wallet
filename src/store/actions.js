@@ -19,7 +19,14 @@ export default {
       newState = { ...store }
     }
 
-    const logs = await localStorageGetFromParent(StorageNames.LOGS)
+    const {
+      wallet: { hardwareWallet: { type: hardwareWalletType = null } = {} } = {},
+    } = newState
+    const localStorageLogsName =
+      hardwareWalletType !== null
+        ? StorageNames.HARDWARE_WALLET_LOGS
+        : StorageNames.LOGS
+    const logs = await localStorageGetFromParent(localStorageLogsName)
     if (logs) {
       let parsedLogs = JSON.parse(logs)
       newState = {

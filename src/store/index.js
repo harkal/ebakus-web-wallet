@@ -30,14 +30,19 @@ const store = new Vuex.Store({
 // subscribe to persist updates at localStorage
 store.subscribe(({ type }, state) => {
   if ([MutationTypes.ADD_LOCAL_LOG].includes(type)) {
+    const localStorageLogsName =
+      state.wallet.hardwareWallet.type !== null
+        ? StorageNames.HARDWARE_WALLET_LOGS
+        : StorageNames.LOGS
+
     if (isSafari && state.isSafariAllowed && loadedInIframe()) {
       localStorageSetToParent(
-        StorageNames.LOGS,
+        localStorageLogsName,
         JSON.stringify(state.history.local)
       )
     } else {
       localStorage.setItem(
-        StorageNames.LOGS,
+        localStorageLogsName,
         JSON.stringify(state.history.local)
       )
     }

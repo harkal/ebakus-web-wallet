@@ -30,8 +30,13 @@ export default {
       }
     }
 
-    if (localStorage.getItem(StorageNames.LOGS)) {
-      const logs = JSON.parse(localStorage.getItem(StorageNames.LOGS))
+    const localStorageLogsName =
+      newState.wallet.hardwareWallet.type !== null
+        ? StorageNames.HARDWARE_WALLET_LOGS
+        : StorageNames.LOGS
+
+    if (localStorage.getItem(localStorageLogsName)) {
+      const logs = JSON.parse(localStorage.getItem(localStorageLogsName))
       newState = {
         ...newState,
         history: {
@@ -160,8 +165,13 @@ export default {
     state.history.local.unshift(data)
   },
   [MutationTypes.RESET_LOGS](state) {
+    const localStorageLogsName =
+      state.wallet.hardwareWallet.type !== null
+        ? StorageNames.HARDWARE_WALLET_LOGS
+        : StorageNames.LOGS
+
     state.history = { ...initialState().history }
-    localStorage.removeItem(StorageNames.LOGS)
+    localStorage.removeItem(localStorageLogsName)
   },
 
   [MutationTypes.SET_TX_OBJECT](state, tx) {

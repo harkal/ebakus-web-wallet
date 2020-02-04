@@ -80,6 +80,7 @@ const DialogComponents = {
 const StorageNames = {
   WALLET_STORE: 'wallet_store',
   LOGS: 'logs',
+  HARDWARE_WALLET_LOGS: 'logs_hardware_wallet',
   WEB3_WALLET: 'web3js_wallet',
   WEB3_OLD_WALLET_BACKUP: 'web3js_backup',
 }
