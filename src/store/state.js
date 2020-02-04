@@ -27,6 +27,7 @@ const initialState = {
     hardwareWallets: {
       ledger: {
         supportedConnectionTypes: [],
+        connectionType: null,
       },
     },
   },
@@ -57,7 +58,6 @@ const initialState = {
     staked: 0,
     tokenSymbol: DefaultToken,
 
-    // isUsingHardwareWallet: false,
     hardwareWallet: {
       type: null,
       accountIndex: null,

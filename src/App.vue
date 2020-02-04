@@ -279,12 +279,12 @@ export default {
 
     const unsubscribeWatcher = this.$store.watch(
       () => self.$store.state.isStateLoaded,
-      loaded => {
+      async loaded => {
         if (loaded) {
           unsubscribeWatcher()
 
           // init web3 ebakus instance
-          initWeb3(self.$store.getters.network)
+          await initWeb3(self.$store.getters.network)
 
           checkNodeConnection()
 

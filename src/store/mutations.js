@@ -107,11 +107,16 @@ export default {
     state.wallet.tokenSymbol = tokenSymbol
   },
 
-  [MutationTypes.SET_HARDWARE_WALLET_TYPE_INTERNAL_MUTATE](state, type) {
+  [MutationTypes.SET_HARDWARE_WALLET_TYPE_INTERNAL_MUTATE](
+    state,
+    { type, connectionType }
+  ) {
     state.wallet.hardwareWallet = {
       ...state.wallet.hardwareWallet,
       type,
     }
+
+    state.network.hardwareWallets.ledger.connectionType = connectionType
   },
   [MutationTypes.SET_HARDWARE_WALLET_TYPE_ACCOUNT_INDEX](state, index) {
     state.wallet.hardwareWallet = {

@@ -112,9 +112,9 @@ export default {
     context.commit(MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK, work)
   },
 
-  [MutationTypes.SET_HARDWARE_WALLET_TYPE](context, type) {
+  [MutationTypes.SET_HARDWARE_WALLET_TYPE](context, opts) {
     context.commit(MutationTypes.CLEAR_STATE_FOR_HD_WALLET)
-    context.commit(MutationTypes.SET_HARDWARE_WALLET_TYPE_INTERNAL_MUTATE, type)
+    context.commit(MutationTypes.SET_HARDWARE_WALLET_TYPE_INTERNAL_MUTATE, opts)
   },
   [MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES](context, types) {
     context.commit(MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES, types)
