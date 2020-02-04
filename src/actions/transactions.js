@@ -26,7 +26,7 @@ const addPendingTx = async tx => {
 
   if (from !== walletPublicAddress) {
     throw new Error(
-      `Transaction sender "${tx.from}" is not the same with the wallet account "${walletPublicAddress}"`
+      `Transaction sender "${from}" is not the same with the wallet account "${walletPublicAddress}"`
     )
   }
 
@@ -127,7 +127,10 @@ const calcWorkAndSendTx = async (tx, handleErrorUI = true) => {
 
   store.dispatch(MutationTypes.CLEAR_TX)
 
-  if (tx.from !== walletPublicAddress) {
+  if (
+    typeof tx.from !== 'string' ||
+    tx.from.toLowerCase() !== walletPublicAddress.toLowerCase()
+  ) {
     throw new Error(
       `Transaction sender "${tx.from}" is not the same with the wallet account "${walletPublicAddress}"`
     )
