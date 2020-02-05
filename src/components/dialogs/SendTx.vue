@@ -85,11 +85,8 @@ export default {
       dialog: state => state.ui.dialog,
       tx: state => state.tx.object,
     }),
-    isUsingHardwareWallet: function() {
-      return this.$store.getters.wallet.isUsingHardwareWallet
-    },
     isWhitelistingAllowed: function() {
-      return !this.isUsingHardwareWallet && isContractCall()
+      return isContractCall()
     },
   },
   mounted: async function() {

@@ -181,11 +181,10 @@ const cancelWhitelistDapp = () => {
 }
 
 const performWhitelistedAction = async () => {
-  const { isUsingHardwareWallet } = store.getters.wallet
   let tx = store.state.tx.object
 
   if (checkIfEnoughBalance()) {
-    if (isContractCall() && !isUsingHardwareWallet) {
+    if (isContractCall()) {
       if (isVotingCall() && !hasStakeForVotingCall()) {
         router.push({
           name: RouteNames.VOTING_STAKE,
