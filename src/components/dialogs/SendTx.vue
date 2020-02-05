@@ -86,7 +86,7 @@ export default {
       tx: state => state.tx.object,
     }),
     isUsingHardwareWallet: function() {
-      return !this.$store.getters.wallet.isUsingHardwareWallet
+      return this.$store.getters.wallet.isUsingHardwareWallet
     },
     isWhitelistingAllowed: function() {
       return !this.isUsingHardwareWallet && isContractCall()

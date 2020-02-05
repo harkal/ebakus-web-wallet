@@ -222,7 +222,9 @@ const calcWorkAndSendTx = async (tx, handleErrorUI = true) => {
 }
 
 const getTokenSymbolPrefix = (chainId = store.state.network.chainId) => {
-  return web3.utils.hexToNumber(chainId) != 7 ? 't' : ''
+  return web3.utils.hexToNumber(chainId) != process.env.MAINNET_CHAIN_ID
+    ? 't'
+    : ''
 }
 
 const cancelPendingTx = () => {

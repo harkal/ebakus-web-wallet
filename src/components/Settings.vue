@@ -288,7 +288,7 @@ export default {
         title: 'Connect with Ledger',
       })
     },
-    hasWallet: hasWalletFunc,
+    hasWallet: () => hasWalletFunc(),
     disconnectLedger: function() {
       web3.eth.accounts.wallet.clear()
 

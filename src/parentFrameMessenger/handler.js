@@ -111,7 +111,9 @@ const externalFrameHandler = payload => {
 
   if (cmd === 'currentProviderEndpoint') {
     currentProviderEndpoint(payload)
-  } else if (cmd === 'defaultAddress') {
+
+    /* defaultAddress has been deprecated at wallet-loader@0.1.5 */
+  } else if (['defaultAddress', 'getAccount'].includes(cmd)) {
     defaultAddress(payload)
   } else if (cmd === 'getBalance') {
     getBalance(payload)

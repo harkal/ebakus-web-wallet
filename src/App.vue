@@ -161,8 +161,8 @@ export default {
         }
       }
     },
-    isLocked: function(val, oldVal) {
-      if (val !== oldVal && val) {
+    isLocked: function(isLocked, oldVal) {
+      if (isLocked !== oldVal && !isLocked) {
         this.startBalanceUpdater()
       }
     },
