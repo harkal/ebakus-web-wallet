@@ -8,8 +8,6 @@ import store from '@/store'
 
 import {
   loadedInIframe,
-  getParentWindowCurrentJob,
-  replyToParentWindow,
   localStorageSetToParent,
   localStorageRemoveFromParent,
   frameEventBalanceUpdated,
@@ -24,6 +22,7 @@ import { getTokenInfoForSymbol, getBalanceOfAddressForToken } from './tokens'
 import { loadTxsInfoFromExplorer } from './transactions'
 import { web3 } from './web3ebakus'
 import { getStaked } from './systemContract'
+import { setLedgerSupportedTypes } from './providers/ledger'
 
 const BACKOFF_SETTINGS = {
   jitter: 'full',
@@ -34,9 +33,11 @@ const BACKOFF_SETTINGS = {
 let isWeb3Reconnecting = false
 
 const getBalance = async () => {
-  const { address, tokenSymbol } = store.state.wallet
-  const preflightIsUsingHardwareWallet =
-    store.state.network.isUsingHardwareWallet
+  const {
+    address,
+    tokenSymbol,
+    isUsingHardwareWallet: preflightIsUsingHardwareWallet,
+  } = store.getters.wallet
 
   if (!address) {
     return Promise.reject(new Error('No wallet has been created'))
@@ -66,7 +67,7 @@ const getBalance = async () => {
     if (parseFloat(wei) != parseFloat(store.state.wallet.balance)) {
       if (
         preflightIsUsingHardwareWallet !==
-        store.state.network.isUsingHardwareWallet
+        store.getters.wallet.isUsingHardwareWallet
       ) {
         return Promise.reject(new Error('User changed to hardware wallet'))
       }
@@ -86,7 +87,7 @@ const getBalance = async () => {
   } catch (err) {
     console.error('Failed to connect to network')
 
-    if (store.state.network.isUsingHardwareWallet) {
+    if (store.getters.wallet.isUsingHardwareWallet) {
       // TODO: handle reconnects
       console.info(
         'Wallet will not try to reconnect when Hardware wallet is being used'
@@ -123,21 +124,11 @@ const generateWallet = () => {
 
     store.dispatch(MutationTypes.SET_WALLET_ADDRESS, newAcc.address)
 
-    if (loadedInIframe()) {
-      const currentJob = getParentWindowCurrentJob()
-      const { data: { cmd } = {} } = currentJob || {}
-      if (cmd === 'defaultAddress') {
-        replyToParentWindow(newAcc.address, null, currentJob)
-      }
-    }
-
-    // Add to log
-    const newAccLog = {
+    store.dispatch(MutationTypes.ADD_LOCAL_LOG, {
       title: 'Account created',
       address: newAcc.address,
       local: true,
-    }
-    store.dispatch(MutationTypes.ADD_LOCAL_LOG, newAccLog)
+    })
 
     if (newAcc) {
       resolve(mnemonic)
@@ -155,7 +146,7 @@ const secureWallet = pass => {
       web3.eth.accounts.wallet[0].address !== store.state.wallet.address
     ) {
       // we have probably changed the web3 instance, and the account has been generated in the old instance
-      reject(new Error('Something is wrong. Please reload the page.'))
+      return reject(new Error('Something is wrong. Please reload the page.'))
     }
 
     const newAcc = web3.eth.accounts.wallet.save(pass)
@@ -225,14 +216,12 @@ const importWallet = _seed => {
 
     store.dispatch(MutationTypes.SET_WALLET_ADDRESS, newAcc.address)
 
-    // Add to log
-    const newAcc_log = {
+    store.dispatch(MutationTypes.RESET_LOGS)
+    store.dispatch(MutationTypes.ADD_LOCAL_LOG, {
       title: 'Account Imported',
       address: newAcc.address,
       local: true,
-    }
-    store.dispatch(MutationTypes.RESET_LOGS)
-    store.dispatch(MutationTypes.ADD_LOCAL_LOG, newAcc_log)
+    })
 
     if (newAcc) {
       resolve(newAcc.address)
@@ -249,12 +238,15 @@ const deleteWallet = () => {
   if (loadedInIframe()) {
     localStorageRemoveFromParent(StorageNames.WALLET_STORE)
     localStorageRemoveFromParent(StorageNames.LOGS)
+    localStorageRemoveFromParent(StorageNames.HARDWARE_WALLET_LOGS)
     localStorageRemoveFromParent(StorageNames.WEB3_WALLET)
     localStorageRemoveFromParent(StorageNames.WEB3_OLD_WALLET_BACKUP)
   }
 
   store.commit(MutationTypes.DELETE_WALLET)
   store.commit(MutationTypes.RESET_LOGS)
+
+  setLedgerSupportedTypes()
 }
 
 const unlockWallet = pass => {
@@ -266,10 +258,11 @@ const unlockWallet = pass => {
       typeof wallet[0] !== 'undefined' &&
       typeof wallet[0].address !== 'undefined'
     ) {
-      const address = wallet[0].address
-      console.log('wallet unlocked', wallet[0].address)
-      web3.eth.defaultAccount = web3.utils.toChecksumAddress(address)
+      const address = web3.utils.toChecksumAddress(wallet[0].address)
+      console.log('wallet unlocked', address)
+      web3.eth.defaultAccount = address
 
+      store.dispatch(MutationTypes.SET_WALLET_ADDRESS, address)
       store.dispatch(MutationTypes.UNLOCK_WALLET)
       resolve(address)
     } else {

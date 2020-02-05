@@ -139,7 +139,7 @@ router.beforeEach((to, from, next) => {
       RouteNames.UNLOCK,
       RouteNames.SAFARI_WARNING,
     ].includes(to.name) &&
-    store.state.wallet.locked
+    store.getters.wallet.locked
   ) {
     next({ name: RouteNames.UNLOCK, query: { redirectFrom: to.name } })
   } else {

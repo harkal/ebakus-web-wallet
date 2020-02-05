@@ -1,4 +1,3 @@
-import Web3 from 'web3'
 import merge from 'lodash/merge'
 
 import { version } from '../../package.json'
@@ -31,29 +30,19 @@ export default {
       }
     }
 
-    if (localStorage.getItem(StorageNames.LOGS)) {
-      const logs = JSON.parse(localStorage.getItem(StorageNames.LOGS))
+    const localStorageLogsName =
+      newState.wallet.hardwareWallet.type !== null
+        ? StorageNames.HARDWARE_WALLET_LOGS
+        : StorageNames.LOGS
+
+    if (localStorage.getItem(localStorageLogsName)) {
+      const logs = JSON.parse(localStorage.getItem(localStorageLogsName))
       newState = {
         ...newState,
         history: {
           ...newState.history,
           local: [...newState.history.local, ...logs],
         },
-      }
-    }
-
-    if (localStorage.getItem(StorageNames.WEB3_WALLET)) {
-      const web3data = JSON.parse(
-        localStorage.getItem(StorageNames.WEB3_WALLET)
-      )
-      if (web3data && web3data.length > 0) {
-        const address = Web3.utils.toChecksumAddress(web3data[0].address)
-        newState = {
-          ...newState,
-          wallet: { ...newState.wallet, address: address },
-        }
-      } else {
-        localStorage.removeItem(StorageNames.WEB3_WALLET)
       }
     }
 
@@ -103,7 +92,10 @@ export default {
     state.wallet.locked = false
   },
   [MutationTypes.SET_WALLET_ADDRESS](state, address) {
-    state.wallet.address = web3.utils.toChecksumAddress(address)
+    state.wallet.address =
+      address !== null && web3.utils.isAddress(address)
+        ? web3.utils.toChecksumAddress(address)
+        : null
   },
   [MutationTypes.SET_WALLET_BALANCE](state, balance) {
     state.wallet.balance = balance
@@ -115,12 +107,49 @@ export default {
     state.wallet.tokenSymbol = tokenSymbol
   },
 
+  [MutationTypes.SET_HARDWARE_WALLET_TYPE_INTERNAL_MUTATE](
+    state,
+    { type, connectionType }
+  ) {
+    state.wallet.hardwareWallet = {
+      ...state.wallet.hardwareWallet,
+      type,
+    }
+
+    state.network.hardwareWallets.ledger.connectionType = connectionType
+  },
+  [MutationTypes.SET_HARDWARE_WALLET_ACCOUNT_INDEX](state, index) {
+    state.wallet.hardwareWallet = {
+      ...state.wallet.hardwareWallet,
+      accountIndex: index,
+    }
+  },
+
+  [MutationTypes.SIGN_OUT_WALLET](state) {
+    const initState = initialState()
+
+    const cleanDataKeys = ['wallet', 'history', 'network']
+
+    Object.keys(state).forEach(key => {
+      if (!cleanDataKeys.includes(key)) {
+        return
+      }
+
+      if (typeof initState[key] === 'object' && initState[key] !== null) {
+        // Object.assign({}, initState[key])
+        state[key] = { ...initState[key] }
+      } else {
+        state[key] = initState[key]
+      }
+    })
+  },
+
   [MutationTypes.DELETE_WALLET](state) {
     const initState = initialState()
     Object.keys(state).forEach(key => {
       if (typeof initState[key] === 'object' && initState[key] !== null) {
-        Object.assign(state[key], initState[key])
         // state[key] = { ...initState[key] }
+        state[key] = { ...initState[key] }
       } else {
         state[key] = initState[key]
       }
@@ -139,7 +168,7 @@ export default {
       }
 
       if (typeof initState[key] === 'object' && initState[key] !== null) {
-        Object.assign(state[key], initState[key])
+        state[key] = { ...initState[key] }
       } else {
         state[key] = initState[key]
       }
@@ -163,8 +192,13 @@ export default {
     state.history.local.unshift(data)
   },
   [MutationTypes.RESET_LOGS](state) {
+    const localStorageLogsName =
+      state.wallet.hardwareWallet.type !== null
+        ? StorageNames.HARDWARE_WALLET_LOGS
+        : StorageNames.LOGS
+
     state.history = { ...initialState().history }
-    localStorage.removeItem(StorageNames.LOGS)
+    localStorage.removeItem(localStorageLogsName)
   },
 
   [MutationTypes.SET_TX_OBJECT](state, tx) {
@@ -197,15 +231,8 @@ export default {
   [MutationTypes.SET_NETWORK_STATUS](state, status) {
     state.network.status = status
   },
-  [MutationTypes.SET_LEDGER_TRANSPORT_GETTER_INTERNAL_MUTATE](
-    state,
-    getTransport
-  ) {
-    state.network.isUsingHardwareWallet = typeof getTransport === 'function'
-    state.network.ledger = { ...state.network.ledger, getTransport }
-  },
   [MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES](state, types) {
-    state.network.ledger.supportedConnectionTypes = types
+    state.network.hardwareWallets.ledger.supportedConnectionTypes = types
   },
 
   [MutationTypes.SET_OVERLAY_COLOR](state, color) {

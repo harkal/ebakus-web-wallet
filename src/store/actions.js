@@ -1,5 +1,3 @@
-import Web3 from 'web3'
-
 import {
   localStorageGetFromParent,
   getTargetOrigin,
@@ -21,7 +19,14 @@ export default {
       newState = { ...store }
     }
 
-    const logs = await localStorageGetFromParent(StorageNames.LOGS)
+    const {
+      wallet: { hardwareWallet: { type: hardwareWalletType = null } = {} } = {},
+    } = newState
+    const localStorageLogsName =
+      hardwareWalletType !== null
+        ? StorageNames.HARDWARE_WALLET_LOGS
+        : StorageNames.LOGS
+    const logs = await localStorageGetFromParent(localStorageLogsName)
     if (logs) {
       let parsedLogs = JSON.parse(logs)
       newState = {
@@ -45,16 +50,6 @@ export default {
       }
 
       localStorage.setItem(StorageNames.WEB3_WALLET, web3data)
-
-      let parsedWeb3data = JSON.parse(web3data)
-      const tempWeb3 = new Web3()
-      const address = tempWeb3.utils.toChecksumAddress(
-        parsedWeb3data[0].address
-      )
-      newState = {
-        ...newState,
-        wallet: { address: address },
-      }
     }
 
     if (Object.keys(newState).length > 0) {
@@ -117,15 +112,9 @@ export default {
     context.commit(MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK, work)
   },
 
-  [MutationTypes.SET_LEDGER_TRANSPORT_GETTER](context, getTransport) {
-    if (typeof getTransport === 'function') {
-      context.commit(MutationTypes.CLEAR_STATE_FOR_HD_WALLET)
-    }
-
-    context.commit(
-      MutationTypes.SET_LEDGER_TRANSPORT_GETTER_INTERNAL_MUTATE,
-      getTransport
-    )
+  [MutationTypes.SET_HARDWARE_WALLET_TYPE](context, opts) {
+    context.commit(MutationTypes.CLEAR_STATE_FOR_HD_WALLET)
+    context.commit(MutationTypes.SET_HARDWARE_WALLET_TYPE_INTERNAL_MUTATE, opts)
   },
   [MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES](context, types) {
     context.commit(MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES, types)

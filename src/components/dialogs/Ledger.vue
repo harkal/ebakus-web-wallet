@@ -90,7 +90,7 @@ export default {
       isDrawerActiveByUser: state => state.ui.isDrawerActiveByUser,
       tx: state => state.tx.object,
       supportedConnectionTypes: state =>
-        state.network.ledger.supportedConnectionTypes,
+        state.network.hardwareWallets.ledger.supportedConnectionTypes,
     }),
     LedgerConnectionTypes: () => LedgerConnectionTypes,
   },
@@ -159,7 +159,22 @@ export default {
           MutationTypes.SET_WALLET_ADDRESS,
           this.selectedAccount
         )
-        this.$store.dispatch(MutationTypes.UNLOCK_WALLET)
+
+        const accountIndex = this.accounts.findIndex(
+          acct => acct === this.selectedAccount
+        )
+        if (accountIndex >= 0) {
+          this.$store.commit(
+            MutationTypes.SET_HARDWARE_WALLET_ACCOUNT_INDEX,
+            accountIndex
+          )
+        }
+
+        this.$store.commit(MutationTypes.ADD_LOCAL_LOG, {
+          title: 'Account loaded',
+          address: this.selectedAccount,
+          local: true,
+        })
       }
 
       this.$store.dispatch(MutationTypes.CLEAR_DIALOG)

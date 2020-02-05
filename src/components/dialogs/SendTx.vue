@@ -84,10 +84,10 @@ export default {
       isDialog: state => state.ui.dialog.active,
       dialog: state => state.ui.dialog,
       tx: state => state.tx.object,
-      isUsingHardwareWallet: state => state.network.isUsingHardwareWallet,
     }),
-    isWhitelistingAllowed: () =>
-      !this.isUsingHardwareWallet && isContractCall(),
+    isWhitelistingAllowed: function() {
+      return isContractCall()
+    },
   },
   mounted: async function() {
     if (!checkIfEnoughBalance()) {

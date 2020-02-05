@@ -15,11 +15,7 @@ import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
 import router, { RouteNames } from '@/router'
 
-import {
-  addPendingTx,
-  calcWorkAndSendTx,
-  checkIfEnoughBalance,
-} from './transactions'
+import { calcWorkAndSendTx, checkIfEnoughBalance } from './transactions'
 import { web3 } from './web3ebakus'
 import {
   SystemContractAddress,
@@ -185,21 +181,10 @@ const cancelWhitelistDapp = () => {
 }
 
 const performWhitelistedAction = async () => {
-  const isUsingHardwareWallet = store.state.network.isUsingHardwareWallet
-  const activePublicAddress = store.state.wallet.address
   let tx = store.state.tx.object
 
-  // hack for handling switching account to Ledger
-  if (isUsingHardwareWallet && tx.from !== activePublicAddress) {
-    const newTx = { ...tx }
-    newTx.from = activePublicAddress
-    delete newTx.nonce
-    delete newTx.workNonce
-    tx = await addPendingTx(newTx)
-  }
-
   if (checkIfEnoughBalance()) {
-    if (isContractCall() && !isUsingHardwareWallet) {
+    if (isContractCall()) {
       if (isVotingCall() && !hasStakeForVotingCall()) {
         router.push({
           name: RouteNames.VOTING_STAKE,

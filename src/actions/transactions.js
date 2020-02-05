@@ -19,9 +19,16 @@ import { DialogComponents } from '../constants'
 import { isVotingCall } from './systemContract'
 
 const addPendingTx = async tx => {
+  const walletPublicAddress = store.state.wallet.address
   const from = web3.utils.toChecksumAddress(
     tx.from || store.state.wallet.address
   )
+
+  if (from !== walletPublicAddress) {
+    throw new Error(
+      `Transaction sender "${from}" is not the same with the wallet account "${walletPublicAddress}"`
+    )
+  }
 
   const nonce = await web3.eth.getTransactionCount(from)
 
@@ -87,7 +94,7 @@ const calcWork = async tx => {
     )
 
     // hack for hardware wallets that don't know how to parse workNonce
-    if (store.state.network.isUsingHardwareWallet) {
+    if (store.getters.wallet.isUsingHardwareWallet) {
       txWithPow.gasPrice = txWithPow.workNonce
     }
 
@@ -116,8 +123,18 @@ const calcWorkAndSendTx = async (tx, handleErrorUI = true) => {
 
   const originalPendingTxJobId = store.state.tx.jobId
   const originalPendingTx = store.state.tx.object
+  const walletPublicAddress = store.state.wallet.address
 
   store.dispatch(MutationTypes.CLEAR_TX)
+
+  if (
+    typeof tx.from !== 'string' ||
+    tx.from.toLowerCase() !== walletPublicAddress.toLowerCase()
+  ) {
+    throw new Error(
+      `Transaction sender "${tx.from}" is not the same with the wallet account "${walletPublicAddress}"`
+    )
+  }
 
   try {
     if (!tx.workNonce) {
@@ -126,16 +143,14 @@ const calcWorkAndSendTx = async (tx, handleErrorUI = true) => {
       tx = await calcWork(tx)
     }
 
+    const isUsingHardwareWallet = store.getters.wallet.isUsingHardwareWallet
+
     // hack for hardware wallets that don't know how to parse workNonce
-    if (
-      store.state.network.isUsingHardwareWallet &&
-      tx.workNonce &&
-      !tx.gasPrice
-    ) {
+    if (isUsingHardwareWallet && tx.workNonce && !tx.gasPrice) {
       tx.gasPrice = tx.workNonce
     }
 
-    if (store.state.network.isUsingHardwareWallet) {
+    if (isUsingHardwareWallet) {
       store.dispatch(
         MutationTypes.SET_SPINNER_STATE,
         SpinnerState.LEDGER_CONFIRM
@@ -203,11 +218,15 @@ const calcWorkAndSendTx = async (tx, handleErrorUI = true) => {
     if (!handleErrorUI) {
       return Promise.reject(err)
     }
+  } finally {
+    store.dispatch(MutationTypes.CLEAR_TX)
   }
 }
 
 const getTokenSymbolPrefix = (chainId = store.state.network.chainId) => {
-  return web3.utils.hexToNumber(chainId) != 7 ? 't' : ''
+  return web3.utils.hexToNumber(chainId) != process.env.MAINNET_CHAIN_ID
+    ? 't'
+    : ''
 }
 
 const cancelPendingTx = () => {
@@ -313,13 +332,14 @@ const checkIfEnoughBalance = tx => {
     tx = store.state.tx.object
   }
 
-  const balance = parseFloat(web3.utils.fromWei(store.state.wallet.balance))
+  let { balance, staked } = store.state.wallet
+  balance = parseFloat(web3.utils.fromWei(balance))
   const value = tx.value ? web3.utils.fromWei(tx.value) : '0'
 
   if (
     parseFloat(value) < 0 ||
     parseFloat(value) > balance ||
-    (isVotingCall() && balance <= 0)
+    (isVotingCall() && balance <= 0 && staked <= 0)
   ) {
     if (loadedInIframe()) {
       activateDrawerIfClosed()

@@ -15,6 +15,7 @@ import { web3 } from '../web3ebakus'
 import { getCurrentProviderEndpoint } from '../providers'
 
 import createLedgerSubprovider from './createLedgerSubprovider'
+import { HardwareWalletTypes } from '../../constants'
 
 const ConnectionTypes = {
   // USB: 'USB',
@@ -95,7 +96,7 @@ const getTransportWrapper = type => {
   }
 }
 
-const setProvider = async type => {
+const getProvider = async type => {
   if (!Object.keys(ConnectionTypes).includes(type)) {
     return Promise.reject(
       new Error('This is not a valid transport connection type for Ledger')
@@ -138,10 +139,19 @@ const setProvider = async type => {
 
   engine.start()
 
+  return engine
+}
+
+const setProvider = async type => {
+  const engine = await getProvider(type)
+
   // clear loaded wallet accounts
   web3.eth.accounts.wallet.clear()
 
-  store.dispatch(MutationTypes.SET_LEDGER_TRANSPORT_GETTER, getTransport)
+  store.dispatch(MutationTypes.SET_HARDWARE_WALLET_TYPE, {
+    type: HardwareWalletTypes.LEDGER,
+    connectionType: type,
+  })
 
   web3.setProvider(engine)
 }
@@ -151,5 +161,6 @@ export {
   isTypeSupported as isLedgerTypeSupported,
   setSupportedTypes as setLedgerSupportedTypes,
   getTransportWrapper as getLedgerTransport,
+  getProvider as getLedgerProvider,
   setProvider as setLedgerProvider,
 }

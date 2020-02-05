@@ -66,6 +66,7 @@
       <span
         v-else-if="spinnerState === SpinnerState.LEDGER_CONFIRM"
         key="confirm-ledger"
+        class="confirm-on-ledger"
       >
         Confirm on Ledger
       </span>
@@ -154,7 +155,7 @@
           ].includes(spinnerState)
       "
       key="openedState"
-      class="openedState"
+      class="opened-state"
     >
       <span
         v-if="
@@ -287,13 +288,14 @@ export default {
       spinnerState: state => state.ui.currentSpinnerState,
       isDialog: state => state.ui.dialog.active,
       dialog: state => state.ui.dialog,
-      isLocked: state => state.wallet.locked,
       publicAddress: state => state.wallet.address,
       balance: state => state.wallet.balance,
       tokenSymbol: state => state.wallet.tokenSymbol,
       staked: state => state.wallet.staked,
     }),
-
+    isLocked: function() {
+      return this.$store.getters.wallet.locked
+    },
     SpinnerState: () => SpinnerState,
     ButtonStates: () => ButtonStates,
 
@@ -528,7 +530,7 @@ export default {
   text-align: right;
 }
 
-.openedState {
+.opened-state {
   position: absolute;
   bottom: $status-bar-padding;
   right: 50%;
@@ -582,6 +584,10 @@ export default {
   &.exit {
     right: 0px;
   }
+}
+
+.confirm-on-ledger {
+  white-space: nowrap;
 }
 
 .testnet {

@@ -1,24 +1,28 @@
 import orderBy from 'lodash/orderBy'
 
-import { Networks } from '@/constants'
+import { HardwareWalletTypes } from '@/constants'
 
 export default {
   network(state) {
-    const networkId =
-      typeof state.network.networkId !== 'undefined'
-        ? state.network.networkId
-        : process.env.DEFAULT_NETWORK_ID
+    return {
+      ...state.network,
+      isTestnet: state.network.chainId == process.env.TESTNET_CHAIN_ID,
+    }
+  },
 
-    const networkOpts = Networks[networkId]
-    const isTestnet =
-      (networkOpts && networkOpts.testnet) ||
-      state.network.chainId == process.env.TESTNET_CHAIN_ID
+  wallet(state) {
+    const hardwareWalletType = state.wallet.hardwareWallet.type
+
+    const isValidHardwareWalletType =
+      hardwareWalletType !== null &&
+      Object.values(HardwareWalletTypes).includes(hardwareWalletType)
+    const isValidHardwareWallet =
+      isValidHardwareWalletType && state.wallet.address !== null
 
     return {
-      networkId,
-      isTestnet,
-      nodeAddress: state.network.nodeAddress,
-      status: state.network.status,
+      ...state.wallet,
+      locked: isValidHardwareWallet ? false : state.wallet.locked,
+      isUsingHardwareWallet: isValidHardwareWalletType,
     }
   },
 

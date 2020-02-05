@@ -58,8 +58,6 @@ import { SpinnerState, DialogComponents } from '@/constants'
 
 import {
   loadedInIframe,
-  getParentWindowCurrentJob,
-  replyToParentWindow,
   shrinkFrameInParentWindow,
   expandFrameInParentWindow,
   resizeFrameWidthInParentWindow,
@@ -107,6 +105,7 @@ export default {
       successTimeout: null,
       cancelTimeout: null,
       closeWalletAfterAnimation: false,
+      fetchBalanceInterval: null,
     }
   },
   computed: {
@@ -114,7 +113,6 @@ export default {
       isDrawerActive: state => state.ui.isDrawerActive,
       isSpinnerActive: state => state.ui.isSpinnerActive,
       spinnerState: state => state.ui.currentSpinnerState,
-      isLocked: state => state.wallet.locked && hasWallet(),
       publicAddress: state => state.wallet.address,
       balance: state => state.wallet.balance,
       overlayColor: state => state.ui.overlayColor,
@@ -124,6 +122,15 @@ export default {
       isTxFromParentFrame: state => !!state.tx.jobId,
       isTxWhitelistAnimationReady: state => state.tx.whitelistAnimationReady,
     }),
+    isLocked: function() {
+      return this.$store.getters.wallet.locked
+    },
+    isUsingHardwareWallet: function() {
+      return this.$store.getters.wallet.isUsingHardwareWallet
+    },
+    isRegistration: function() {
+      return !this.isUsingHardwareWallet && !hasWallet()
+    },
     SpinnerState: () => SpinnerState,
     styles: () => styleAnimationVariables,
     showWhitelistingTimer: function() {
@@ -141,19 +148,28 @@ export default {
   },
   watch: {
     publicAddress: function(val, oldVal) {
-      if (
-        val &&
-        val !== oldVal &&
-        loadedInIframe() &&
-        web3.utils.isAddress(val)
-      ) {
-        frameEventAccountAddressChanged(val)
+      if (val !== oldVal && val != null) {
+        const isAddress = web3.utils.isAddress(val)
+        if (isAddress) {
+          if (!this.isLocked) {
+            this.startBalanceUpdater()
+          }
+
+          if (loadedInIframe()) {
+            frameEventAccountAddressChanged(val)
+          }
+        }
+      }
+    },
+    isLocked: function(isLocked, oldVal) {
+      if (isLocked !== oldVal && !isLocked) {
+        this.startBalanceUpdater()
       }
     },
     isDrawerActive: function(val, oldVal) {
       if (val !== oldVal) {
         if (val) {
-          if (this.isDrawerActive && this.$route.name != RouteNames.NEW) {
+          if (this.$route.name != RouteNames.NEW) {
             this.loadWalletState()
           }
         }
@@ -261,34 +277,16 @@ export default {
 
     const unsubscribeWatcher = this.$store.watch(
       () => self.$store.state.isStateLoaded,
-      loaded => {
+      async loaded => {
         if (loaded) {
           unsubscribeWatcher()
 
           // init web3 ebakus instance
-          initWeb3(self.$store.getters.network)
+          await initWeb3(self.$store.getters.network)
 
-          checkNodeConnection(true)
-
-          setInterval(() => {
-            getBalance().catch(() => {}) // just for catching exceptions
-          }, 1000)
-
-          // keep it here, as the call in getBalance, won't be called
-          // if everything is staked and balance is 0
-          if (self.publicAddress !== null) {
-            getStaked()
-          }
+          checkNodeConnection()
 
           self.loadWalletState()
-
-          if (self.publicAddress !== null && loadedInIframe()) {
-            const currentJob = getParentWindowCurrentJob()
-            const { data: { cmd } = {} } = currentJob || {}
-            if (cmd === 'defaultAddress') {
-              replyToParentWindow(self.publicAddress, null, currentJob)
-            }
-          }
 
           setLedgerSupportedTypes()
         }
@@ -310,14 +308,31 @@ export default {
         animationQueue.add(() => nextAnimationFrame(self.hideWalletAnimation))
       }
     },
+    startBalanceUpdater: function() {
+      if (this.fetchBalanceInterval === null) {
+        this.fetchBalanceInterval = setInterval(() => {
+          getBalance().catch(() => {}) // just for catching exceptions
+        }, 1000)
+
+        // keep it here, as the call in getBalance, won't be called
+        // if everything is staked and balance is 0
+        getStaked()
+      }
+    },
     loadWalletState: function() {
       if (this.publicAddress !== null && !this.isLocked) {
         console.log('Wallet is loaded')
-        // console.log('Wallet Locked')
-      } else if (this.publicAddress !== null && this.isLocked) {
-        this.$router.push({ name: RouteNames.UNLOCK }, () => {})
-      } else if (this.$route.name !== RouteNames.NEW) {
-        this.$router.push({ name: RouteNames.NEW }, () => {})
+        if (this.isInitialRender) {
+          this.$router.push({ name: RouteNames.HOME }, () => {})
+        }
+      } else if (this.isLocked) {
+        const routeName = this.isRegistration
+          ? RouteNames.NEW
+          : RouteNames.UNLOCK
+
+        if (this.$route.name !== routeName) {
+          this.$router.push({ name: routeName }, () => {})
+        }
       }
     },
     getViewportInnerHeight: function() {
