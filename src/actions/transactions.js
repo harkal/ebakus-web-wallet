@@ -218,6 +218,8 @@ const calcWorkAndSendTx = async (tx, handleErrorUI = true) => {
     if (!handleErrorUI) {
       return Promise.reject(err)
     }
+  } finally {
+    store.dispatch(MutationTypes.CLEAR_TX)
   }
 }
 
