@@ -148,16 +148,14 @@ export default {
   },
   watch: {
     publicAddress: function(val, oldVal) {
-      if (val !== oldVal && val != null) {
+      if (val !== oldVal) {
         const isAddress = web3.utils.isAddress(val)
-        if (isAddress) {
-          if (!this.isLocked) {
-            this.startBalanceUpdater()
-          }
+        if (isAddress && !this.isLocked) {
+          this.startBalanceUpdater()
+        }
 
-          if (loadedInIframe()) {
-            frameEventAccountAddressChanged(val)
-          }
+        if (loadedInIframe()) {
+          frameEventAccountAddressChanged(val)
         }
       }
     },

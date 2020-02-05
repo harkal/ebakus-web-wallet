@@ -72,7 +72,7 @@ store.subscribe(({ type }, state) => {
   // drop properties we don't want to be stored in our stores
   /* eslint-disable no-unused-vars */
   const { status, ...newNetwork } = state.network
-  const { balance, staked, ...newWallet } = state.wallet
+  const { locked, balance, staked, ...newWallet } = state.wallet
   /* eslint-enable no-unused-vars */
 
   let store = {
@@ -82,6 +82,11 @@ store.subscribe(({ type }, state) => {
     wallet: newWallet,
     amountOfWork: state.amountOfWork,
     isSafariAllowed: state.isSafariAllowed,
+  }
+
+  //  don't store address for non hardware wallets
+  if (!newWallet.hardwareWallet || newWallet.hardwareWallet.type === null) {
+    delete store.wallet.address
   }
 
   if (isSafari && state.isSafariAllowed && loadedInIframe()) {
