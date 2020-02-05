@@ -332,13 +332,14 @@ const checkIfEnoughBalance = tx => {
     tx = store.state.tx.object
   }
 
-  const balance = parseFloat(web3.utils.fromWei(store.state.wallet.balance))
+  let { balance, staked } = store.state.wallet
+  balance = parseFloat(web3.utils.fromWei(balance))
   const value = tx.value ? web3.utils.fromWei(tx.value) : '0'
 
   if (
     parseFloat(value) < 0 ||
     parseFloat(value) > balance ||
-    (isVotingCall() && balance <= 0)
+    (isVotingCall() && balance <= 0 && staked <= 0)
   ) {
     if (loadedInIframe()) {
       activateDrawerIfClosed()
