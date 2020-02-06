@@ -57,14 +57,13 @@
           Please first enter your existing wallet password so as we verify it is
           yours.
         </h3>
-        <input
+        <Password
           v-if="hasWallet"
-          ref="passField"
-          v-model="pass"
-          type="password"
-          name="password"
+          ref="pass"
           placeholder="enter old wallet password"
-          @keyup.enter="confirmImport"
+          :value="pass"
+          @input="pass = $event"
+          @onEnter="confirmImport"
         />
         <span v-if="error" class="text-error">{{ error }}</span>
 
@@ -79,13 +78,12 @@
           Your password for the new imported wallet will be used to encrypt your
           keys for this wallet. We only store your keys localy.
         </h3>
-        <input
-          ref="passField"
-          v-model="pass"
-          type="password"
-          name="password"
+        <Password
+          ref="pass"
           placeholder="set wallet password"
-          @keyup.enter="secureWallet"
+          :value="pass"
+          @input="pass = $event"
+          @onEnter="secureWallet"
         />
         <span v-if="error" class="text-error">{{ error }}</span>
         <button class="full" @click="secureWallet">Finish</button>
@@ -108,6 +106,8 @@ import MutationTypes from '@/store/mutation-types'
 
 import { RouteNames } from '@/router'
 
+import Password from '@/components/elements/Password'
+
 const ComponentStates = {
   REQUEST_KEY: 'REQUEST_KEY',
   CONFIRM: 'CONFIRM',
@@ -115,6 +115,7 @@ const ComponentStates = {
 }
 
 export default {
+  components: { Password },
   data() {
     return {
       componentState: ComponentStates.REQUEST_KEY,
@@ -169,8 +170,8 @@ export default {
           console.error('Old account wrong pass', err)
 
           this.error = 'Wrong Password, please try again.'
-          if (this.$refs.passField) {
-            this.$refs.passField.focus()
+          if (this.$refs.pass) {
+            this.$refs.pass.$refs.pass.focus()
           }
 
           this.$store.dispatch(

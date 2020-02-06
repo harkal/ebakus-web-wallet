@@ -42,13 +42,12 @@
             only store your keys localy.
           </h3>
           <label for="password"> Password </label>
-          <input
-            ref="passField"
-            v-model="pass"
-            type="password"
-            name="password"
-            placeholder
-            @keyup.enter="secureWallet"
+          <Password
+            v-if="isDrawerActive"
+            ref="pass"
+            :value="pass"
+            @input="pass = $event"
+            @onEnter="secureWallet"
           />
           <span v-if="error" class="text-error">{{ error }}</span>
           <button class="full" @click="secureWallet">Next</button>
@@ -94,6 +93,7 @@ import MutationTypes from '@/store/mutation-types'
 
 import { RouteNames } from '@/router'
 
+import Password from '@/components/elements/Password'
 import Backup from './Backup'
 
 const Panes = {
@@ -104,7 +104,7 @@ const Panes = {
 }
 
 export default {
-  components: { Backup },
+  components: { Backup, Password },
   data: function() {
     return {
       activePane: Panes.CREATE,
@@ -128,6 +128,9 @@ export default {
   watch: {
     isDrawerActive: function() {
       this.activePane = Panes.CREATE
+      this.pass = ''
+      this.mnemonic = null
+      this.error = ''
     },
   },
   async mounted() {

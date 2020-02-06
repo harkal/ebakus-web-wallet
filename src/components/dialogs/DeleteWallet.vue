@@ -10,14 +10,13 @@
         Please first enter your existing wallet password so as we verify it is
         yours.
       </h3>
-      <input
+      <Password
         v-if="!forgotPassword"
         ref="pass"
-        v-model="pass"
-        type="password"
-        name="password"
         placeholder="enter old wallet password"
-        @keyup.enter="deleteWallet"
+        :value="pass"
+        @input="pass = $event"
+        @onEnter="deleteWallet"
       />
       <span class="text-error">{{ error }}</span>
 
@@ -38,7 +37,10 @@ import MutationTypes from '@/store/mutation-types'
 
 import { RouteNames } from '@/router'
 
+import Password from '@/components/elements/Password'
+
 export default {
+  components: { Password },
   data() {
     return {
       pass: '',
@@ -68,7 +70,7 @@ export default {
         } catch (err) {
           this.error = 'Wrong Password, please try again.'
           if (this.$refs.pass) {
-            this.$refs.pass.focus()
+            this.$refs.pass.$refs.pass.focus()
           }
           return
         }
