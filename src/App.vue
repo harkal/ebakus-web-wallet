@@ -281,7 +281,7 @@ export default {
           unsubscribeWatcher()
 
           // init web3 ebakus instance
-          await initWeb3(self.$store.getters.network)
+          await initWeb3()
 
           checkNodeConnection()
 

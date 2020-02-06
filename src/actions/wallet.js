@@ -21,6 +21,8 @@ import {
   setProvider,
   checkNodeConnection,
   getCurrentProviderEndpoint,
+  getProviderEndpoint,
+  getProvider,
 } from './providers'
 import { getTokenInfoForSymbol, getBalanceOfAddressForToken } from './tokens'
 import { loadTxsInfoFromExplorer } from './transactions'
@@ -103,7 +105,9 @@ const getBalance = async () => {
 
     await backOff(() => {
       store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.NODE_CONNECT)
-      setProvider(store.getters.network)
+      const providerEndpoint = getProviderEndpoint()
+      const provider = getProvider(providerEndpoint)
+      setProvider(provider)
 
       return checkNodeConnection()
     }, BACKOFF_SETTINGS)

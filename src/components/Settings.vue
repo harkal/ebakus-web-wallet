@@ -174,7 +174,11 @@ import {
   setWhitelistDappTimer,
   removeDappFromWhitelist,
 } from '@/actions/whitelist'
-import { setProvider, getCurrentProviderEndpoint } from '@/actions/providers'
+import {
+  setProvider,
+  getProviderEndpoint,
+  getProvider,
+} from '@/actions/providers'
 
 import { web3 } from '@/actions/web3ebakus'
 
@@ -312,7 +316,9 @@ export default {
       )
 
       try {
-        if (setProvider(network)) {
+        const providerEndpoint = getProviderEndpoint(network)
+        const provider = getProvider(providerEndpoint)
+        if (setProvider(provider)) {
           this.$store.commit(MutationTypes.SET_NETWORK, network)
 
           // this timeout is here in order the code waits for provider to be set to web3 instance
@@ -329,7 +335,7 @@ export default {
             self.customNodeError = ''
 
             if (loadedInIframe()) {
-              const providerEndpoint = getCurrentProviderEndpoint()
+              const providerEndpoint = getProviderEndpoint()
               frameEventCurrentProviderEndpointUpdated(providerEndpoint)
             }
           }, 100)

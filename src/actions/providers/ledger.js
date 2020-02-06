@@ -12,7 +12,7 @@ import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
 
 import { web3 } from '../web3ebakus'
-import { getCurrentProviderEndpoint } from '../providers'
+import { getProviderEndpoint } from '../providers'
 
 import createLedgerSubprovider from './createLedgerSubprovider'
 import { HardwareWalletTypes } from '../../constants'
@@ -117,17 +117,17 @@ const getProvider = async type => {
 
   engine.addProvider(ledger)
 
-  const currentEndpoint = getCurrentProviderEndpoint()
+  const providerEndpoint = getProviderEndpoint()
 
   // autodetect provider
-  if (currentEndpoint && typeof currentEndpoint === 'string') {
+  if (providerEndpoint && typeof providerEndpoint === 'string') {
     // HTTP
-    if (/^http(s)?:\/\//i.test(currentEndpoint)) {
-      engine.addProvider(new RpcSubprovider({ rpcUrl: currentEndpoint }))
+    if (/^http(s)?:\/\//i.test(providerEndpoint)) {
+      engine.addProvider(new RpcSubprovider({ rpcUrl: providerEndpoint }))
 
       // WS
-    } else if (/^ws(s)?:\/\//i.test(currentEndpoint)) {
-      engine.addProvider(new WebsocketSubprovider({ rpcUrl: currentEndpoint }))
+    } else if (/^ws(s)?:\/\//i.test(providerEndpoint)) {
+      engine.addProvider(new WebsocketSubprovider({ rpcUrl: providerEndpoint }))
     } else {
       return Promise.reject(
         new Error("This provider endpoint can't be handled with Ledger")

@@ -54,7 +54,7 @@ new Vue({
   store,
   beforeCreate() {
     // init web3 ebakus instance, temp use for bootstap as it will be reinitialised in App
-    initWeb3(this.$store.getters.network)
+    initWeb3()
   },
   render: h => h(App),
 }).$mount('#app')

@@ -1,5 +1,5 @@
 import { addPendingTx, calcWork } from '@/actions/transactions'
-import { getCurrentProviderEndpoint } from '@/actions/providers'
+import { getProviderEndpoint } from '@/actions/providers'
 import { getBalance as getBalanceFromWallet } from '@/actions/wallet'
 import { performWhitelistedAction } from '@/actions/whitelist'
 import { getStaked as getStakedFromNode } from '@/actions/systemContract'
@@ -29,7 +29,7 @@ const unlockWallet = () => {
 }
 
 const currentProviderEndpoint = payload => {
-  const providerEndpoint = getCurrentProviderEndpoint()
+  const providerEndpoint = getProviderEndpoint()
   replyToParentWindow(providerEndpoint, null, payload)
 }
 

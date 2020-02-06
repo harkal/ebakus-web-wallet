@@ -1,45 +1,31 @@
 import Web3 from 'web3'
 import ebakus from 'web3-ebakus'
 
-import { HardwareWalletTypes } from '@/constants'
-import store from '@/store'
-
-import { getProvider } from './providers'
-import { getLedgerProvider } from './providers/ledger'
+import { getProviderEndpoint, getProvider } from './providers'
 
 let web3 = null
 
-const init = async provider => {
-  // handle hardware wallets
-  const {
-    isUsingHardwareWallet,
-    hardwareWallet: { type: hardwareWalletType },
-  } = store.getters.wallet
+const init = async () => {
+  const providerEndpoint = getProviderEndpoint()
 
-  let engine
-
-  if (isUsingHardwareWallet) {
-    const {
-      hardwareWallets: { ledger: { connectionType } = {} } = {},
-    } = store.getters.network
-
-    if (hardwareWalletType === HardwareWalletTypes.LEDGER) {
-      try {
-        engine = await getLedgerProvider(connectionType)
-      } catch (err) {
-        console.error("Can't load Ledger provider", err)
-      }
-    }
+  // check if currentProvider is same with the one we are going to set
+  if (
+    web3 !== null &&
+    typeof web3.currentProvider !== 'undefined' &&
+    typeof web3.currentProvider.connection !== 'undefined' &&
+    typeof web3.currentProvider.connection.url === 'string' &&
+    web3.currentProvider.connection.url.indexOf(providerEndpoint) != -1
+  ) {
+    return
   }
 
-  if (!isUsingHardwareWallet || !provider) {
-    engine = getProvider(provider)
-  }
+  const provider = await getProvider(providerEndpoint)
+  // }
 
   if (web3 === null) {
-    web3 = ebakus(new Web3(engine))
+    web3 = ebakus(new Web3(provider))
   } else {
-    web3.setProvider(engine)
+    web3.setProvider(provider)
   }
   return web3
 }

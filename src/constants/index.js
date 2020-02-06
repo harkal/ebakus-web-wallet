@@ -41,7 +41,6 @@ const Networks = {
    *   testnet - In case it our ebakus testnet,
    *             then it will allow user to use the getWei from Faucet Contract
    *   endpoint - String representation of the URL to the node
-   *   provider - function which return a new Web3 provider instance
    * }
    * */
   10: {
