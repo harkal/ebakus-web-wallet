@@ -31,6 +31,7 @@
 
 <script>
 import Vue from 'vue'
+import Web3 from 'web3'
 import { mapState } from 'vuex'
 
 import { decodeDataUsingAbi, getValueForParam } from '@/actions/abi'
@@ -45,7 +46,6 @@ import {
   calcWorkAndSendTx,
   getTokenSymbolPrefix,
 } from '@/actions/transactions'
-import { web3 } from '@/actions/web3ebakus'
 
 import {
   DefaultDappWhitelistTimer,
@@ -206,7 +206,7 @@ export default {
             this.to = getValueForParam('_to', params)
             const tokenValue = getValueForParam('_value', params) || 0
 
-            this.emTitle = `to transfer ${web3.utils.fromWei(
+            this.emTitle = `to transfer ${Web3.utils.fromWei(
               String(tokenValue)
             )} ${token.symbol}`
           } else if (name === 'getWei') {

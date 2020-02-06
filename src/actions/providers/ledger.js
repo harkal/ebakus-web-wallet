@@ -111,7 +111,7 @@ const getProvider = async type => {
   const engine = new ProviderEngine()
 
   const ledger = createLedgerSubprovider(getTransport, {
-    networkId: store.state.network.chainId || process.env.MAINNET_CHAIN_ID,
+    networkId: store.state.network.networkId || process.env.MAINNET_CHAIN_ID,
     accountsLength: 5,
   })
 

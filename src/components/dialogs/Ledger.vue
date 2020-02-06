@@ -59,6 +59,7 @@
 </template>
 
 <script>
+import Web3 from 'web3'
 import { mapState } from 'vuex'
 
 import { SpinnerState } from '@/constants'
@@ -140,7 +141,7 @@ export default {
         }
 
         this.accounts = accounts.map(account =>
-          web3.utils.toChecksumAddress(account)
+          Web3.utils.toChecksumAddress(account)
         )
       } catch (err) {
         console.error(

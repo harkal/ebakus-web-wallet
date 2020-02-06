@@ -15,10 +15,10 @@
 </template>
 
 <script>
+import Web3 from 'web3'
 import { mapState, mapGetters } from 'vuex'
 
 import { exitDialog } from '@/actions/wallet'
-import { web3 } from '@/actions/web3ebakus'
 
 import { SpinnerState } from '@/constants'
 
@@ -57,8 +57,8 @@ export default {
       })
     }
 
-    const balance = parseFloat(web3.utils.fromWei(this.balance))
-    const value = this.tx.value ? web3.utils.fromWei(this.tx.value) : '0'
+    const balance = parseFloat(Web3.utils.fromWei(this.balance))
+    const value = this.tx.value ? Web3.utils.fromWei(this.tx.value) : '0'
 
     if (parseFloat(value) > balance || (isVotingCall() && balance <= 0)) {
       this.title = 'Not enough funds…'

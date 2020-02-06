@@ -60,13 +60,13 @@
 </template>
 
 <script>
+import Web3 from 'web3'
 import { mapGetters, mapState } from 'vuex'
 
 import QR from '@/assets/vendor/qr_lib/qr_packed'
 
 import { addPendingTx as addPendingTxToStore } from '@/actions/transactions'
 import { getTokenInfoForSymbol, getTransferTxForToken } from '@/actions/tokens'
-import { web3 } from '@/actions/web3ebakus'
 
 import { DefaultToken, DialogComponents } from '@/constants'
 
@@ -118,7 +118,7 @@ export default {
     }
 
     if (data.amount) {
-      data.amount = web3.utils.fromWei(String(data.amount))
+      data.amount = Web3.utils.fromWei(String(data.amount))
     }
 
     this.$set(this, 'inputs', data)
@@ -152,7 +152,7 @@ export default {
         return false
       }
       try {
-        this.receiver = web3.utils.toChecksumAddress(address)
+        this.receiver = Web3.utils.toChecksumAddress(address)
       } catch (err) {
         this.error = "Receiver's address is not a valid ebakus address."
         return false
@@ -177,7 +177,7 @@ export default {
         if (tokenInfo) {
           tx = getTransferTxForToken(tokenInfo, receiver, amount)
         } else {
-          const value = web3.utils.toWei(String(amount))
+          const value = Web3.utils.toWei(String(amount))
           tx = {
             to: receiver,
             value,

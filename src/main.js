@@ -1,8 +1,7 @@
 import Vue from 'vue'
 import VueClipboard from 'vue-clipboard2'
 import floor from 'lodash/floor'
-
-import { init as initWeb3, web3 } from '@/actions/web3ebakus'
+import Web3 from 'web3'
 
 import store from '@/store'
 
@@ -38,7 +37,7 @@ Vue.filter('toEther', function(wei) {
     wei = '0x' + wei.toString(16)
   }
 
-  return web3.utils.fromWei(wei)
+  return Web3.utils.fromWei(wei)
 })
 
 Vue.filter('toEtherFixed', function(wei) {
@@ -46,15 +45,11 @@ Vue.filter('toEtherFixed', function(wei) {
     wei = '0x' + wei.toString(16)
   }
 
-  return floor(parseFloat(web3.utils.fromWei(wei)), 4).toFixed(4)
+  return floor(parseFloat(Web3.utils.fromWei(wei)), 4).toFixed(4)
 })
 
 new Vue({
   router,
   store,
-  beforeCreate() {
-    // init web3 ebakus instance, temp use for bootstap as it will be reinitialised in App
-    initWeb3()
-  },
   render: h => h(App),
 }).$mount('#app')

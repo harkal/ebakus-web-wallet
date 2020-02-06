@@ -301,7 +301,7 @@ export default {
     },
     whitelistThisDapp: () => showWhitelistNewDappView(true),
     removeDappFromWhitelist: () => removeDappFromWhitelist(),
-    connectToNode: function() {
+    connectToNode: async function() {
       const self = this
 
       const { networkId, nodeAddress } = this.inputs
@@ -315,12 +315,13 @@ export default {
         SpinnerState.NODE_CONNECT
       )
 
-      try {
-        const providerEndpoint = getProviderEndpoint(network)
-        const provider = getProvider(providerEndpoint)
-        if (setProvider(provider)) {
-          this.$store.commit(MutationTypes.SET_NETWORK, network)
+      const originalNetwork = this.$store.state.network
+      this.$store.commit(MutationTypes.SET_NETWORK, network)
 
+      try {
+        const providerEndpoint = getProviderEndpoint()
+        const provider = await getProvider(providerEndpoint)
+        if (setProvider(provider)) {
           // this timeout is here in order the code waits for provider to be set to web3 instance
           setTimeout(async () => {
             const chainId = await web3.eth.getChainId()
@@ -339,8 +340,12 @@ export default {
               frameEventCurrentProviderEndpointUpdated(providerEndpoint)
             }
           }, 100)
+        } else {
+          this.$store.commit(MutationTypes.SET_NETWORK, originalNetwork)
         }
       } catch (err) {
+        this.$store.commit(MutationTypes.SET_NETWORK, originalNetwork)
+
         this.$store.commit(
           MutationTypes.SET_SPINNER_STATE,
           SpinnerState.NODE_DISCONNECTED
