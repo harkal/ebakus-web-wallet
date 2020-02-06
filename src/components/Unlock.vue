@@ -34,6 +34,9 @@
       <button class="full outline ledger" @click="connectWithLedger">
         Connect with Ledger
       </button>
+      <button class="full outline" @click="deleteWallet">
+        Delete this wallet
+      </button>
     </div>
   </div>
 </template>
@@ -137,6 +140,15 @@ export default {
       this.$store.commit(MutationTypes.SHOW_DIALOG, {
         component: DialogComponents.LEDGER,
         title: 'Connect with Ledger',
+      })
+    },
+    deleteWallet: function() {
+      this.$store.commit(MutationTypes.SHOW_DIALOG, {
+        component: DialogComponents.DELETE_WALLET,
+        title: 'Delete wallet',
+        data: {
+          forgotPassword: true,
+        },
       })
     },
   },

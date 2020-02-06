@@ -184,13 +184,18 @@ const hasWallet = () => {
   return !!currentWallet
 }
 
+const backupExistingWallet = () => {
+  const currentWallet = localStorage.getItem(StorageNames.WEB3_WALLET)
+  if (currentWallet) {
+    localStorage.setItem(StorageNames.WEB3_OLD_WALLET_BACKUP, currentWallet)
+  }
+}
+
 const importWallet = _seed => {
   return new Promise((resolve, reject) => {
     // backup current wallet if exists
-    const currentWallet = localStorage.getItem(StorageNames.WEB3_WALLET)
-    if (currentWallet) {
-      localStorage.setItem(StorageNames.WEB3_OLD_WALLET_BACKUP, currentWallet)
-    }
+    backupExistingWallet()
+
     // clear wallet
     web3.eth.accounts.wallet.clear()
 
@@ -231,16 +236,28 @@ const importWallet = _seed => {
   })
 }
 
-const deleteWallet = () => {
+const deleteWallet = (keepWalletData = true) => {
   web3.eth.accounts.wallet.clear()
-  localStorage.clear()
+
+  if (keepWalletData) {
+    backupExistingWallet()
+
+    localStorage.removeItem(StorageNames.WEB3_WALLET)
+    localStorage.removeItem(StorageNames.LOGS)
+    localStorage.removeItem(StorageNames.HARDWARE_WALLET_LOGS)
+  } else {
+    localStorage.clear()
+  }
 
   if (loadedInIframe()) {
-    localStorageRemoveFromParent(StorageNames.WALLET_STORE)
+    localStorageRemoveFromParent(StorageNames.WEB3_WALLET)
     localStorageRemoveFromParent(StorageNames.LOGS)
     localStorageRemoveFromParent(StorageNames.HARDWARE_WALLET_LOGS)
-    localStorageRemoveFromParent(StorageNames.WEB3_WALLET)
-    localStorageRemoveFromParent(StorageNames.WEB3_OLD_WALLET_BACKUP)
+
+    if (!keepWalletData) {
+      localStorageRemoveFromParent(StorageNames.WALLET_STORE)
+      localStorageRemoveFromParent(StorageNames.WEB3_OLD_WALLET_BACKUP)
+    }
   }
 
   store.commit(MutationTypes.DELETE_WALLET)
@@ -295,6 +312,7 @@ export {
   generateWallet,
   secureWallet,
   hasWallet,
+  backupExistingWallet,
   importWallet,
   deleteWallet,
   unlockWallet,
