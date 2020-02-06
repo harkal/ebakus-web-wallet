@@ -2,14 +2,28 @@
   <div class="wrapper scroll-wrapper unlock">
     <div>
       <label for="password">Password</label>
-      <input
-        ref="passField"
-        v-model="pass"
-        type="password"
-        name="password"
-        placeholder
-        @keyup.enter="unlockWallet"
-      />
+      <div class="field-container">
+        <input
+          ref="passField"
+          v-model="pass"
+          :type="revealPass ? 'text' : 'password'"
+          name="password"
+          placeholder
+          @keyup.enter="unlockWallet"
+        />
+        <img
+          v-show="!revealPass"
+          src="@/assets/img/ic_pass_reveal.svg"
+          width="14"
+          @click="togglePass"
+        />
+        <img
+          v-show="revealPass"
+          src="@/assets/img/ic_pass_hide.svg"
+          width="14"
+          @click="togglePass"
+        />
+      </div>
       <span class="text-error">{{ error }}</span>
       <button class="full" @click="unlockWallet">Unlock</button>
     </div>
@@ -43,6 +57,7 @@ export default {
     return {
       pass: '',
       error: '',
+      revealPass: false,
     }
   },
   computed: {
@@ -72,6 +87,9 @@ export default {
     }
   },
   methods: {
+    togglePass: function() {
+      this.revealPass = !this.revealPass
+    },
     unlockWallet: function() {
       const self = this
       const pass = this.pass
@@ -146,6 +164,19 @@ export default {
         padding-top: 0;
       }
     }
+  }
+}
+
+.field-container {
+  position: relative;
+
+  img {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    opacity: 0.65;
   }
 }
 </style>
