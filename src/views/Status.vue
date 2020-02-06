@@ -275,6 +275,10 @@ const ButtonStates = {
 export default {
   components: { Identicon, Navigation, DappWhitelistedStatusBar },
   props: {
+    isInitialRender: {
+      type: Boolean,
+      default: false,
+    },
     showWhitelistingTimer: {
       type: Boolean,
       default: false,
@@ -349,7 +353,7 @@ export default {
   methods: {
     isAnimating: function() {
       return (
-        animationQueue.isAnimating() || this.spinnerState === 0
+        animationQueue.isAnimating() || this.isInitialRender
       ) /* isAnimating or new page load */
     },
     showWallet: function() {

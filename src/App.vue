@@ -11,6 +11,7 @@
       <Status
         ref="status"
         :show-whitelisting-timer="showWhitelistingTimer"
+        :is-initial-render="isInitialRender"
         @hideWallet="enableUserTriggeredAnimation"
       />
 
