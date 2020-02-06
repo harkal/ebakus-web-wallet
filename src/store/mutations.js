@@ -135,7 +135,12 @@ export default {
         return
       }
 
-      if (typeof initState[key] === 'object' && initState[key] !== null) {
+      if (Array.isArray(initState[key])) {
+        state[key] = [...initState[key]]
+      } else if (
+        typeof initState[key] === 'object' &&
+        initState[key] !== null
+      ) {
         // Object.assign({}, initState[key])
         state[key] = { ...initState[key] }
       } else {
@@ -147,8 +152,12 @@ export default {
   [MutationTypes.DELETE_WALLET](state) {
     const initState = initialState()
     Object.keys(state).forEach(key => {
-      if (typeof initState[key] === 'object' && initState[key] !== null) {
-        // state[key] = { ...initState[key] }
+      if (Array.isArray(initState[key])) {
+        state[key] = [...initState[key]]
+      } else if (
+        typeof initState[key] === 'object' &&
+        initState[key] !== null
+      ) {
         state[key] = { ...initState[key] }
       } else {
         state[key] = initState[key]
@@ -167,7 +176,12 @@ export default {
         return
       }
 
-      if (typeof initState[key] === 'object' && initState[key] !== null) {
+      if (Array.isArray(initState[key])) {
+        state[key] = [...initState[key]]
+      } else if (
+        typeof initState[key] === 'object' &&
+        initState[key] !== null
+      ) {
         state[key] = { ...initState[key] }
       } else {
         state[key] = initState[key]
