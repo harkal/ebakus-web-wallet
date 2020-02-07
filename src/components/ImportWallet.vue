@@ -45,6 +45,7 @@
           @keyup.enter="askUserToConfirm"
         />
 
+        <span v-if="error" class="text-error">{{ error }}</span>
         <button class="full" @click="askUserToConfirm">Next</button>
       </template>
 
@@ -151,6 +152,7 @@ export default {
   methods: {
     askUserToConfirm: function() {
       this.componentState = ComponentStates.CONFIRM
+      this.error = ''
     },
     cancelImport: function() {
       this.componentState = ComponentStates.REQUEST_KEY
@@ -202,6 +204,9 @@ export default {
         this.componentState = ComponentStates.SECURE
       } catch (err) {
         console.error('New account import failed', err)
+
+        this.error = 'Your mnemonic phrase is not valid or has spelling errors.'
+        this.componentState = ComponentStates.REQUEST_KEY
 
         this.$store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.NONE)
       }

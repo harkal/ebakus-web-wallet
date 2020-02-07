@@ -1,4 +1,4 @@
-import { generateMnemonic, mnemonicToSeedSync } from 'bip39'
+import { generateMnemonic, mnemonicToSeedSync, validateMnemonic } from 'bip39'
 import hdkey from 'hdkey'
 import { backOff } from 'exponential-backoff'
 
@@ -114,6 +114,9 @@ const generateWallet = () => {
   const promise = new Promise((resolve, reject) => {
     // generate mnemonic and private key
     const mnemonic = generateMnemonic() // generates string
+    if (!validateMnemonic(mnemonic)) {
+      return reject(new Error('No valid mnemonic phrase'))
+    }
     const seed = mnemonicToSeedSync(mnemonic) // creates seed buffer
     const root = hdkey.fromMasterSeed(seed)
     const addrNode = root.derive("m/44'/60'/0'/0/0") // line 1
@@ -208,6 +211,9 @@ const importWallet = _seed => {
       // generate account from mnemonics
     } else {
       const mnemonic = _seed.join(' ') // generates string
+      if (!validateMnemonic(mnemonic)) {
+        return reject(new Error('No valid mnemonic phrase'))
+      }
       const seed = mnemonicToSeedSync(mnemonic) // creates seed buffer
       const root = hdkey.fromMasterSeed(seed)
       const addrNode = root.derive("m/44'/60'/0'/0/0") // line 1
