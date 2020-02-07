@@ -1,6 +1,6 @@
 {
   "name": "ebakus-web-wallet",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "This is the official web wallet which can be embed into a dApp page to interact with the Ebakus blockchain.",
   "homepage": "https://www.ebakus.com/",
   "repository": {
