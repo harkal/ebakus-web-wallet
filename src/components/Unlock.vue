@@ -63,8 +63,8 @@ export default {
   },
   watch: {
     visible: function(isVisible) {
-      if (isVisible && this.$refs.passField) {
-        this.$refs.passField.focus()
+      if (isVisible && this.$refs.pass) {
+        this.$refs.pass.$refs.pass.focus()
       }
     },
   },
@@ -116,7 +116,7 @@ export default {
 
           self.error = 'Wrong Password, please try again.'
           if (self.$refs.pass) {
-            this.$refs.pass.$refs.pass.focus()
+            self.$refs.pass.$refs.pass.focus()
           }
         })
     },
