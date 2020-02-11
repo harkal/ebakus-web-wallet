@@ -23,6 +23,7 @@
     "serve": "DISABLE_HOST_CHECK=1 vue-cli-service serve",
     "serve-reverse-proxy": "DISABLE_HOST_CHECK=1 vue-cli-service serve --port 8086 --public https://wallet.ebakus.test",
     "build": "vue-cli-service build",
+    "build-testnet": "IS_TESTNET=1 vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test:e2e": "vue-cli-service test:e2e",
     "test:unit": "vue-cli-service test:unit"
