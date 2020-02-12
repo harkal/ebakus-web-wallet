@@ -95,9 +95,14 @@ export default {
         )
       }
 
+      const publicAddress = this.$store.state.wallet.address
+      if (!publicAddress) {
+        return
+      }
+
       if (!workValue) {
         this.autoTargetDifficulty = await web3.eth.suggestDifficulty(
-          this.$store.state.wallet.address
+          publicAddress
         )
       }
 
