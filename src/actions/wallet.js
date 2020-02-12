@@ -20,7 +20,6 @@ import { isSafari } from '@/utils'
 import {
   setProvider,
   checkNodeConnection,
-  getCurrentProviderEndpoint,
   getProviderEndpoint,
   getProvider,
 } from './providers'
@@ -303,7 +302,7 @@ const unlockWallet = pass => {
 }
 
 const signOutWallet = () => {
-  const endpoint = getCurrentProviderEndpoint()
+  const providerEndpoint = getProviderEndpoint()
 
   web3.eth.accounts.wallet.clear()
 
@@ -316,7 +315,8 @@ const signOutWallet = () => {
   const routeName = !hasWallet() ? RouteNames.NEW : RouteNames.UNLOCK
   router.push({ name: routeName }, () => {})
 
-  setProvider(endpoint)
+  const provider = getProvider(providerEndpoint)
+  setProvider(provider)
 
   setLedgerSupportedTypes()
 }
