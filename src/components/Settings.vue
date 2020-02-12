@@ -166,7 +166,7 @@ import {
   HardwareWalletTypes,
 } from '@/constants'
 
-import { hasWallet as hasWalletFunc } from '@/actions/wallet'
+import { hasWallet as hasWalletFunc, signOutWallet } from '@/actions/wallet'
 import {
   isDappWhitelisted,
   showWhitelistNewDappView,
@@ -175,7 +175,6 @@ import {
   removeDappFromWhitelist,
 } from '@/actions/whitelist'
 import { setProvider, getCurrentProviderEndpoint } from '@/actions/providers'
-import { setLedgerSupportedTypes } from '@/actions/providers/ledger'
 
 import { web3 } from '@/actions/web3ebakus'
 
@@ -290,19 +289,7 @@ export default {
     },
     hasWallet: () => hasWalletFunc(),
     disconnectLedger: function() {
-      web3.eth.accounts.wallet.clear()
-
-      // this will clear the HDwallet logs from localStorage too
-      this.$store.commit(MutationTypes.RESET_LOGS)
-      this.$store.commit(MutationTypes.SIGN_OUT_WALLET)
-
-      this.$store.dispatch(MutationTypes.CLEAR_DIALOG)
-
-      const routeName = !this.hasWallet() ? RouteNames.NEW : RouteNames.UNLOCK
-
-      this.$router.push({ name: routeName }, () => {})
-
-      setLedgerSupportedTypes()
+      signOutWallet()
     },
     setWhitelistDelay({ target: { valueAsNumber } }) {
       const delay = valueAsNumber * 1000 // in ms

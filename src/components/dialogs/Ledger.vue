@@ -63,7 +63,7 @@ import { mapState } from 'vuex'
 
 import { SpinnerState } from '@/constants'
 
-import { getBalance } from '@/actions/wallet'
+import { getBalance, signOutWallet } from '@/actions/wallet'
 import {
   LedgerConnectionTypes,
   setLedgerProvider,
@@ -88,6 +88,7 @@ export default {
   computed: {
     ...mapState({
       isDrawerActiveByUser: state => state.ui.isDrawerActiveByUser,
+      publicAddress: state => state.wallet.address,
       tx: state => state.tx.object,
       supportedConnectionTypes: state =>
         state.network.hardwareWallets.ledger.supportedConnectionTypes,
@@ -106,6 +107,11 @@ export default {
       MutationTypes.SET_SPINNER_STATE,
       SpinnerState.LEDGER_CONNECT
     )
+  },
+  beforeDestroy() {
+    if (this.selectedAccount !== this.publicAddress) {
+      signOutWallet()
+    }
   },
   methods: {
     connectLedger: async function() {

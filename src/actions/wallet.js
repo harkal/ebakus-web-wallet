@@ -17,7 +17,11 @@ import router, { RouteNames } from '@/router'
 
 import { isSafari } from '@/utils'
 
-import { setProvider, checkNodeConnection } from './providers'
+import {
+  setProvider,
+  checkNodeConnection,
+  getCurrentProviderEndpoint,
+} from './providers'
 import { getTokenInfoForSymbol, getBalanceOfAddressForToken } from './tokens'
 import { loadTxsInfoFromExplorer } from './transactions'
 import { web3 } from './web3ebakus'
@@ -294,6 +298,25 @@ const unlockWallet = pass => {
   })
 }
 
+const signOutWallet = () => {
+  const endpoint = getCurrentProviderEndpoint()
+
+  web3.eth.accounts.wallet.clear()
+
+  // this will clear the HDwallet logs from localStorage too
+  store.commit(MutationTypes.RESET_LOGS)
+  store.commit(MutationTypes.SIGN_OUT_WALLET)
+
+  store.commit(MutationTypes.CLEAR_DIALOG)
+
+  const routeName = !hasWallet() ? RouteNames.NEW : RouteNames.UNLOCK
+  router.push({ name: routeName }, () => {})
+
+  setProvider(endpoint)
+
+  setLedgerSupportedTypes()
+}
+
 const exitDialog = () => {
   const routeName = router.app.$route.name
   const { component } = store.state.ui.dialog
@@ -322,5 +345,6 @@ export {
   importWallet,
   deleteWallet,
   unlockWallet,
+  signOutWallet,
   exitDialog,
 }
