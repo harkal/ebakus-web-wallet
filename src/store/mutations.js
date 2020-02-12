@@ -233,11 +233,19 @@ export default {
 
   [MutationTypes.SET_NETWORK](state, data) {
     const { networkId, nodeAddress } = data
+
+    const ledgerSupportedConnectionTypes =
+      state.network.hardwareWallets.ledger.supportedConnectionTypes
+
     state.network = {
+      ...initialState().network,
       networkId: networkId,
       nodeAddress: networkId == '-1' ? nodeAddress : '',
       status: NetworkStatus.DISCONNECTED,
     }
+
+    // keep current ledger supported connection types as it won't change in this browser
+    state.network.hardwareWallets.ledger.supportedConnectionTypes = ledgerSupportedConnectionTypes
   },
   [MutationTypes.SET_NETWORK_CHAIN_ID](state, chainId) {
     state.network.chainId = chainId

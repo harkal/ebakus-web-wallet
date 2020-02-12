@@ -20,7 +20,7 @@ const initialState = {
   // network preferences
   network: {
     networkId: process.env.DEFAULT_NETWORK_ID,
-    chainId: process.env.DEFAULT_NETWORK_ID,
+    chainId: null,
     nodeAddress: '',
     status: NetworkStatus.DISCONNECTED,
 
