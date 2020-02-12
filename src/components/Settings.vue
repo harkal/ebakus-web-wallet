@@ -207,7 +207,10 @@ export default {
     return {
       activePane: Panes.MAIN,
       availableNetworks: Networks,
-      inputs: this.$store.getters.network,
+      inputs: {
+        networkId: this.$store.getters.network.networkId.toString(),
+        nodeAddress: this.$store.getters.network.nodeAddress,
+      },
       customNodeError: '',
     }
   },
@@ -306,7 +309,7 @@ export default {
 
       const { networkId, nodeAddress } = this.inputs
       const network = {
-        networkId,
+        networkId: parseInt(networkId),
         nodeAddress: networkId == '-1' ? nodeAddress : '',
       }
 
