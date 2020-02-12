@@ -105,7 +105,7 @@ const getBalance = async () => {
     await backOff(() => {
       store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.NODE_CONNECT)
       const providerEndpoint = getProviderEndpoint()
-      const provider = getProvider(providerEndpoint)
+      const provider = await getProvider(providerEndpoint)
       setProvider(provider)
 
       return checkNodeConnection()
@@ -301,7 +301,7 @@ const unlockWallet = pass => {
   })
 }
 
-const signOutWallet = () => {
+const signOutWallet = async () => {
   const providerEndpoint = getProviderEndpoint()
 
   web3.eth.accounts.wallet.clear()
@@ -315,7 +315,7 @@ const signOutWallet = () => {
   const routeName = !hasWallet() ? RouteNames.NEW : RouteNames.UNLOCK
   router.push({ name: routeName }, () => {})
 
-  const provider = getProvider(providerEndpoint)
+  const provider = await getProvider(providerEndpoint)
   setProvider(provider)
 
   setLedgerSupportedTypes()
