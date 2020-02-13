@@ -102,7 +102,7 @@ const getBalance = async () => {
 
     isWeb3Reconnecting = true
 
-    await backOff(() => {
+    await backOff(async () => {
       store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.NODE_CONNECT)
       const providerEndpoint = getProviderEndpoint()
       const provider = await getProvider(providerEndpoint)
