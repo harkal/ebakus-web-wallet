@@ -65,7 +65,7 @@ import { mapGetters, mapState } from 'vuex'
 
 import QR from '@/assets/vendor/qr_lib/qr_packed'
 
-import { addPendingTx as addPendingTxToStore } from '@/actions/transactions'
+import Transaction from '@/actions/Transaction'
 import { getTokenInfoForSymbol, getTransferTxForToken } from '@/actions/tokens'
 
 import { DefaultToken, DialogComponents } from '@/constants'
@@ -184,7 +184,7 @@ export default {
           }
         }
 
-        await addPendingTxToStore(tx)
+        await new Transaction(tx)
 
         this.$store.dispatch(MutationTypes.SHOW_DIALOG, {
           component: DialogComponents.SEND_TX,
