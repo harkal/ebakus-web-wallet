@@ -7,7 +7,7 @@
 <script>
 import { mapGetters } from 'vuex'
 
-import { addPendingTx, calcWorkAndSendTx } from '@/actions/transactions'
+import Transaction from '@/actions/Transaction'
 import { web3 } from '@/actions/web3ebakus'
 
 const abi = JSON.parse(
@@ -26,11 +26,16 @@ export default {
         abi,
         process.env.FAUCET_CONTRACT_ADDRESS
       )
-      const txWithPow = await addPendingTx({
-        to: process.env.FAUCET_CONTRACT_ADDRESS,
-        data: faucetContract.methods.getWei().encodeABI(),
-      })
-      await calcWorkAndSendTx(txWithPow)
+
+      try {
+        const tx = await new Transaction({
+          to: process.env.FAUCET_CONTRACT_ADDRESS,
+          data: faucetContract.methods.getWei().encodeABI(),
+        })
+        await tx.sendTx()
+      } catch (err) {
+        console.error('Failed to fetch from faucet', err)
+      }
     },
   },
 }

@@ -1,4 +1,4 @@
-import { addPendingTx, calcWorkAndSendTx } from './transactions'
+import Transaction from './Transaction'
 import { web3 } from './web3ebakus'
 
 import {
@@ -112,12 +112,12 @@ const stake = async amount => {
 
     const estimatedGas = await stakeMethod.estimateGas()
 
-    const txWithPow = await addPendingTx({
+    const tx = await new Transaction({
       to: SystemContractAddress,
       data: stakeMethod.encodeABI(),
       gas: estimatedGas + 5000,
     })
-    await calcWorkAndSendTx(txWithPow, /* handleErrorUI */ false)
+    await tx.sendTx(/* handleErrorUI */ false)
 
     await getStaked()
 
@@ -137,12 +137,12 @@ const unstake = async amount => {
 
     const estimatedGas = await unstakeMethod.estimateGas()
 
-    const txWithPow = await addPendingTx({
+    const tx = await new Transaction({
       to: SystemContractAddress,
       data: unstakeMethod.encodeABI(),
       gas: estimatedGas + 5000,
     })
-    await calcWorkAndSendTx(txWithPow, /* handleErrorUI */ false)
+    await tx.sendTx(/* handleErrorUI */ false)
 
     await getStaked()
 
@@ -193,12 +193,12 @@ const claimUnstaked = async () => {
 
     const estimatedGas = await claimMethod.estimateGas()
 
-    const txWithPow = await addPendingTx({
+    const tx = await new Transaction({
       to: SystemContractAddress,
       data: claimMethod.encodeABI(),
       gas: estimatedGas + 5000,
     })
-    await calcWorkAndSendTx(txWithPow)
+    await tx.sendTx()
 
     await getStaked()
 

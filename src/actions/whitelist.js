@@ -15,7 +15,7 @@ import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
 import router, { RouteNames } from '@/router'
 
-import { calcWorkAndSendTx, checkIfEnoughBalance } from './transactions'
+import { checkIfEnoughBalance } from './transactions'
 import { web3 } from './web3ebakus'
 import {
   SystemContractAddress,
@@ -181,8 +181,6 @@ const cancelWhitelistDapp = () => {
 }
 
 const performWhitelistedAction = async () => {
-  let tx = store.state.tx.object
-
   if (checkIfEnoughBalance()) {
     if (isContractCall()) {
       if (isVotingCall() && !hasStakeForVotingCall()) {
@@ -206,7 +204,7 @@ const performWhitelistedAction = async () => {
       } else {
         const timer = getWhitelistDappTimer()
         if (timer === 0) {
-          calcWorkAndSendTx(tx)
+          store.state.tx.object.sendTx()
         } else {
           store.commit(
             MutationTypes.SET_SPINNER_STATE,

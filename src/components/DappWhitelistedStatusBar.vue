@@ -43,7 +43,6 @@ import { getTokenInfoForContractAddress, decodeData } from '@/actions/tokens'
 
 import {
   checkIfEnoughBalance,
-  calcWorkAndSendTx,
   getTokenSymbolPrefix,
 } from '@/actions/transactions'
 
@@ -129,7 +128,7 @@ export default {
         this.countdownAnimationFrame = nextAnimationFrame(this.countdown)
       } else {
         this.stopCountdown()
-        calcWorkAndSendTx(this.tx)
+        this.tx.sendTx()
       }
     },
     stopCountdown() {

@@ -52,7 +52,6 @@ import { mapState } from 'vuex'
 import {
   checkIfEnoughBalance,
   getTransactionMessage,
-  calcWorkAndSendTx,
   cancelPendingTx as cancelPendingTxFunc,
 } from '@/actions/transactions'
 import { exitDialog } from '@/actions/wallet'
@@ -118,7 +117,7 @@ export default {
         whitelistNewDappFunc()
       }
 
-      calcWorkAndSendTx(this.tx)
+      this.tx.sendTx()
 
       console.log('Transaction Confirmed by user')
 
