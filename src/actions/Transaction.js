@@ -17,6 +17,22 @@ const TX_PROP_STATE = {
   FOUND: 2,
 }
 
+const _seenUniqueIds = []
+const getUniqueId = () => {
+  const generateId = () =>
+    Math.random()
+      .toString(36)
+      .slice(2)
+
+  let id = generateId()
+  while (_seenUniqueIds.includes(id)) {
+    id = generateId()
+  }
+  _seenUniqueIds.push(id)
+
+  return id
+}
+
 const waitUntil = async function(
   checkSuccess = () => false,
   checkError = () => false,
@@ -52,6 +68,14 @@ const runOnce = async function(flag, func) {
   self[flag] = TX_PROP_STATE.FOUND
 }
 
+// The message of TransactionUIError can be displayed to the UI safely
+class TransactionUIError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = 'TransactionUIError'
+  }
+}
+
 async function Transaction(tx, opts = {}) {
   const walletPublicAddress = store.state.wallet.address
   const from = web3.utils.toChecksumAddress(
@@ -59,7 +83,7 @@ async function Transaction(tx, opts = {}) {
   )
 
   if (from !== walletPublicAddress) {
-    throw new Error(
+    throw new TransactionUIError(
       `Transaction sender "${from}" is not the same with the wallet account "${walletPublicAddress}"`
     )
   }
@@ -74,152 +98,94 @@ async function Transaction(tx, opts = {}) {
     from,
   }
 
+  let uniqueId,
+    updateParent = false
+  if (opts.id) {
+    uniqueId = opts.id
+    _seenUniqueIds.push(uniqueId)
+
+    updateParent = true
+  } else {
+    uniqueId = getUniqueId()
+  }
+
   Object.defineProperties(this, {
+    id: {
+      value: uniqueId,
+      writable: false,
+      enumerable: true,
+      configurable: true,
+    },
     object: {
       value: object,
-      // configurable: true,
       writable: true,
       enumerable: true,
-      // get() {
-      //   return this.tx
-      // },
-      // set(value) {
-      //   temperature = value
-      //   archive.push({ val: temperature })
-      // },
     },
     extraGas: {
       value: opts.extraGas > 0 ? opts.extraGas : 0,
-      // configurable: true,
-      // writable: false,
-      // enumerable: true,
-      // get() {
-      //   return this.tx
-      // },
-      // set(value) {
-      //   temperature = value
-      //   archive.push({ val: temperature })
-      // },
+    },
+
+    // hack for blocking display of whitelist status bar, till animation happens
+    // hack placed in here as spinnerState watcher is used for animations
+    allowWhitelistAnimations: {
+      value: false,
+      writable: true,
+      enumerable: true,
+      configurable: true,
     },
   })
 
   Object.defineProperties(this, {
     _isTransactionObject: {
       value: true,
-      // configurable: true,
-      // writable: true,
-      // enumerable: false,
-      // get() {
-      //   console.log('get!')
-      //   return temperature
-      // },
-      // set(value) {
-      //   temperature = value
-      //   archive.push({ val: temperature })
-      // },
     },
-    _hash: {
-      // value: true,
-      // configurable: true,
-      // writable: true,
-      // enumerable: false,
-      get() {
-        return web3.utils.sha3(this.toString())
-      },
-      // set(value) {
-      //   temperature = value
-      //   archive.push({ val: temperature })
-      // },
+    _updateParent: {
+      value: updateParent,
     },
     _hasError: {
       value: false,
       writable: true,
     },
     _hasNonce: {
-      // value: true,
-      // configurable: true,
-      writable: true,
-      // enumerable: false,
       value: tx.nonce ? TX_PROP_STATE.FOUND : TX_PROP_STATE.NOT_FOUND,
-      // get() {
-      //   return !!this.object.nonce
-      // },
-      // set(value) {
-      //   temperature = value
-      //   archive.push({ val: temperature })
-      // },
+      writable: true,
     },
     _hasGas: {
-      // value: true,
-      // configurable: true,
-      writable: true,
-      // enumerable: false,
       value: tx.gas ? TX_PROP_STATE.FOUND : TX_PROP_STATE.NOT_FOUND,
-      // get() {
-      //   return !!this.object.gas
-      // },
-      // set(value) {
-      //   temperature = value
-      //   archive.push({ val: temperature })
-      // },
+      writable: true,
     },
     _hasWorkCalculated: {
-      // value: true,
-      // configurable: true,
-      writable: true,
-      // enumerable: false,
       value: tx.workNonce ? TX_PROP_STATE.FOUND : TX_PROP_STATE.NOT_FOUND,
-      // get() {
-      //   return !!this.object.workNonce
-      // },
-      // set(value) {
-      //   temperature = value
-      //   archive.push({ val: temperature })
-      // },
+      writable: true,
     },
   })
-
-  // this._isTransactionObject = true
-
-  // this._uniqueHash = null
-
-  // this._hasNonce = !!tx.nonce
-  // this._hasGas = !!tx.gas
-  // this._hasWorkCalculated = !!tx.workNonce
-
-  // if (!txObject.gas) {
-  //   try {
-  //     txObject.gas = await web3.eth.estimateGas(txObject)
-  //   } catch (err) {
-  //     console.warn('Gas estimation failed with error: ', err)
-  //     txObject.gas = 21000
-  //   }
-  // }
-
-  console.log('TCL: Transaction -> this', this)
-  // this.tx = txObject
-
-  // _instance = this
 
   // prepare Transaction in async mode
   this.getNonce()
   this.estimateGas()
   this.calcWork()
 
-  await this.save()
+  await store.dispatch(MutationTypes.SET_TX_OBJECT, this)
+
+  return this
 }
 
 Transaction.prototype.toString = function() {
   return JSON.stringify(this.object)
 }
 
-// Transaction.prototype.uniqueHash = async function() {
-//   web3.utils.sha3(this.toString())
-// }
-
-Transaction.prototype.save = async function() {
-  await store.dispatch(MutationTypes.SET_TX_OBJECT, this)
+Transaction.prototype.updateParentOnError = function(
+  msg,
+  code = 'send_tx_failure'
+) {
+  if (loadedInIframe() && this._updateParent) {
+    replyToParentWindow(null, { code, msg })
+  }
 }
+
+// Transaction.prototype.save = async function() {
+//   await store.dispatch(MutationTypes.SET_TX_OBJECT, this)
+// }
 
 Transaction.prototype.getNonce = async function() {
   const self = this
@@ -234,11 +200,12 @@ Transaction.prototype.estimateGas = async function(force, defaultGas = 21000) {
   const self = this
   const estimateGas = async function() {
     try {
-      self.object.gas = await web3.eth.estimateGas(self.object)
+      self.object.gas =
+        (await web3.eth.estimateGas(self.object)) + self.extraGas
     } catch (err) {
       console.warn('Gas estimation failed with error: ', err)
       if (defaultGas >= 0) {
-        self.object.gas = defaultGas
+        self.object.gas = defaultGas + self.extraGas
       }
     }
   }
@@ -287,8 +254,6 @@ Transaction.prototype.calcWork = async function() {
         self.object.gasPrice = self.object.workNonce
       }
 
-      // await store.dispatch(MutationTypes.UPDATE_TX_OBJECT, txWithPow)
-
       // return txWithPow
     } catch (err) {
       self._hasError = true
@@ -296,12 +261,7 @@ Transaction.prototype.calcWork = async function() {
       // store.dispatch(MutationTypes.CLEAR_TX)
       store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.FAIL)
 
-      if (loadedInIframe()) {
-        replyToParentWindow(null, {
-          code: 'calc_pow_failure',
-          msg: err.message,
-        })
-      }
+      self.updateParentOnError(err.message, 'calc_pow_failure')
     } finally {
       store.dispatch(MutationTypes.SET_SINGLE_TX_AMOUNT_OF_WORK, false)
     }
@@ -316,7 +276,10 @@ Transaction.prototype.sendTx = async function(handleErrorUI = true) {
     store.dispatch(MutationTypes.DEACTIVATE_DRAWER)
   }
 
-  const originalPendingTxJobId = store.state.tx.jobId
+  console.log('TCL: self._hasError', self._hasError, self)
+  if (self._hasError) {
+    throw new TransactionUIError(`Transaction can't be send as it has errors`)
+  }
 
   // check if public address changed in the meantime
   // it's not really needed as account switching handles this case
@@ -332,9 +295,11 @@ Transaction.prototype.sendTx = async function(handleErrorUI = true) {
       store.commit(MutationTypes.CLEAR_TX)
     }, 600)
 
-    throw new Error(
-      `Transaction sender "${self.object.from}" is not the same with the wallet account "${walletPublicAddress}"`
-    )
+    const msg = `Transaction sender "${self.object.from}" is not the same with the wallet account "${walletPublicAddress}"`
+
+    self.updateParentOnError(msg, 'send_tx_failure')
+
+    throw new TransactionUIError(msg)
   }
 
   try {
@@ -370,7 +335,7 @@ Transaction.prototype.sendTx = async function(handleErrorUI = true) {
       SpinnerState.TRANSACTION_SENT_SUCCESS
     )
 
-    if (loadedInIframe() && originalPendingTxJobId) {
+    if (loadedInIframe() && self._updateParent) {
       replyToParentWindow(receipt)
     }
 
@@ -405,12 +370,7 @@ Transaction.prototype.sendTx = async function(handleErrorUI = true) {
       })
     }
 
-    if (loadedInIframe() && originalPendingTxJobId) {
-      replyToParentWindow(null, {
-        code: 'send_tx_failure',
-        msg: err.message,
-      })
-    }
+    self.updateParentOnError(err.message, 'send_tx_failure')
 
     loadTxsInfoFromExplorer()
 
@@ -423,3 +383,4 @@ Transaction.prototype.sendTx = async function(handleErrorUI = true) {
 }
 
 export default Transaction
+export { TransactionUIError }
