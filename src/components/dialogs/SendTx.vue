@@ -118,14 +118,24 @@ export default {
         whitelistNewDappFunc()
       }
 
-      this.tx.sendTx()
+      this.tx && this.tx.sendTx()
 
       console.log('Transaction Confirmed by user')
 
       exitDialog()
       this.$router.push({ name: RouteNames.HOME }, () => {})
     },
-    cancelPendingTx: () => cancelPendingTxFunc(),
+    cancelPendingTx: function() {
+      if (
+        this.$route.name === RouteNames.SEND &&
+        this.tx &&
+        !this.tx._updateParent
+      ) {
+        exitDialog()
+      } else {
+        cancelPendingTxFunc()
+      }
+    },
   },
 }
 </script>

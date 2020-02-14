@@ -118,12 +118,11 @@ export default {
     },
   },
   mounted() {
-    const pendingTx = this.txObject
+    const { to = '', value = '' } = this.txObject
     const data = {
-      amount: '',
+      address: to,
       token: DefaultToken,
-      address: '',
-      ...pendingTx,
+      amount: value,
     }
 
     if (data.amount) {
@@ -131,6 +130,10 @@ export default {
     }
 
     this.$set(this, 'inputs', data)
+
+    // dismiss current TX as it might have data attached to it
+    // we only wanted to read the fields data and we will create a new TX
+    this.$store.dispatch(MutationTypes.CLEAR_TX)
   },
   destroyed() {
     this.revertToDefaultToken()
