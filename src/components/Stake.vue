@@ -46,7 +46,9 @@
             class="unstaking-entry"
           >
             <div class="unstaking-info">
-              <span class="unstaking-amount"> {{ entry.amount }} EBK </span>
+              <span class="unstaking-amount">
+                {{ entry.amount.toFixed(4) }} EBK
+              </span>
               <span class="unstaking-remaining-time">
                 {{ entry.remainingTime }}
               </span>
@@ -96,9 +98,8 @@
 import Vue from 'vue'
 import { mapState } from 'vuex'
 
-import floor from 'lodash/floor'
-
 import {
+  EBK_PRECISION_FACTOR,
   stake,
   unstake,
   getClaimableEntries,
@@ -106,7 +107,7 @@ import {
   isVotingCall,
   hasStakeForVotingCall,
 } from '@/actions/systemContract'
-import Transaction from '@/actions/Transaction'
+import Transaction, { TransactionUIError } from '@/actions/Transaction'
 import { performWhitelistedAction } from '@/actions/whitelist'
 import { exitDialog } from '@/actions/wallet'
 
@@ -160,7 +161,7 @@ export default {
   data() {
     return {
       newStakedAmount: this.$store.state.wallet.staked,
-      newStakedAmountInput: this.$store.state.wallet.staked,
+      newStakedAmountInput: this.$store.state.wallet.staked.toFixed(4),
       newLiquidAmount: Vue.options.filters.toEtherFixed(
         this.$store.state.wallet.balance
       ),
@@ -174,6 +175,7 @@ export default {
     ...mapState({
       balance: state => Vue.options.filters.toEtherFixed(state.wallet.balance),
       staked: state => state.wallet.staked,
+      tx: state => state.tx,
     }),
     claimableEntries: function() {
       let hasClaimable = false
@@ -213,6 +215,15 @@ export default {
     isVotingCall: () => isVotingCall(),
   },
   watch: {
+    tx(val) {
+      if (val === null) {
+        const self = this
+        // timeout is here for UX, allowing user to read the error message
+        setTimeout(() => {
+          self.error = ''
+        }, 1000)
+      }
+    },
     balance: async function(val, oldVal) {
       if (val !== oldVal) {
         this.$set(this, 'newLiquidAmount', val) // computed balance has converted the val to ether already
@@ -227,17 +238,21 @@ export default {
           this.$set(
             this,
             'newLiquidAmount',
-            floor(this.maxStakeAmount - val, 4).toFixed(4)
+            (
+              (this.maxStakeAmount * EBK_PRECISION_FACTOR -
+                val * EBK_PRECISION_FACTOR) /
+              EBK_PRECISION_FACTOR
+            ).toFixed(4)
           )
         }, 0)
       }
     },
     newStakedAmount: function(val) {
-      this.newStakedAmountInput = val
+      this.newStakedAmountInput = val.toFixed(4)
     },
     newStakedAmountInput: function(val, oldVal) {
       if (isNaN(val) || val < 0 || val > this.maxStakeAmount) {
-        this.newStakedAmountInput = oldVal
+        this.newStakedAmountInput = oldVal.toFixed(4)
       }
     },
   },
@@ -266,38 +281,55 @@ export default {
     },
     setStake: async function() {
       if (this.newStakedAmount > this.staked) {
+        const amountToStake =
+          (this.newStakedAmount * EBK_PRECISION_FACTOR -
+            this.staked * EBK_PRECISION_FACTOR) /
+          EBK_PRECISION_FACTOR
+
         try {
           if (loadedInIframe() && isVotingCall() && !hasStakeForVotingCall()) {
-            const upstreamTx = { ...this.$store.state.tx.object }
-            const upstreamJobId = this.$store.state.tx.jobId
+            const upstreamTx = this.$store.state.tx
+            const upstreamTxId = upstreamTx.id
+            const upstreamTxObject = { ...upstreamTx.object }
+            // remove nonce, gas, workNonce so as we recalculate
+            delete upstreamTxObject.nonce
+            delete upstreamTxObject.gas
+            delete upstreamTxObject.workNonce
 
             this.$store.dispatch(MutationTypes.CLEAR_TX)
 
             this.$store.dispatch(MutationTypes.UNSET_OVERLAY_COLOR)
 
-            await stake(floor(this.newStakedAmount - this.staked, 4))
+            await stake(amountToStake)
 
             exitDialog()
             this.$router.push({ name: RouteNames.HOME }, () => {})
 
-            this.$store.dispatch(MutationTypes.SET_TX_JOB_ID, upstreamJobId)
+            try {
+              await new Transaction(upstreamTxObject, {
+                id: upstreamTxId,
+                extraGas: 5000,
+              })
 
-            // remove gas, workNonce and recalculate
-            const votePendingTx = { ...upstreamTx.object }
-            delete votePendingTx.gas
-            delete votePendingTx.workNonce
-
-            await new Transaction(votePendingTx, {
-              extraGas: 5000,
-            })
-
-            performWhitelistedAction()
+              performWhitelistedAction()
+            } catch (err) {
+              console.warn('Failed to handle vote: ', err)
+              if (err instanceof TransactionUIError) {
+                this.error = err.message
+              } else {
+                this.error = 'Failed to send vote transaction.'
+              }
+            }
           } else {
-            await stake(floor(this.newStakedAmount - this.staked, 4))
+            await stake(amountToStake)
           }
         } catch (err) {
-          console.error('Failed to set new stake amount: ', err)
-          this.error = 'Failed to set new stake amount.'
+          console.warn('Failed to set new stake amount: ', err)
+          if (err instanceof TransactionUIError) {
+            this.error = err.message
+          } else {
+            this.error = 'Failed to set new stake amount.'
+          }
         }
       } else {
         if (this.claimableEntries.length >= MAX_UNSTAKED_ENTRIES) {
@@ -306,11 +338,20 @@ export default {
           return
         }
 
+        const amountToUnstake =
+          (this.staked * EBK_PRECISION_FACTOR -
+            this.newStakedAmount * EBK_PRECISION_FACTOR) /
+          EBK_PRECISION_FACTOR
+
         try {
-          await unstake(floor(this.staked - this.newStakedAmount, 4))
+          await unstake(amountToUnstake)
         } catch (err) {
-          console.error('Failed to set unstake amount: ', err)
-          this.error = 'Failed to set unstake amount.'
+          console.warn('Failed to set unstake amount: ', err)
+          if (err instanceof TransactionUIError) {
+            this.error = err.message
+          } else {
+            this.error = 'Failed to set unstake amount.'
+          }
         }
       }
 
@@ -332,9 +373,10 @@ export default {
         return
       }
 
-      this.newLiquidAmount = floor(
-        this.maxStakeAmount - valueAsNumber,
-        4
+      this.newLiquidAmount = (
+        (this.maxStakeAmount * EBK_PRECISION_FACTOR -
+          valueAsNumber * EBK_PRECISION_FACTOR) /
+        EBK_PRECISION_FACTOR
       ).toFixed(4)
 
       this.newStakedAmount = valueAsNumber
@@ -346,8 +388,12 @@ export default {
         const entries = await getClaimableEntries()
         this.claimableEntriesStorage = entries
       } catch (err) {
-        console.error('Failed to get claimable entries: ', err)
-        this.error = 'Failed to get claimable entries'
+        console.warn('Failed to get claimable entries: ', err)
+        if (err instanceof TransactionUIError) {
+          this.error = err.message
+        } else {
+          this.error = 'Failed to get claimable entries'
+        }
       }
     },
   },
