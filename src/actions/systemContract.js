@@ -110,13 +110,15 @@ const stake = async amount => {
 
     const stakeMethod = systemContract.methods.stake(amountInEbk)
 
-    const estimatedGas = await stakeMethod.estimateGas()
-
-    const tx = await new Transaction({
-      to: SystemContractAddress,
-      data: stakeMethod.encodeABI(),
-      gas: estimatedGas + 5000,
-    })
+    const tx = await new Transaction(
+      {
+        to: SystemContractAddress,
+        data: stakeMethod.encodeABI(),
+      },
+      {
+        extraGas: 5000,
+      }
+    )
     await tx.sendTx(/* handleErrorUI */ false)
 
     await getStaked()
@@ -135,13 +137,15 @@ const unstake = async amount => {
 
     const unstakeMethod = systemContract.methods.unstake(amountInEbk)
 
-    const estimatedGas = await unstakeMethod.estimateGas()
-
-    const tx = await new Transaction({
-      to: SystemContractAddress,
-      data: unstakeMethod.encodeABI(),
-      gas: estimatedGas + 5000,
-    })
+    const tx = await new Transaction(
+      {
+        to: SystemContractAddress,
+        data: unstakeMethod.encodeABI(),
+      },
+      {
+        extraGas: 5000,
+      }
+    )
     await tx.sendTx(/* handleErrorUI */ false)
 
     await getStaked()
@@ -191,13 +195,15 @@ const claimUnstaked = async () => {
 
     const claimMethod = systemContract.methods.claim()
 
-    const estimatedGas = await claimMethod.estimateGas()
-
-    const tx = await new Transaction({
-      to: SystemContractAddress,
-      data: claimMethod.encodeABI(),
-      gas: estimatedGas + 5000,
-    })
+    const tx = await new Transaction(
+      {
+        to: SystemContractAddress,
+        data: claimMethod.encodeABI(),
+      },
+      {
+        extraGas: 5000,
+      }
+    )
     await tx.sendTx()
 
     await getStaked()
