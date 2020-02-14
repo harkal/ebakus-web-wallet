@@ -189,11 +189,11 @@ button {
   }
 
   &:disabled,
-  &[disabled] {
-    &:hover {
-      cursor: not-allowed;
-      background-color: rgb(229, 229, 229);
-    }
+  &[disabled],
+  &:disabled:hover,
+  &[disabled]:hover {
+    cursor: not-allowed;
+    background-color: rgb(229, 229, 229);
   }
 }
 

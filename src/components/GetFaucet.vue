@@ -1,6 +1,11 @@
 <template>
   <div>
-    <button v-if="network.isTestnet" class="full" @click="getWei">
+    <button
+      v-if="network.isTestnet"
+      :disabled="onFlightTx"
+      class="full"
+      @click="getWei"
+    >
       Get from faucet
     </button>
     <p v-if="error != ''" class="text-error">{{ error }}</p>
@@ -20,6 +25,7 @@ const abi = JSON.parse(
 export default {
   data() {
     return {
+      onFlightTx: false,
       error: '',
     }
   },
@@ -43,6 +49,7 @@ export default {
   methods: {
     getWei: async function() {
       this.error = ''
+      this.onFlightTx = true
 
       this.$emit('click') // TODO: move this logic out
 
@@ -60,6 +67,8 @@ export default {
       } catch (err) {
         console.warn('Failed to fetch from faucet', err)
         this.error = err.message
+      } finally {
+        this.onFlightTx = false
       }
     },
   },

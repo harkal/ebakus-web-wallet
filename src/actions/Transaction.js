@@ -232,11 +232,6 @@ Transaction.prototype.calcWork = async function() {
   )
 
   const calcWork = async function() {
-    // TODO: remove this after:
-    // 1. pownode.ebakus.com has the latest code
-    // 2. for web3.js > beta.41, if possible
-    // tx.gasPrice = '0'
-
     let difficulty = store.state.singleTxAmountOfWork
     if (!difficulty) {
       difficulty = store.state.amountOfWork

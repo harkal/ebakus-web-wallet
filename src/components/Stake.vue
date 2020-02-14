@@ -77,10 +77,20 @@
 
       <span v-if="error != ''" class="text-error">{{ error }}</span>
 
-      <button v-if="hasStakeChanged" class="full cta" @click="setStake">
+      <button
+        v-if="hasStakeChanged"
+        class="full cta"
+        :disabled="onFlightTx"
+        @click="setStake"
+      >
         Set Stake <span v-if="isVotingCall"> and Vote</span>
       </button>
-      <button v-if="hasStakeChanged" class="full" @click="discardChanges">
+      <button
+        v-if="hasStakeChanged"
+        class="full"
+        :disabled="onFlightTx"
+        @click="discardChanges"
+      >
         Cancel
       </button>
 
@@ -167,6 +177,7 @@ export default {
       ),
       claimableEntriesStorage: [],
       hasClaimable: false,
+      onFlightTx: false,
       error: '',
     }
   },
@@ -280,6 +291,8 @@ export default {
       return (Math.floor(diff / 1000) / UNSTAKE_PERIOD) * 100
     },
     setStake: async function() {
+      this.onFlightTx = true
+
       if (this.newStakedAmount > this.staked) {
         const amountToStake =
           (this.newStakedAmount * EBK_PRECISION_FACTOR -
@@ -335,6 +348,7 @@ export default {
         if (this.claimableEntries.length >= MAX_UNSTAKED_ENTRIES) {
           this.error =
             'Your are not allowed to have more than 5 unstaking entries.'
+          this.onFlightTx = false
           return
         }
 
@@ -354,6 +368,8 @@ export default {
           }
         }
       }
+
+      this.onFlightTx = false
 
       this.getClaimable()
     },
