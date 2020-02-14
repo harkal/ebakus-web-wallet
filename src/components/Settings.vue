@@ -174,7 +174,11 @@ import {
   setWhitelistDappTimer,
   removeDappFromWhitelist,
 } from '@/actions/whitelist'
-import { setProvider, getCurrentProviderEndpoint } from '@/actions/providers'
+import {
+  setProvider,
+  getProviderEndpoint,
+  getProvider,
+} from '@/actions/providers'
 
 import { web3 } from '@/actions/web3ebakus'
 
@@ -203,7 +207,10 @@ export default {
     return {
       activePane: Panes.MAIN,
       availableNetworks: Networks,
-      inputs: this.$store.getters.network,
+      inputs: {
+        networkId: this.$store.getters.network.networkId.toString(),
+        nodeAddress: this.$store.getters.network.nodeAddress,
+      },
       customNodeError: '',
     }
   },
@@ -297,12 +304,12 @@ export default {
     },
     whitelistThisDapp: () => showWhitelistNewDappView(true),
     removeDappFromWhitelist: () => removeDappFromWhitelist(),
-    connectToNode: function() {
+    connectToNode: async function() {
       const self = this
 
       const { networkId, nodeAddress } = this.inputs
       const network = {
-        networkId,
+        networkId: parseInt(networkId),
         nodeAddress: networkId == '-1' ? nodeAddress : '',
       }
 
@@ -311,10 +318,13 @@ export default {
         SpinnerState.NODE_CONNECT
       )
 
-      try {
-        if (setProvider(network)) {
-          this.$store.commit(MutationTypes.SET_NETWORK, network)
+      const originalNetwork = this.$store.state.network
+      this.$store.commit(MutationTypes.SET_NETWORK, network)
 
+      try {
+        const providerEndpoint = getProviderEndpoint()
+        const provider = await getProvider(providerEndpoint)
+        if (setProvider(provider)) {
           // this timeout is here in order the code waits for provider to be set to web3 instance
           setTimeout(async () => {
             const chainId = await web3.eth.getChainId()
@@ -329,12 +339,16 @@ export default {
             self.customNodeError = ''
 
             if (loadedInIframe()) {
-              const providerEndpoint = getCurrentProviderEndpoint()
+              const providerEndpoint = getProviderEndpoint()
               frameEventCurrentProviderEndpointUpdated(providerEndpoint)
             }
           }, 100)
+        } else {
+          this.$store.commit(MutationTypes.SET_NETWORK, originalNetwork)
         }
       } catch (err) {
+        this.$store.commit(MutationTypes.SET_NETWORK, originalNetwork)
+
         this.$store.commit(
           MutationTypes.SET_SPINNER_STATE,
           SpinnerState.NODE_DISCONNECTED

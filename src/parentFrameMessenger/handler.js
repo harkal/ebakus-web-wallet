@@ -1,5 +1,5 @@
-import { addPendingTx, calcWork } from '@/actions/transactions'
-import { getCurrentProviderEndpoint } from '@/actions/providers'
+import Transaction from '@/actions/Transaction'
+import { getProviderEndpoint } from '@/actions/providers'
 import { getBalance as getBalanceFromWallet } from '@/actions/wallet'
 import { performWhitelistedAction } from '@/actions/whitelist'
 import { getStaked as getStakedFromNode } from '@/actions/systemContract'
@@ -29,7 +29,7 @@ const unlockWallet = () => {
 }
 
 const currentProviderEndpoint = payload => {
-  const providerEndpoint = getCurrentProviderEndpoint()
+  const providerEndpoint = getProviderEndpoint()
   replyToParentWindow(providerEndpoint, null, payload)
 }
 
@@ -89,8 +89,7 @@ const sendTransaction = async payload => {
 
   store.dispatch(MutationTypes.SET_TX_JOB_ID, id)
 
-  const pendingTx = await addPendingTx(req)
-  calcWork(pendingTx)
+  await new Transaction(req)
 
   const routeName = router.app.$route.name
 

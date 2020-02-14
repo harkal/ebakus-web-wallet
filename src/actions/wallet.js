@@ -20,7 +20,8 @@ import { isSafari } from '@/utils'
 import {
   setProvider,
   checkNodeConnection,
-  getCurrentProviderEndpoint,
+  getProviderEndpoint,
+  getProvider,
 } from './providers'
 import { getTokenInfoForSymbol, getBalanceOfAddressForToken } from './tokens'
 import { loadTxsInfoFromExplorer } from './transactions'
@@ -101,9 +102,11 @@ const getBalance = async () => {
 
     isWeb3Reconnecting = true
 
-    await backOff(() => {
+    await backOff(async () => {
       store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.NODE_CONNECT)
-      setProvider(store.getters.network)
+      const providerEndpoint = getProviderEndpoint()
+      const provider = await getProvider(providerEndpoint)
+      setProvider(provider)
 
       return checkNodeConnection()
     }, BACKOFF_SETTINGS)
@@ -298,8 +301,8 @@ const unlockWallet = pass => {
   })
 }
 
-const signOutWallet = () => {
-  const endpoint = getCurrentProviderEndpoint()
+const signOutWallet = async () => {
+  const providerEndpoint = getProviderEndpoint()
 
   web3.eth.accounts.wallet.clear()
 
@@ -312,7 +315,8 @@ const signOutWallet = () => {
   const routeName = !hasWallet() ? RouteNames.NEW : RouteNames.UNLOCK
   router.push({ name: routeName }, () => {})
 
-  setProvider(endpoint)
+  const provider = await getProvider(providerEndpoint)
+  setProvider(provider)
 
   setLedgerSupportedTypes()
 }

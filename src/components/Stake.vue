@@ -106,7 +106,7 @@ import {
   isVotingCall,
   hasStakeForVotingCall,
 } from '@/actions/systemContract'
-import { addPendingTx, estimateGas, calcWork } from '@/actions/transactions'
+import Transaction from '@/actions/Transaction'
 import { performWhitelistedAction } from '@/actions/whitelist'
 import { exitDialog } from '@/actions/wallet'
 
@@ -271,7 +271,7 @@ export default {
             const upstreamTx = { ...this.$store.state.tx.object }
             const upstreamJobId = this.$store.state.tx.jobId
 
-            this.$store.dispatch(MutationTypes.SET_TX_JOB_ID, null)
+            this.$store.dispatch(MutationTypes.CLEAR_TX)
 
             this.$store.dispatch(MutationTypes.UNSET_OVERLAY_COLOR)
 
@@ -281,16 +281,15 @@ export default {
             this.$router.push({ name: RouteNames.HOME }, () => {})
 
             this.$store.dispatch(MutationTypes.SET_TX_JOB_ID, upstreamJobId)
-            const pendingTx = await addPendingTx(upstreamTx)
 
             // remove gas, workNonce and recalculate
-            const votePendingTx = { ...pendingTx }
+            const votePendingTx = { ...upstreamTx.object }
             delete votePendingTx.gas
             delete votePendingTx.workNonce
 
-            const txWithGas = await estimateGas(votePendingTx)
-
-            calcWork({ ...txWithGas, gas: txWithGas.gas + 5000 })
+            await new Transaction(votePendingTx, {
+              extraGas: 5000,
+            })
 
             performWhitelistedAction()
           } else {

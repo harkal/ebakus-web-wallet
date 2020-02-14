@@ -202,7 +202,7 @@
     </div>
 
     <div v-if="isDrawerActive" key="buttons" class="buttons">
-      <transition-group appear name="fade-transition">
+      <transition-group name="fade-transition">
         <button
           v-show="buttonState === ButtonStates.EXIT"
           key="exit"

@@ -41,6 +41,7 @@
 </template>
 
 <script>
+import Web3 from 'web3'
 import debounce from 'lodash/debounce'
 import { mapState } from 'vuex'
 
@@ -150,7 +151,7 @@ export default {
   watch: {
     publicAddress: function(val, oldVal) {
       if (val !== oldVal) {
-        const isAddress = web3.utils.isAddress(val)
+        const isAddress = Web3.utils.isAddress(val)
         if (isAddress && !this.isLocked) {
           this.startBalanceUpdater()
         }
@@ -281,7 +282,7 @@ export default {
           unsubscribeWatcher()
 
           // init web3 ebakus instance
-          await initWeb3(self.$store.getters.network)
+          await initWeb3()
 
           checkNodeConnection()
 
@@ -309,6 +310,14 @@ export default {
     },
     startBalanceUpdater: function() {
       if (this.fetchBalanceInterval === null) {
+        if (!web3) {
+          const self = this
+          setTimeout(() => {
+            self.startBalanceUpdater()
+          }, 0)
+          return
+        }
+
         this.fetchBalanceInterval = setInterval(() => {
           getBalance().catch(() => {}) // just for catching exceptions
         }, 1000)

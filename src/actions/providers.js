@@ -1,3 +1,5 @@
+import Web3 from 'web3'
+
 import { Networks, NetworkStatus, SpinnerState } from '@/constants'
 
 import MutationTypes from '@/store/mutation-types'
@@ -9,64 +11,119 @@ import {
 } from '@/parentFrameMessenger/parentFrameMessenger'
 
 import { web3 } from './web3ebakus'
+import { HardwareWalletTypes } from '../constants'
+import { getLedgerProvider } from './providers/ledger'
 
-const getProvider = network => {
-  if (typeof network === 'string') {
-    return network
-  }
+/**
+ * Get web3 provider endpoint from the predefined network list.
+ *
+ * @param {number} Network ID of the network to connect
+ * @return {string}
+ */
+const getProviderEndpointByNetworkId = id => {
+  id = parseInt(id)
 
-  // handle network object model
-  const { networkId = process.env.DEFAULT_NETWORK_ID, nodeAddress } = network
-  if (typeof nodeAddress === 'string' && nodeAddress !== '') {
-    return nodeAddress
-  }
-
-  return getProviderByNetworkId(networkId)
-}
-
-const setProvider = network => {
-  const provider = getProvider(network)
-
-  if (provider) {
-    web3.setProvider(provider)
-    return true
-  }
-
-  return false
-}
-
-const getProviderByNetworkId = id => {
   if (!Networks.hasOwnProperty(id)) {
     console.error('The given network is not valid!', id)
     return
   }
 
-  const { endpoint, provider } = Networks[id]
-
-  if (typeof provider === 'function') {
-    return provider()
-  } else if (endpoint) {
+  const { endpoint } = Networks[id]
+  if (endpoint) {
     return endpoint
   }
 
-  return false
+  return ''
 }
 
-const getCurrentProviderEndpoint = () => {
-  const provider = getProvider(store.getters.network)
-  if (typeof provider == 'string') {
-    return provider
-  } else if (
-    typeof provider.connection !== 'undefined' &&
-    typeof provider.connection.url !== 'undefined'
+/**
+ * Get web3 provider endpoint.
+ *
+ * @return {string}
+ */
+const getProviderEndpoint = (network = store.getters.network) => {
+  const { networkId, nodeAddress } = network
+
+  // custom defined network
+  if (
+    networkId == -1 &&
+    typeof nodeAddress === 'string' &&
+    nodeAddress !== ''
   ) {
-    return provider.connection.url
+    return nodeAddress
+  }
+
+  const predefinedNetwork = getProviderEndpointByNetworkId(networkId)
+  if (typeof predefinedNetwork === 'string' && predefinedNetwork !== '') {
+    return predefinedNetwork
   }
 }
 
-const setProviderByNetworkId = id => {
-  const provider = getProviderByNetworkId(id)
+/**
+ * Get a web3-provider-engine provider for a hardware wallet.
+ *
+ * @return {Provider}
+ */
+const getHardwareWalletProvider = async () => {
+  // handle hardware wallets
+  const {
+    isUsingHardwareWallet,
+    hardwareWallet: { type: hardwareWalletType },
+  } = store.getters.wallet
 
+  if (isUsingHardwareWallet) {
+    const {
+      hardwareWallets: { ledger: { connectionType } = {} } = {},
+    } = store.getters.network
+
+    if (hardwareWalletType === HardwareWalletTypes.LEDGER) {
+      try {
+        return await getLedgerProvider(connectionType)
+      } catch (err) {
+        console.error("Can't load Ledger provider", err)
+        throw new Error("Can't load Ledger provider")
+      }
+    }
+  }
+}
+
+/**
+ * Get a web3 provider.
+ *
+ * @return {Provider}
+ */
+const getProvider = async endpoint => {
+  if (!endpoint) {
+    endpoint = getProviderEndpoint()
+  }
+
+  const hardwareWalletProvider = await getHardwareWalletProvider()
+
+  if (hardwareWalletProvider) {
+    return hardwareWalletProvider
+
+    // autodetect provider
+  } else if (endpoint && typeof endpoint === 'string') {
+    // HTTP
+    if (/^http(s)?:\/\//i.test(endpoint)) {
+      return new Web3.providers.HttpProvider(endpoint)
+
+      // WS
+    } else if (/^ws(s)?:\/\//i.test(endpoint)) {
+      return new Web3.providers.WebsocketProvider(endpoint)
+    }
+  }
+
+  throw new Error("This provider endpoint can't be handled")
+}
+
+/**
+ * Set a web3 provider.
+ *
+ * @param {Provider} An actual web3 provider
+ * @return {bool}
+ */
+const setProvider = provider => {
   if (provider) {
     web3.setProvider(provider)
     return true
@@ -119,11 +176,4 @@ const checkNodeConnection = async () => {
   }
 }
 
-export {
-  getProvider,
-  setProvider,
-  getProviderByNetworkId,
-  getCurrentProviderEndpoint,
-  setProviderByNetworkId,
-  checkNodeConnection,
-}
+export { getProviderEndpoint, getProvider, setProvider, checkNodeConnection }
