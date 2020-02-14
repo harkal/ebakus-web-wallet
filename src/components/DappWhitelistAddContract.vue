@@ -49,7 +49,7 @@ export default {
       return getTargetOrigin()
     },
     contractAddress: function() {
-      return this.$store.state.tx.object.to
+      return this.$store.getters.txObject.to
     },
   },
   mounted() {

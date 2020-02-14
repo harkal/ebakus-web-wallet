@@ -8,11 +8,7 @@ const initialState = {
   isStateLoaded: false,
 
   // current operating transaction at wallet
-  tx: {
-    object: {},
-    jobId: null, // parentFrame handler id
-    whitelistAnimationReady: false, // hack for blocking ui animations
-  },
+  tx: null,
 
   amountOfWork: true, // true: for auto estimation, number: for a pre-specified value
   singleTxAmountOfWork: false, // true: for auto estimation, number: for a pre-specified value

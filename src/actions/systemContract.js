@@ -216,15 +216,22 @@ const claimUnstaked = async () => {
 }
 
 const isVotingCall = () => {
-  const tx = store.state.tx.object
+  const tx = store.state.tx
+  if (!(tx instanceof Transaction)) {
+    return false
+  }
 
-  return tx.to === SystemContractAddress && tx.data.startsWith('0xed081329')
+  return (
+    tx.object.to === SystemContractAddress &&
+    tx.object.data.startsWith('0xed081329')
+  )
 }
 const hasStakeForVotingCall = () => {
   return store.state.wallet.staked > 0
 }
 
 export {
+  EBK_PRECISION_FACTOR,
   SystemContractAddress,
   stake,
   getStaked,

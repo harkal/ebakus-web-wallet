@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 
 import { web3 } from '@/actions/web3ebakus'
 import MutationTypes from '@/store/mutation-types'
@@ -56,9 +56,7 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      tx: state => state.tx.object,
-    }),
+    ...mapGetters(['txObject']),
   },
   mounted() {
     this.estimatePoW()
@@ -108,7 +106,7 @@ export default {
 
       const estimatedTimeInSeconds = await web3.eth.estimatePoWTime(
         workValue || this.autoTargetDifficulty,
-        this.tx.gas || 21000
+        this.txObject.gas || 21000
       )
 
       if (!workValue) {

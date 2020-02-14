@@ -87,12 +87,12 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['network']),
+    ...mapGetters(['network', 'txObject']),
     ...mapState({
       isDrawerActive: state => state.ui.isDrawerActive,
       tokens: state => state.tokens,
       tokenSymbol: state => state.wallet.tokenSymbol,
-      tx: state => state.tx.object,
+      tx: state => state.tx,
     }),
     tokenSymbolPrefix: function() {
       return this.network.isTestnet ? 't' : ''
@@ -107,9 +107,18 @@ export default {
         this.revertToDefaultToken()
       }
     },
+    tx(val) {
+      if (val === null) {
+        const self = this
+        // timeout is here for UX, allowing user to read the error message
+        setTimeout(() => {
+          self.error = ''
+        }, 1000)
+      }
+    },
   },
   mounted() {
-    const pendingTx = this.tx
+    const pendingTx = this.txObject
     const data = {
       amount: '',
       token: DefaultToken,
@@ -184,12 +193,17 @@ export default {
           }
         }
 
-        await new Transaction(tx)
+        try {
+          await new Transaction(tx)
 
-        this.$store.dispatch(MutationTypes.SHOW_DIALOG, {
-          component: DialogComponents.SEND_TX,
-          title: 'Send Confirmation',
-        })
+          this.$store.dispatch(MutationTypes.SHOW_DIALOG, {
+            component: DialogComponents.SEND_TX,
+            title: 'Send Confirmation',
+          })
+        } catch (err) {
+          console.warn('Failed to add transaction', err)
+          this.error = err.message
+        }
       }
     },
     onTokenChange() {

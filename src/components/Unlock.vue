@@ -29,6 +29,7 @@
 <script>
 import { mapState } from 'vuex'
 
+import Transaction from '@/actions/Transaction'
 import { unlockWallet as unlockWalletFunc } from '@/actions/wallet'
 import { performWhitelistedAction } from '@/actions/whitelist'
 
@@ -55,7 +56,10 @@ export default {
       isDrawerActive: state => state.ui.isDrawerActive,
       isDrawerActiveByUser: state => state.ui.isDrawerActiveByUser,
       dialogComponent: state => state.ui.dialog.component,
-      tx: state => state.tx.object,
+      txObject: state => {
+        const tx = state.tx
+        return tx instanceof Transaction ? state.tx.object : {}
+      },
     }),
     visible() {
       return this.isDrawerActive
@@ -98,7 +102,7 @@ export default {
           this.$router.push({ name: redirectFrom }, () => {})
 
           if (loadedInIframe()) {
-            const { to, value, data } = self.tx
+            const { to, value, data } = self.txObject
             if (to || value || data) {
               performWhitelistedAction()
             } else if (!self.isDrawerActiveByUser) {

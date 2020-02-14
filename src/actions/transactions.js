@@ -17,6 +17,7 @@ import { web3 } from './web3ebakus'
 import { exitDialog } from './wallet'
 import { DialogComponents } from '../constants'
 import { isVotingCall } from './systemContract'
+import Transaction from './Transaction'
 
 const getTokenSymbolPrefix = (chainId = store.state.network.chainId) => {
   return web3.utils.hexToNumber(chainId) != process.env.MAINNET_CHAIN_ID
@@ -122,20 +123,23 @@ const getTxLogInfo = async receipt => {
   }
 }
 
-const checkIfEnoughBalance = tx => {
-  if (!tx) {
-    tx = store.state.tx.object
+const checkIfEnoughBalance = () => {
+  let hasBalance = false
+
+  const tx = store.state.tx
+  if (tx instanceof Transaction) {
+    let { balance, staked } = store.state.wallet
+    balance = parseFloat(web3.utils.fromWei(balance))
+    const value = tx.object.value ? web3.utils.fromWei(tx.object.value) : '0'
+
+    hasBalance = !(
+      parseFloat(value) < 0 ||
+      parseFloat(value) > balance ||
+      (isVotingCall() && balance <= 0 && staked <= 0)
+    )
   }
 
-  let { balance, staked } = store.state.wallet
-  balance = parseFloat(web3.utils.fromWei(balance))
-  const value = tx.value ? web3.utils.fromWei(tx.value) : '0'
-
-  if (
-    parseFloat(value) < 0 ||
-    parseFloat(value) > balance ||
-    (isVotingCall() && balance <= 0 && staked <= 0)
-  ) {
+  if (!hasBalance) {
     if (loadedInIframe()) {
       activateDrawerIfClosed()
     }
@@ -144,11 +148,9 @@ const checkIfEnoughBalance = tx => {
       component: DialogComponents.NO_FUNDS,
       title: 'Attention',
     })
-
-    return false
   }
 
-  return true
+  return hasBalance
 }
 
 const getTransactionMessage = async tx => {

@@ -116,6 +116,12 @@ async function Transaction(tx, opts = {}) {
       enumerable: true,
       configurable: true,
     },
+
+    // By not making the `object` configurable we break partly the reactivity.
+    // This allows us to mutate the `object` internally without the need to trigger mutation through vuex.
+    // The UI is reactive on object changes (this what we need).
+    // What's not reactive though, is that we can't traverse vuex
+    // in a previous state for debugging, which serves our needs.
     object: {
       value: object,
       writable: true,
@@ -200,8 +206,8 @@ Transaction.prototype.estimateGas = async function(force, defaultGas = 21000) {
   const self = this
   const estimateGas = async function() {
     try {
-      self.object.gas =
-        (await web3.eth.estimateGas(self.object)) + self.extraGas
+      const gas = await web3.eth.estimateGas(self.object)
+      self.object.gas = gas + self.extraGas
     } catch (err) {
       console.warn('Gas estimation failed with error: ', err)
       if (defaultGas >= 0) {

@@ -3,6 +3,8 @@ import merge from 'lodash/merge'
 import { version } from '../../package.json'
 
 import { web3 } from '@/actions/web3ebakus'
+import Transaction from '@/actions/Transaction'
+
 import {
   DefaultToken,
   NetworkStatus,
@@ -77,11 +79,14 @@ export default {
   [MutationTypes.SET_SPINNER_STATE](state, spinnerState) {
     // hack for blocking display of whitelist status bar, till animation happens
     // hack placed in here as spinnerState watcher is used for animations
-    if (
-      !state.tx.whitelistAnimationReady &&
-      spinnerState == SpinnerState.TRANSACTION_WHITELISTED_TIMER
-    ) {
-      state.tx.whitelistAnimationReady = true
+    const tx = state.tx
+    if (tx instanceof Transaction) {
+      if (
+        !tx.allowWhitelistAnimations &&
+        spinnerState == SpinnerState.TRANSACTION_WHITELISTED_TIMER
+      ) {
+        tx.allowWhitelistAnimations = true
+      }
     }
 
     state.ui.currentSpinnerState = spinnerState
@@ -216,13 +221,10 @@ export default {
   },
 
   [MutationTypes.SET_TX_OBJECT](state, tx) {
-    state.tx.object = tx
-  },
-  [MutationTypes.SET_TX_JOB_ID](state, jobId) {
-    state.tx.jobId = jobId
+    state.tx = tx
   },
   [MutationTypes.CLEAR_TX](state) {
-    state.tx = { ...initialState().tx }
+    state.tx = initialState().tx
   },
   [MutationTypes.SET_AMOUNT_OF_WORK](state, work) {
     state.amountOfWork = typeof work === 'number' ? work : true

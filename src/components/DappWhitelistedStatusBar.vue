@@ -32,7 +32,7 @@
 <script>
 import Vue from 'vue'
 import Web3 from 'web3'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 import { decodeDataUsingAbi, getValueForParam } from '@/actions/abi'
 import {
@@ -79,10 +79,11 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['txObject']),
     ...mapState({
       isDrawerActive: state => state.ui.isDrawerActive,
       balance: state => state.wallet.balance,
-      tx: state => state.tx.object,
+      tx: state => state.tx,
     }),
     getTimer: function() {
       const { all: { timer = DefaultDappWhitelistTimer } = {} } =
@@ -162,14 +163,14 @@ export default {
       whitelistStatusBar.style.opacity = 1
     },
     async getTxInfo() {
-      const tx = this.tx
-      this.to = tx.to
+      const txObject = this.txObject
+      this.to = txObject.to
 
-      let value = tx.value || '0'
+      let value = txObject.value || '0'
       value = Vue.options.filters.toEther(value)
 
-      const tokenSymbolPrefix = getTokenSymbolPrefix(tx.chainId)
-      let data = tx.data || tx.input
+      const tokenSymbolPrefix = getTokenSymbolPrefix(txObject.chainId)
+      let data = txObject.data || txObject.input
 
       let decodedData
 
@@ -181,16 +182,16 @@ export default {
         this.postTitle = '...' // for slow networks, where the await below takes too long
       }
 
-      const isContractCreation = !tx.to || /^0x0+$/.test(tx.to)
+      const isContractCreation = !txObject.to || /^0x0+$/.test(txObject.to)
       if (isContractCreation) {
         this.emTitle = 'to deploy'
         this.postTitle = 'a new contract'
       } else {
-        const token = getTokenInfoForContractAddress(tx.to)
+        const token = getTokenInfoForContractAddress(txObject.to)
         if (token && data) {
           decodedData = decodeData(data)
         } else if (data) {
-          decodedData = await decodeDataUsingAbi(tx.to, data)
+          decodedData = await decodeDataUsingAbi(txObject.to, data)
         }
 
         if (this.postTitle === '...') {
