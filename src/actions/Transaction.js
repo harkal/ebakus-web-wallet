@@ -282,7 +282,6 @@ Transaction.prototype.sendTx = async function(handleErrorUI = true) {
     store.dispatch(MutationTypes.DEACTIVATE_DRAWER)
   }
 
-  console.log('TCL: self._hasError', self._hasError, self)
   if (self._hasError) {
     throw new TransactionUIError(`Transaction can't be send as it has errors`)
   }
