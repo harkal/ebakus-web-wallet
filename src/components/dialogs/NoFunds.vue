@@ -41,10 +41,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['network']),
+    ...mapGetters(['network', 'txObject']),
     ...mapState({
       balance: state => state.wallet.balance,
-      tx: state => state.tx.object,
     }),
   },
   mounted: async function() {
@@ -58,7 +57,9 @@ export default {
     }
 
     const balance = parseFloat(Web3.utils.fromWei(this.balance))
-    const value = this.tx.value ? Web3.utils.fromWei(this.tx.value) : '0'
+    const value = this.txObject.value
+      ? Web3.utils.fromWei(this.txObject.value)
+      : '0'
 
     if (parseFloat(value) > balance || (isVotingCall() && balance <= 0)) {
       this.title = 'Not enough funds…'

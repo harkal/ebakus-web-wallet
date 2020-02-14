@@ -60,7 +60,7 @@
 
 <script>
 import Web3 from 'web3'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 import { SpinnerState } from '@/constants'
 
@@ -87,10 +87,11 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['txObject']),
     ...mapState({
       isDrawerActiveByUser: state => state.ui.isDrawerActiveByUser,
       publicAddress: state => state.wallet.address,
-      tx: state => state.tx.object,
+
       supportedConnectionTypes: state =>
         state.network.hardwareWallets.ledger.supportedConnectionTypes,
     }),
@@ -195,7 +196,7 @@ export default {
           console.error('Failed to fetch balance for Ledger account', err)
         }
 
-        const { to, value, data } = this.tx
+        const { to, value, data } = this.txObject
         if (to || value || data) {
           performWhitelistedAction()
         } else if (!this.isDrawerActiveByUser) {

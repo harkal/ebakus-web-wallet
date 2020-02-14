@@ -22,11 +22,16 @@ import {
   isVotingCall,
   hasStakeForVotingCall,
 } from './systemContract'
+import Transaction from './Transaction'
 
 let userOptedOutOnceForSession = false
 
 const isContractCall = () => {
-  const { to, data } = store.state.tx.object
+  const tx = store.state.tx
+  if (!(tx instanceof Transaction)) {
+    return false
+  }
+  const { to, data } = tx.object
 
   // const code = web3.eth.getCode(to)
   // const isContract = code != '0x0'
@@ -52,7 +57,11 @@ const isDappWhitelisted = () => {
 
 const isContractCallWhitelisted = to => {
   if (!to) {
-    let objectTo = store.state.tx.object.to
+    const tx = store.state.tx
+    if (!(tx instanceof Transaction)) {
+      return false
+    }
+    let objectTo = tx.object.to
     if (web3.utils.isAddress(objectTo)) {
       to = web3.utils.toChecksumAddress(objectTo)
     }
@@ -144,7 +153,11 @@ const showAddContractToWhitelistedDappView = () => {
 const whitelistNewDapp = () => {
   const origin = getTargetOrigin()
   if (origin) {
-    const { to } = store.state.tx.object
+    const tx = store.state.tx
+    if (!(tx instanceof Transaction)) {
+      return
+    }
+    const { to } = tx.object
     store.commit(MutationTypes.SET_DAPP_WHITELIST, {
       origin,
       contractAddress: to,
@@ -156,7 +169,11 @@ const whitelistNewDapp = () => {
 const whitelistDappAddNewContract = () => {
   const origin = getTargetOrigin()
   if (origin) {
-    const { to } = store.state.tx.object
+    const tx = store.state.tx
+    if (!(tx instanceof Transaction)) {
+      return
+    }
+    const { to } = tx.object
 
     store.commit(MutationTypes.ADD_CONTRACT_TO_DAPP_WHITELIST, {
       origin,
@@ -204,7 +221,7 @@ const performWhitelistedAction = async () => {
       } else {
         const timer = getWhitelistDappTimer()
         if (timer === 0) {
-          store.state.tx.object.sendTx()
+          store.state.tx.sendTx()
         } else {
           store.commit(
             MutationTypes.SET_SPINNER_STATE,

@@ -185,7 +185,7 @@ export default {
       setTimeout(() => {
         self.$router.push({ name: RouteNames.HOME })
 
-        const pendingTx = self.$store.state.tx.object
+        const pendingTx = self.$store.getters.txObject
         if (
           loadedInIframe() &&
           (pendingTx.to || pendingTx.value || pendingTx.data)

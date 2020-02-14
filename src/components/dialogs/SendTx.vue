@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 import {
   checkIfEnoughBalance,
@@ -79,10 +79,11 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['txObject']),
     ...mapState({
       isDialog: state => state.ui.dialog.active,
       dialog: state => state.ui.dialog,
-      tx: state => state.tx.object,
+      tx: state => state.tx,
     }),
     isWhitelistingAllowed: function() {
       return isContractCall()
@@ -102,7 +103,7 @@ export default {
       postTitle,
       to,
       data,
-    } = await getTransactionMessage(this.tx)
+    } = await getTransactionMessage(this.txObject)
 
     this.preTitle = preTitle
     this.amountTitle = amountTitle

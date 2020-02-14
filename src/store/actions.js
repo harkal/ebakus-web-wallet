@@ -4,6 +4,9 @@ import {
 } from '@/parentFrameMessenger/parentFrameMessenger'
 import { StorageNames } from '@/constants'
 
+import Transaction, { TransactionUIError } from '@/actions/Transaction'
+
+import initialState from './state'
 import MutationTypes from './mutation-types'
 
 export default {
@@ -99,11 +102,24 @@ export default {
     context.commit(MutationTypes.RESET_LOGS)
   },
 
-  [MutationTypes.SET_TX_OBJECT](context, tx) {
-    context.commit(MutationTypes.SET_TX_OBJECT, tx)
-  },
-  [MutationTypes.SET_TX_JOB_ID](context, jobId) {
-    context.commit(MutationTypes.SET_TX_JOB_ID, jobId)
+  async [MutationTypes.SET_TX_OBJECT]({ commit, state }, tx) {
+    if (!(tx instanceof Transaction)) {
+      throw new Error('TX input is not a Transaction onject')
+    }
+
+    // check if another tx is set
+    if (JSON.stringify(state.tx) !== JSON.stringify(initialState().tx)) {
+      throw new TransactionUIError(
+        'Another transaction is being handled. Please try again after existing transaction finishes.'
+      )
+    }
+
+    const existingTx = state.tx
+    if (existingTx instanceof Transaction && existingTx.id === tx.id) {
+      throw new Error('You are trying to set the same TX')
+    }
+
+    commit(MutationTypes.SET_TX_OBJECT, tx)
   },
   [MutationTypes.CLEAR_TX](context) {
     context.commit(MutationTypes.CLEAR_TX)

@@ -45,6 +45,7 @@ import Web3 from 'web3'
 import debounce from 'lodash/debounce'
 import { mapState } from 'vuex'
 
+import Transaction from '@/actions/Transaction'
 import { checkNodeConnection } from '@/actions/providers'
 import { setLedgerSupportedTypes } from '@/actions/providers/ledger'
 import { hasWallet, getBalance } from '@/actions/wallet'
@@ -121,8 +122,14 @@ export default {
       isDialog: state => state.ui.dialog.active,
       dialog: state => state.ui.dialog,
       networkStatus: state => state.network.status,
-      isTxFromParentFrame: state => !!state.tx.jobId,
-      isTxWhitelistAnimationReady: state => state.tx.whitelistAnimationReady,
+      isTxFromParentFrame: state => {
+        return state.tx instanceof Transaction ? state.tx._updateParent : false
+      },
+      isTxWhitelistAnimationReady: state => {
+        return state.tx instanceof Transaction
+          ? state.tx.allowWhitelistAnimations
+          : false
+      },
     }),
     isLocked: function() {
       return this.$store.getters.wallet.locked
@@ -139,7 +146,9 @@ export default {
       return (
         this.isTxFromParentFrame &&
         this.isTxWhitelistAnimationReady &&
-        // this.spinnerState === SpinnerState.TRANSACTION_WHITELISTED_TIMER &&
+        ![SpinnerState.CALC_POW, SpinnerState.TRANSACTION_SENDING].includes(
+          this.spinnerState
+        ) &&
         isContractCall() &&
         isContractCallWhitelisted() &&
         getWhitelistDappTimer() > 0 &&

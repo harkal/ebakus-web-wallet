@@ -12,6 +12,7 @@ import router, { RouteNames } from '@/router'
 import {
   replyToParentWindow,
   frameEventConnectionStatusUpdated,
+  getParentWindowCurrentJob,
 } from './parentFrameMessenger'
 
 const unlockWallet = () => {
@@ -87,22 +88,39 @@ const getStaked = payload => {
 const sendTransaction = async payload => {
   const { id, req } = payload
 
-  store.dispatch(MutationTypes.SET_TX_JOB_ID, id)
+  try {
+    await new Transaction(req, {
+      id,
+    })
 
-  await new Transaction(req)
+    const routeName = router.app.$route.name
 
-  const routeName = router.app.$route.name
+    if (
+      ![RouteNames.NEW, RouteNames.UNLOCK, RouteNames.SAFARI_WARNING].includes(
+        routeName
+      )
+    ) {
+      performWhitelistedAction()
+      return
+    }
 
-  if (
-    ![RouteNames.NEW, RouteNames.UNLOCK, RouteNames.SAFARI_WARNING].includes(
-      routeName
-    )
-  ) {
-    performWhitelistedAction()
-    return
+    activateDrawerIfClosed()
+  } catch (err) {
+    console.warn('Failed to handle sendTransaction from parent: ', err)
+
+    const currentJob = getParentWindowCurrentJob()
+    const { data: { id: existingId, cmd } = {} } = currentJob || {}
+    if (id === existingId && cmd === 'sendTransaction') {
+      replyToParentWindow(
+        null,
+        {
+          code: 'send_tx_cancel',
+          msg: err.message,
+        },
+        payload
+      )
+    }
   }
-
-  activateDrawerIfClosed()
 }
 
 const externalFrameHandler = payload => {

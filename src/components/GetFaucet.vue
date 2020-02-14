@@ -1,11 +1,14 @@
 <template>
-  <button v-if="network.isTestnet" class="full" @click="getWei">
-    Get from faucet
-  </button>
+  <div>
+    <button v-if="network.isTestnet" class="full" @click="getWei">
+      Get from faucet
+    </button>
+    <p v-if="error != ''" class="text-error">{{ error }}</p>
+  </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import Transaction from '@/actions/Transaction'
 import { web3 } from '@/actions/web3ebakus'
@@ -15,11 +18,32 @@ const abi = JSON.parse(
 )
 
 export default {
+  data() {
+    return {
+      error: '',
+    }
+  },
   computed: {
     ...mapGetters(['network']),
+    ...mapState({
+      tx: state => state.tx,
+    }),
+  },
+  watch: {
+    tx(val) {
+      if (val === null) {
+        const self = this
+        // timeout is here for UX, allowing user to read the error message
+        setTimeout(() => {
+          self.error = ''
+        }, 1000)
+      }
+    },
   },
   methods: {
     getWei: async function() {
+      this.error = ''
+
       this.$emit('click') // TODO: move this logic out
 
       const faucetContract = new web3.eth.Contract(
@@ -34,7 +58,8 @@ export default {
         })
         await tx.sendTx()
       } catch (err) {
-        console.error('Failed to fetch from faucet', err)
+        console.warn('Failed to fetch from faucet', err)
+        this.error = err.message
       }
     },
   },

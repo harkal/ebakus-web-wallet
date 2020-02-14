@@ -2,6 +2,8 @@ import orderBy from 'lodash/orderBy'
 
 import { HardwareWalletTypes } from '@/constants'
 
+import Transaction from '@/actions/Transaction'
+
 export default {
   network(state) {
     return {
@@ -24,6 +26,14 @@ export default {
       locked: isValidHardwareWallet ? false : state.wallet.locked,
       isUsingHardwareWallet: isValidHardwareWalletType,
     }
+  },
+
+  txObject(state) {
+    const tx = state.tx
+    if (!(tx instanceof Transaction)) {
+      return {}
+    }
+    return tx.object
   },
 
   getSortedLogs(state) {
