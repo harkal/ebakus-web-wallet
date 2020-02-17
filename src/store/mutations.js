@@ -133,6 +133,9 @@ export default {
   [MutationTypes.SIGN_OUT_WALLET](state) {
     const initState = initialState()
 
+    /* eslint-disable-next-line no-unused-vars */
+    const { status, hardwareWallets, ...keepNetworkKeys } = state.network
+
     const cleanDataKeys = ['wallet', 'history', 'network']
 
     Object.keys(state).forEach(key => {
@@ -152,6 +155,8 @@ export default {
         state[key] = initState[key]
       }
     })
+
+    state.network = { ...state.network, ...keepNetworkKeys }
   },
 
   [MutationTypes.DELETE_WALLET](state) {
