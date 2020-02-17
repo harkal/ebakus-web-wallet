@@ -227,7 +227,7 @@ Transaction.prototype.calcWork = async function() {
   const self = this
 
   await waitUntil(
-    () => self.object.gas && self.object.nonce,
+    () => self.object.gas > 0 && self.object.nonce >= 0,
     () => self._hasError
   )
 
