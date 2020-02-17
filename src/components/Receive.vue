@@ -17,6 +17,7 @@
         {{ btnLabel }}
       </button>
       <VueQRCodeComponent
+        v-if="publicAddress"
         :text="publicAddress"
         class="qrcode"
         :size="Number(240)"
