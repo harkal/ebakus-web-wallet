@@ -6,16 +6,18 @@ import ProviderEngine from 'web3-provider-engine'
 import WebsocketSubprovider from 'web3-provider-engine/subproviders/websocket'
 import RpcSubprovider from 'web3-provider-engine/subproviders/rpc'
 
-import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger'
+import { HardwareWalletTypes } from '@/constants'
 
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
+
+import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger'
 
 import { web3 } from '../web3ebakus'
 import { getProviderEndpoint } from '../providers'
 
 import createLedgerSubprovider from './createLedgerSubprovider'
-import { HardwareWalletTypes } from '../../constants'
+import createCleanRpcReqIdMiddleware from './subproviders/cleanRpcReqId'
 
 const ConnectionTypes = {
   // USB: 'USB',
@@ -117,6 +119,10 @@ const getProvider = async type => {
 
   engine.addProvider(ledger)
 
+  // FIXME: temporary fix for https://github.com/MetaMask/eth-block-tracker/pull/42
+  const cleanRPCReqIdSubprovider = createCleanRpcReqIdMiddleware()
+  engine.addProvider(cleanRPCReqIdSubprovider)
+
   const providerEndpoint = getProviderEndpoint()
 
   // autodetect provider
@@ -134,6 +140,12 @@ const getProvider = async type => {
       )
     }
   }
+
+  // network connectivity error
+  engine.on('connection error', function(err) {
+    // report connectivity errors
+    console.error('web3-provider-engine connection error', err)
+  })
 
   _providerEngine = engine
 
