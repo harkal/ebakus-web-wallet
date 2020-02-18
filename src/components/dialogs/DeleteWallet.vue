@@ -6,18 +6,6 @@
         This action is irreversible. Please do not procceed without a backup.
       </h3>
 
-      <h3 v-if="!forgotPassword">
-        Please first enter your existing wallet password so as we verify it is
-        yours.
-      </h3>
-      <Password
-        v-if="!forgotPassword"
-        ref="pass"
-        placeholder="enter old wallet password"
-        :value="pass"
-        @input="pass = $event"
-        @onEnter="deleteWallet"
-      />
       <span class="text-error">{{ error }}</span>
 
       <button class="full warning" @click="deleteWallet">Delete Wallet</button>
@@ -26,35 +14,18 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-
-import {
-  unlockWallet,
-  deleteWallet as deleteWalletFunc,
-} from '@/actions/wallet'
+import { deleteWallet as deleteWalletFunc } from '@/actions/wallet'
 
 import MutationTypes from '@/store/mutation-types'
 
 import { RouteNames } from '@/router'
 
-import Password from '@/components/elements/Password'
-
 export default {
-  components: { Password },
   data() {
     return {
       pass: '',
       error: '',
     }
-  },
-  computed: {
-    ...mapState({
-      forgotPassword: state => {
-        const { data } = state.ui.dialog
-        const { forgotPassword = false } = data || {}
-        return forgotPassword
-      },
-    }),
   },
   mounted: function() {
     this.$store.commit(MutationTypes.SET_OVERLAY_COLOR, 'red')
@@ -64,20 +35,7 @@ export default {
   },
   methods: {
     deleteWallet: async function() {
-      if (!this.forgotPassword) {
-        try {
-          await unlockWallet(this.pass)
-        } catch (err) {
-          this.error = 'Wrong Password, please try again.'
-          if (this.$refs.pass) {
-            this.$refs.pass.$refs.pass.focus()
-          }
-          return
-        }
-      }
-
-      const keepWalletData = this.forgotPassword
-      deleteWalletFunc(keepWalletData)
+      deleteWalletFunc(false)
 
       this.$store.dispatch(MutationTypes.CLEAR_DIALOG)
       this.$router.push({ name: RouteNames.NEW }, () => {})

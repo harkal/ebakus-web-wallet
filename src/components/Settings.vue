@@ -86,7 +86,11 @@
         <button class="full cta" @click="importKey">
           Import another Account
         </button>
-        <button v-if="hasWallet()" class="full cta" @click="deleteWallet">
+        <button
+          v-if="!isSignedInWithLedger && hasWallet()"
+          class="full cta"
+          @click="deleteWallet"
+        >
           Delete your Account
         </button>
       </div>

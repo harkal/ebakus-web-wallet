@@ -134,9 +134,6 @@ export default {
       this.$store.commit(MutationTypes.SHOW_DIALOG, {
         component: DialogComponents.DELETE_WALLET,
         title: 'Delete wallet',
-        data: {
-          forgotPassword: true,
-        },
       })
     },
   },
