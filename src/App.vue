@@ -146,9 +146,11 @@ export default {
       return (
         this.isTxFromParentFrame &&
         this.isTxWhitelistAnimationReady &&
-        ![SpinnerState.CALC_POW, SpinnerState.TRANSACTION_SENDING].includes(
-          this.spinnerState
-        ) &&
+        ![
+          SpinnerState.CALC_POW,
+          SpinnerState.TRANSACTION_SENDING,
+          SpinnerState.LEDGER_CONFIRM,
+        ].includes(this.spinnerState) &&
         isContractCall() &&
         isContractCallWhitelisted() &&
         getWhitelistDappTimer() > 0 &&
