@@ -410,6 +410,8 @@ export default {
               },
               currentJob
             )
+
+            this.$store.commit(MutationTypes.CLEAR_TX)
           }
         }
       } else if (this.isDialog) {

@@ -119,6 +119,8 @@ const sendTransaction = async payload => {
         },
         payload
       )
+
+      store.commit(MutationTypes.CLEAR_TX)
     }
   }
 }
