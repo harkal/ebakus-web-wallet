@@ -7,6 +7,7 @@ import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
+import { waitUntil } from '@/utils'
 
 import { web3 } from './web3ebakus'
 import { loadTxsInfoFromExplorer, cancelPendingTx } from './transactions'
@@ -31,24 +32,6 @@ const getUniqueId = () => {
   _seenUniqueIds.push(id)
 
   return id
-}
-
-const waitUntil = async function(
-  checkSuccess = () => false,
-  checkError = () => false,
-  time = 500
-) {
-  return await new Promise((resolve, reject) => {
-    const interval = setInterval(() => {
-      if (checkSuccess()) {
-        clearInterval(interval)
-        resolve()
-      } else if (checkError()) {
-        clearInterval(interval)
-        reject()
-      }
-    }, time)
-  })
 }
 
 const runOnce = async function(flag, func) {

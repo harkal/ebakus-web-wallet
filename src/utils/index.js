@@ -2,6 +2,24 @@ const isSafari = /^((?!chrome|android).)*safari/i.test(
   navigator.userAgent || navigator.vendor || window.opera
 )
 
+const waitUntil = async function(
+  checkSuccess = () => false,
+  checkError = () => false,
+  time = 500
+) {
+  return await new Promise((resolve, reject) => {
+    const interval = setInterval(() => {
+      if (checkSuccess()) {
+        clearInterval(interval)
+        resolve()
+      } else if (checkError()) {
+        clearInterval(interval)
+        reject()
+      }
+    }, time)
+  })
+}
+
 const nextAnimationFrame =
   window.requestAnimationFrame ||
   window.webkitRequestAnimationFrame ||
@@ -77,4 +95,10 @@ AnimationQueue.prototype.isAnimating = function() {
 
 const animationQueue = new AnimationQueue()
 
-export { isSafari, nextAnimationFrame, cancelAnimationFrame, animationQueue }
+export {
+  isSafari,
+  waitUntil,
+  nextAnimationFrame,
+  cancelAnimationFrame,
+  animationQueue,
+}

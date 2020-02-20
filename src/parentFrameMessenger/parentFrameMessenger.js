@@ -1,4 +1,5 @@
-import { nextAnimationFrame } from '@/utils'
+import store from '@/store'
+import { nextAnimationFrame, waitUntil } from '@/utils'
 
 import {
   externalFrameHandler,
@@ -25,20 +26,6 @@ const getUniqueJobId = () => {
   return id
 }
 
-const ensureParentConnection = () => {
-  function waitForParentConnection(resolve) {
-    if (!_target) {
-      setTimeout(() => waitForParentConnection(resolve), 2000)
-    } else {
-      resolve()
-    }
-  }
-
-  return new Promise(resolve => {
-    waitForParentConnection(resolve)
-  })
-}
-
 /**
  * Manages the jobs arriving from the parent frame
  * that loads the wallet in an iFrame
@@ -60,7 +47,15 @@ Pool.prototype.add = function(data, target, targetOrigin) {
   }
 }
 
-Pool.prototype.next = function() {
+Pool.prototype.next = async function() {
+  // ensure state is loaded before handling any jobs
+  // this is useful for Safari where the localStorage is stored on dApp domain
+  await waitUntil(
+    () => store.state.isStateLoaded,
+    () => null,
+    100
+  )
+
   // pick next job from list
   this.activeJob = this.responseCallbacks.shift()
 
@@ -176,7 +171,12 @@ const postMessage = (
 }
 
 const postMessagePromise = async (payload = {}) => {
-  await ensureParentConnection()
+  // ensure parent connection
+  await waitUntil(
+    () => _target,
+    () => null,
+    100
+  )
 
   payload.id = getUniqueJobId()
 
