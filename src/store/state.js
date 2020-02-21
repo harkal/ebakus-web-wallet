@@ -1,6 +1,7 @@
 import { version } from '../../package.json'
 
 import { DefaultToken, NetworkStatus } from '@/constants'
+import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger.js'
 
 const initialState = {
   version,
@@ -72,7 +73,8 @@ const initialState = {
 
   // UI global state
   ui: {
-    isDrawerActive: false,
+    // support self-hosted wallet UI, where drawer is always active
+    isDrawerActive: !loadedInIframe() ? true : false,
     isDrawerActiveByUser: false,
 
     isSpinnerActive: false,

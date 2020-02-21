@@ -12,6 +12,8 @@ import {
   StorageNames,
 } from '@/constants'
 
+import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger.js'
+
 import initialState from './state'
 import MutationTypes from './mutation-types'
 
@@ -70,10 +72,15 @@ export default {
 
   [MutationTypes.ACTIVATE_DRAWER](state, userAction = false) {
     state.ui.isDrawerActive = true
+    // support self-hosted wallet UI, where drawer is always active
+    if (!loadedInIframe()) {
+      return
+    }
     state.ui.isDrawerActiveByUser = !!userAction
   },
   [MutationTypes.DEACTIVATE_DRAWER](state) {
-    state.ui.isDrawerActive = false
+    // support self-hosted wallet UI, where drawer is always active
+    state.ui.isDrawerActive = !loadedInIframe() ? true : false
   },
 
   [MutationTypes.SET_SPINNER_STATE](state, spinnerState) {
