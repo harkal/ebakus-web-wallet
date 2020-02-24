@@ -438,10 +438,7 @@ export default {
       // handle "iOS viewport scroll bug", https://css-tricks.com/the-trick-to-viewport-units-on-mobile/
       // set the value in the --status-bar-vh custom property to the root of the document
       if (this.isLoadedFromDapp) {
-        setTimeout(
-          () => updateHeight,
-          styleAnimationVariables.animationStatusBase
-        )
+        setTimeout(updateHeight, styleAnimationVariables.animationStatusBase)
       } else {
         updateHeight()
       }

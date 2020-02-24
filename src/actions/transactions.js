@@ -59,6 +59,7 @@ const getTxLogInfo = async receipt => {
     data: txData,
     input,
     hash,
+    status,
     timestamp,
   } = receipt
 
@@ -119,6 +120,7 @@ const getTxLogInfo = async receipt => {
     address: logAddress,
     txhash: hash,
     local: isLocal,
+    failed: status ? !/(true|yes|1|0x1)/i.test(status) : false,
     timestamp,
   }
 }
@@ -252,6 +254,7 @@ export {
   getTokenSymbolPrefix,
   cancelPendingTx,
   checkIfEnoughBalance,
+  getTxLogInfo,
   getTransactionMessage,
   loadTxsInfoFromExplorer,
 }
