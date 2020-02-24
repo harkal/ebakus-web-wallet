@@ -320,6 +320,11 @@ export default {
       } else if (this.isDialog) {
         if ([DialogComponents.SEND_TX].includes(this.dialog.component)) {
           return ButtonStates.NONE
+        } else if (
+          !this.isLoadedFromDapp &&
+          this.$route.name == RouteNames.NEW
+        ) {
+          return ButtonStates.NONE
         } else {
           return ButtonStates.EXIT
         }
