@@ -80,7 +80,6 @@ const getHardwareWalletProvider = async () => {
       try {
         return await getLedgerProvider(connectionType)
       } catch (err) {
-        console.error("Can't load Ledger provider", err)
         throw new Error("Can't load Ledger provider")
       }
     }
