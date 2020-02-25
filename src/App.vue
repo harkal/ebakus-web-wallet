@@ -15,7 +15,7 @@
         @hideWallet="enableUserTriggeredAnimation"
       />
 
-      <transition name="fade-drawer-appear-transition">
+      <transition appear name="fade-drawer-appear-transition">
         <div v-show="isDrawerActive" ref="main" class="main">
           <component
             :is="dialog.component"
@@ -29,7 +29,7 @@
 
     <transition name="overlay-transition" appear>
       <div
-        v-if="overlayColor && overlayColor !== ''"
+        v-if="isLoadedFromDapp && overlayColor && overlayColor !== ''"
         class="overlay"
         :class="{
           black: overlayColor == 'black',
@@ -140,6 +140,7 @@ export default {
     isRegistration: function() {
       return !this.isUsingHardwareWallet && !hasWallet()
     },
+    isLoadedFromDapp: () => loadedInIframe(),
     SpinnerState: () => SpinnerState,
     styles: () => styleAnimationVariables,
     showWhitelistingTimer: function() {
@@ -270,6 +271,11 @@ export default {
   },
 
   created() {
+    if (!this.isLoadedFromDapp) {
+      document.documentElement.className += ' notInIframe'
+      this.restyleWallet()
+    }
+
     this.getViewportInnerHeight()
 
     window.addEventListener(
@@ -384,7 +390,8 @@ export default {
       }
 
       status.style.width = 0
-      if (identiconWidget) {
+
+      if (identiconWidget && this.isLoadedFromDapp) {
         identiconWidget.style.right = getComputedStyle(identiconWidget).right
       }
 
@@ -395,7 +402,7 @@ export default {
 
       nextAnimationFrame(() => {
         wallet.style.width = styleVariables.walletOpenedWidth
-        wallet.style.height = '105vh'
+        wallet.style.height = this.isLoadedFromDapp ? '105vh' : '100vh'
         status.style.width = styleVariables.walletOpenedWidth
 
         if (identiconWidget) {
@@ -462,7 +469,7 @@ export default {
       }
 
       wallet.style.width = null
-      wallet.style.height = '105vh'
+      wallet.style.height = this.isLoadedFromDapp ? '105vh' : '100vh'
       const mainDisplay = main.style.display
       main.style.display = 'none'
 
@@ -641,6 +648,18 @@ export default {
         animation-duration(status, base),
       box-shadow animation-duration(overlay, enter) ease-out
         animation-duration(status, base);
+  }
+
+  .notInIframe & {
+    position: relative;
+    right: auto;
+    height: 100vh;
+
+    margin: 0 auto;
+    padding-bottom: 0;
+
+    box-shadow: -2px 0 14px 0 rgba(0, 0, 0, 0.5);
+    transition: none;
   }
 
   &.animating-closed-state {

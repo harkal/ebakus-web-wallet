@@ -317,18 +317,20 @@ export default {
         nodeAddress: networkId == '-1' ? nodeAddress : '',
       }
 
-      this.$store.commit(
+      this.$store.dispatch(
         MutationTypes.SET_SPINNER_STATE,
         SpinnerState.NODE_CONNECT
       )
 
       const originalNetwork = this.$store.state.network
-      this.$store.commit(MutationTypes.SET_NETWORK, network)
+      await this.$store.dispatch(MutationTypes.SET_NETWORK, network)
 
       try {
         const providerEndpoint = getProviderEndpoint()
         const provider = await getProvider(providerEndpoint)
         if (setProvider(provider)) {
+          this.$store.dispatch(MutationTypes.PUSH_LOGS, [])
+
           // this timeout is here in order the code waits for provider to be set to web3 instance
           setTimeout(async () => {
             const chainId = await web3.eth.getChainId()
@@ -348,12 +350,12 @@ export default {
             }
           }, 100)
         } else {
-          this.$store.commit(MutationTypes.SET_NETWORK, originalNetwork)
+          this.$store.dispatch(MutationTypes.SET_NETWORK, originalNetwork)
         }
       } catch (err) {
-        this.$store.commit(MutationTypes.SET_NETWORK, originalNetwork)
+        this.$store.dispatch(MutationTypes.SET_NETWORK, originalNetwork)
 
-        this.$store.commit(
+        this.$store.dispatch(
           MutationTypes.SET_SPINNER_STATE,
           SpinnerState.NODE_DISCONNECTED
         )

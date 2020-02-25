@@ -1,15 +1,27 @@
 <template>
   <div class="history scroll-wrapper">
-    <div
-      v-for="(transaction, index) in getSortedLogs"
-      :key="index"
-      :class="{ local: transaction.local }"
-      class="bubble"
-      @click="openInNewTab(transaction.txhash || transaction.address)"
-    >
-      <span>{{ transaction.title }}</span>
-      <span> {{ transaction.address }} </span>
-    </div>
+    <ul class="items">
+      <li
+        v-for="(transaction, index) in getSortedLogs"
+        :key="index"
+        :class="{
+          local: transaction.local,
+          failed: transaction.failed,
+          pending: transaction.pending,
+        }"
+        class="bubble"
+        @click="openInNewTab(transaction.txhash || transaction.address)"
+      >
+        <span class="title">{{ transaction.title }}</span>
+        <span class="address">{{ transaction.address }}</span>
+        <img
+          v-if="transaction.failed"
+          src="@/assets/img/ic_failed.svg"
+          width="21"
+          alt="Transaction failed"
+        />
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -67,7 +79,13 @@ export default {
   padding: 15px 0;
 }
 
+.items {
+  padding: 0;
+  list-style: none;
+}
+
 .bubble {
+  position: relative;
   background: #e6e6e6;
   color: #112f42;
   width: 82%;
@@ -81,9 +99,16 @@ export default {
   &:hover {
     background-color: darken(#e6e6e6, 10%);
 
-    span:last-child {
+    span.address {
       opacity: 0.9;
     }
+  }
+
+  img {
+    position: absolute;
+    right: -30px;
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   &.local {
@@ -96,6 +121,20 @@ export default {
     &:hover {
       background-color: darken(#fd315f, 5%);
     }
+
+    img {
+      left: -30px;
+      right: auto;
+    }
+  }
+
+  &.pending {
+    opacity: 0.5;
+  }
+
+  &.failed {
+    background-color: #525252;
+    color: #fff;
   }
 
   span {
@@ -103,11 +142,11 @@ export default {
     font-family: sans-serif;
     line-height: 20px;
 
-    &:first-child {
+    &.title {
       font-size: 12px;
       font-weight: 600;
     }
-    &:last-child {
+    &.address {
       font-size: 10px;
       opacity: 0.7;
       font-weight: 600;

@@ -1,5 +1,8 @@
 <template>
-  <div class="widget" :class="{ safari: showSafariIdenticon }">
+  <div
+    class="widget"
+    :class="{ safari: showSafariIdenticon, locked: isLocked }"
+  >
     <div
       id="identicon"
       ref="identicon"
@@ -27,6 +30,9 @@ export default {
       isDrawerActive: state => state.ui.isDrawerActive,
       isSafariAllowed: state => state.isSafariAllowed,
     }),
+    isLocked: function() {
+      return this.$store.getters.wallet.locked
+    },
 
     showSafariIdenticon: function() {
       return isSafari && !this.isSafariAllowed && this.isDrawerActive
@@ -132,6 +138,26 @@ export default {
     top: $widget-opened-top;
     background-color: #121212;
     border-color: #fff;
+  }
+
+  &.locked {
+    background-image: url(../assets/img/ic_locked_small.png);
+    background-repeat: no-repeat;
+
+    background-position: center center;
+    background-size: 8px 10px;
+
+    .opened & {
+      background-size: 20px 24px;
+    }
+
+    &::before {
+      display: none;
+    }
+
+    .identicon ::v-deep > div {
+      display: none !important;
+    }
   }
 
   // &.safari {

@@ -300,6 +300,7 @@ export default {
     isLocked: function() {
       return this.$store.getters.wallet.locked
     },
+    isLoadedFromDapp: () => loadedInIframe(),
     SpinnerState: () => SpinnerState,
     ButtonStates: () => ButtonStates,
 
@@ -318,6 +319,11 @@ export default {
         return ButtonStates.NONE
       } else if (this.isDialog) {
         if ([DialogComponents.SEND_TX].includes(this.dialog.component)) {
+          return ButtonStates.NONE
+        } else if (
+          !this.isLoadedFromDapp &&
+          this.$route.name == RouteNames.NEW
+        ) {
           return ButtonStates.NONE
         } else {
           return ButtonStates.EXIT
@@ -424,9 +430,7 @@ export default {
     updateInnerHeight: function() {
       const self = this
 
-      // handle "iOS viewport scroll bug", https://css-tricks.com/the-trick-to-viewport-units-on-mobile/
-      // set the value in the --status-bar-vh custom property to the root of the document
-      setTimeout(() => {
+      const updateHeight = () => {
         self.$nextTick(() => {
           const height = self.$refs.statusBar.clientHeight * 0.01
           document.documentElement.style.setProperty(
@@ -434,7 +438,15 @@ export default {
             `${height}px`
           )
         })
-      }, styleAnimationVariables.animationStatusBase)
+      }
+
+      // handle "iOS viewport scroll bug", https://css-tricks.com/the-trick-to-viewport-units-on-mobile/
+      // set the value in the --status-bar-vh custom property to the root of the document
+      if (this.isLoadedFromDapp) {
+        setTimeout(updateHeight, styleAnimationVariables.animationStatusBase)
+      } else {
+        updateHeight()
+      }
     },
   },
 }
@@ -581,6 +593,10 @@ export default {
   &.close {
     background-image: url(../assets/img/ic_close.png);
     background-size: 6px 11px;
+
+    .notInIframe & {
+      display: none;
+    }
   }
   &.settings {
     background-image: url(../assets/img/ic_settings.png);
@@ -671,6 +687,10 @@ export default {
     transition: width animation-duration(status, base) ease-out 0s,
       height animation-duration(status, base) ease-out 0s,
       border animation-duration(status, base) ease-out 0s;
+
+    .notInIframe & {
+      transition: none;
+    }
 
     &.hasBalance {
       height: $widget-opened-top + $widget-size-opened + $status-bar-padding +

@@ -304,7 +304,7 @@ const unlockWallet = pass => {
 const signOutWallet = async () => {
   const providerEndpoint = getProviderEndpoint()
 
-  web3.eth.accounts.wallet.clear()
+  if (web3) web3.eth.accounts.wallet.clear()
 
   // this will clear the HDwallet logs from localStorage too
   store.commit(MutationTypes.RESET_LOGS)

@@ -12,6 +12,8 @@ import {
   StorageNames,
 } from '@/constants'
 
+import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger.js'
+
 import initialState from './state'
 import MutationTypes from './mutation-types'
 
@@ -70,10 +72,15 @@ export default {
 
   [MutationTypes.ACTIVATE_DRAWER](state, userAction = false) {
     state.ui.isDrawerActive = true
+    // support self-hosted wallet UI, where drawer is always active
+    if (!loadedInIframe()) {
+      return
+    }
     state.ui.isDrawerActiveByUser = !!userAction
   },
   [MutationTypes.DEACTIVATE_DRAWER](state) {
-    state.ui.isDrawerActive = false
+    // support self-hosted wallet UI, where drawer is always active
+    state.ui.isDrawerActive = !loadedInIframe() ? true : false
   },
 
   [MutationTypes.SET_SPINNER_STATE](state, spinnerState) {
@@ -241,18 +248,13 @@ export default {
   [MutationTypes.SET_NETWORK](state, data) {
     const { networkId, nodeAddress } = data
 
-    const ledgerSupportedConnectionTypes =
-      state.network.hardwareWallets.ledger.supportedConnectionTypes
-
     state.network = {
       ...initialState().network,
       networkId: networkId,
       nodeAddress: networkId == '-1' ? nodeAddress : '',
       status: NetworkStatus.DISCONNECTED,
+      hardwareWallets: { ...state.network.hardwareWallets },
     }
-
-    // keep current ledger supported connection types as it won't change in this browser
-    state.network.hardwareWallets.ledger.supportedConnectionTypes = ledgerSupportedConnectionTypes
   },
   [MutationTypes.SET_NETWORK_CHAIN_ID](state, chainId) {
     state.network.chainId = chainId
