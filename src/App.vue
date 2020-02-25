@@ -15,7 +15,7 @@
         @hideWallet="enableUserTriggeredAnimation"
       />
 
-      <transition name="fade-drawer-appear-transition">
+      <transition appear name="fade-drawer-appear-transition">
         <div v-show="isDrawerActive" ref="main" class="main">
           <component
             :is="dialog.component"
@@ -273,6 +273,7 @@ export default {
   created() {
     if (!this.isLoadedFromDapp) {
       document.documentElement.className += ' notInIframe'
+      this.restyleWallet()
     }
 
     this.getViewportInnerHeight()
@@ -299,8 +300,6 @@ export default {
 
           // init web3 ebakus instance
           await initWeb3()
-
-          if (!this.isLoadedFromDapp) self.restyleWallet()
 
           checkNodeConnection()
 
