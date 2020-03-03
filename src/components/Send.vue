@@ -211,13 +211,13 @@ export default {
     },
     onTokenChange() {
       const { token } = this.inputs
-      this.$store.commit(MutationTypes.SET_WALLET_BALANCE, '0')
+      this.$store.commit(MutationTypes.SET_WALLET_BALANCE, null)
       this.$store.commit(MutationTypes.SET_ACTIVE_TOKEN, token)
     },
     revertToDefaultToken() {
       if (this.tokenSymbol !== DefaultToken) {
         this.$set(this.inputs, 'token', DefaultToken)
-        this.$store.commit(MutationTypes.SET_WALLET_BALANCE, '0')
+        this.$store.commit(MutationTypes.SET_WALLET_BALANCE, null)
         this.$store.commit(MutationTypes.SET_ACTIVE_TOKEN, DefaultToken)
       }
     },

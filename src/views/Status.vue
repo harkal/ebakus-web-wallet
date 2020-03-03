@@ -100,7 +100,7 @@
     </div>
 
     <div
-      v-else-if="!isDrawerActive && !showWhitelistingTimer"
+      v-else-if="!isLocked && !isDrawerActive && !showWhitelistingTimer"
       key="balanceClosed"
       class="balance balanceClosed"
     >
@@ -123,10 +123,11 @@
       key="balanceOpened"
       class="balance balanceOpened"
     >
-      <p>
+      <p v-if="balance !== null && !isNaN(balance)">
         {{ balance | toEtherFixed }}
         <span v-if="network.isTestnet">t</span>{{ tokenSymbol }}
       </p>
+      <p v-else class="balanceLoading" />
 
       <p v-if="hasStaked" class="staked">
         + {{ staked.toFixed(4) }} <span v-if="network.isTestnet">t</span>EBK
@@ -242,7 +243,8 @@
             SpinnerState.NODE_CONNECT,
             SpinnerState.NODE_CONNECTED,
             SpinnerState.NODE_DISCONNECTED,
-          ].includes(spinnerState)
+          ].includes(spinnerState) &&
+          !(!isDrawerActive && isLocked)
       "
       class="testnet"
     >
@@ -532,7 +534,7 @@ export default {
 .balanceOpened {
   display: block;
   position: absolute;
-  top: $widget-opened-top + $widget-size-opened + $status-bar-padding;
+  top: $widget-opened-top + $widget-size-opened + $status-bar-padding + 16px;
 
   right: ($wallet-opened-width / 2);
   transform: translateX(50%);
@@ -542,16 +544,32 @@ export default {
   text-align: center;
   font-family: 'OpenSans', sans-serif;
 
+  .hasStaked &,
+  .hasUnstaking & {
+    top: $widget-opened-top + $widget-size-opened + $status-bar-padding + 10px;
+  }
+
+  .hasStaked.hasUnstaking & {
+    top: $widget-opened-top + $widget-size-opened + $status-bar-padding - 2px;
+  }
+
   p:first-child {
     font-size: 18px;
-    line-height: 18px;
     font-weight: 600;
   }
 
   .staked,
   .unstaking {
-    margin: $status-bar-padding / 2 0;
+    margin: 6px 0;
     opacity: 0.7;
+  }
+
+  .balanceLoading {
+    width: 80px;
+    min-height: 15px;
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.3);
+    animation: fadeInOutAnimation 1s infinite;
   }
 }
 
@@ -671,6 +689,7 @@ export default {
 
   #wallet:not(.opened) & {
     width: fit-content;
+    min-width: 40px;
 
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-width: 0;
@@ -725,22 +744,9 @@ export default {
         $status-navigation-height;
     }
 
-    &.hasBalance.hasStaked,
-    &.hasBalance.hasUnstaking {
-      height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
-        $status-balance-height + $status-staked-height + $status-bar-padding;
-    }
-
     &.hasBalance.hasNavigation {
       height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
         $status-balance-height + $status-bar-padding + $status-navigation-height;
-    }
-
-    &.hasBalance.hasStaked.hasNavigation,
-    &.hasBalance.hasUnstaking.hasNavigation {
-      height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
-        $status-balance-height + $status-staked-height + $status-bar-padding +
-        $status-navigation-height;
     }
 
     .testnet {

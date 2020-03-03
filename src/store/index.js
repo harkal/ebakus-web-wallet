@@ -72,7 +72,7 @@ store.subscribe(({ type }, state) => {
   // drop properties we don't want to be stored in our stores
   /* eslint-disable no-unused-vars */
   const { status, ...newNetwork } = state.network
-  const { locked, balance, staked, ...newWallet } = state.wallet
+  const { locked, balance, staked, unstaking, ...newWallet } = state.wallet
   /* eslint-enable no-unused-vars */
 
   let store = {

@@ -335,6 +335,9 @@ export default {
           return
         }
 
+        // call immediatelly the first time and wait for 1000ms
+        getBalance()
+
         this.fetchBalanceInterval = setInterval(() => {
           getBalance().catch(() => {}) // just for catching exceptions
         }, 1000)

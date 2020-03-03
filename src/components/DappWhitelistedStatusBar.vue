@@ -82,7 +82,6 @@ export default {
     ...mapGetters(['txObject']),
     ...mapState({
       isDrawerActive: state => state.ui.isDrawerActive,
-      balance: state => state.wallet.balance,
       tx: state => state.tx,
     }),
     getTimer: function() {

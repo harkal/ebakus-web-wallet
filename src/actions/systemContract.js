@@ -198,13 +198,14 @@ const getUnstakingAmount = async () => {
       for (let { amount } of claimableEntries) {
         unstakingAmount += amount
       }
-
-      if (
-        parseFloat(unstakingAmount) != parseFloat(store.state.wallet.unstaking)
-      ) {
-        store.dispatch(MutationTypes.SET_WALLET_UNSTAKING, unstakingAmount)
-      }
     }
+
+    if (
+      parseFloat(unstakingAmount) != parseFloat(store.state.wallet.unstaking)
+    ) {
+      store.dispatch(MutationTypes.SET_WALLET_UNSTAKING, unstakingAmount)
+    }
+
     return Promise.resolve(unstakingAmount)
   } catch (err) {
     console.error('Failed to fetch unstaking amount.', err)
