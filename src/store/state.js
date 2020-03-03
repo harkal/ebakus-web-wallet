@@ -53,6 +53,7 @@ const initialState = {
     address: null,
     balance: '0',
     staked: 0,
+    unstaking: 0,
     tokenSymbol: DefaultToken,
 
     hardwareWallet: {

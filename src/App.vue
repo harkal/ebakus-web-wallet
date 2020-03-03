@@ -54,7 +54,7 @@ import {
   isContractCallWhitelisted,
   getWhitelistDappTimer,
 } from '@/actions/whitelist'
-import { getStaked } from '@/actions/systemContract'
+import { getStaked, getUnstakingAmount } from '@/actions/systemContract'
 import { init as initWeb3, web3 } from '@/actions/web3ebakus'
 
 import { SpinnerState, DialogComponents } from '@/constants'
@@ -342,6 +342,7 @@ export default {
         // keep it here, as the call in getBalance, won't be called
         // if everything is staked and balance is 0
         getStaked()
+        getUnstakingAmount()
       }
     },
     loadWalletState: function() {

@@ -5,6 +5,7 @@
     :class="{
       hasBalance: hasBalance,
       hasStaked: hasStaked,
+      hasUnstaking: hasUnstaking,
       hasTitle: hasTitle,
       hasNavigation: hasNavigation,
     }"
@@ -122,11 +123,19 @@
       key="balanceOpened"
       class="balance balanceOpened"
     >
-      {{ balance | toEtherFixed }}
-      <p><span v-if="network.isTestnet">t</span>{{ tokenSymbol }}</p>
+      <p>
+        {{ balance | toEtherFixed }}
+        <span v-if="network.isTestnet">t</span>{{ tokenSymbol }}
+      </p>
 
       <p v-if="hasStaked" class="staked">
-        + {{ staked }} <span v-if="network.isTestnet">t</span>EBK staked
+        + {{ staked.toFixed(4) }} <span v-if="network.isTestnet">t</span>EBK
+        staked
+      </p>
+
+      <p v-if="hasUnstaking" class="unstaking">
+        + {{ unstaking.toFixed(4) }} <span v-if="network.isTestnet">t</span>EBK
+        unstaking
       </p>
     </div>
 
@@ -296,6 +305,7 @@ export default {
       balance: state => state.wallet.balance,
       tokenSymbol: state => state.wallet.tokenSymbol,
       staked: state => state.wallet.staked,
+      unstaking: state => state.wallet.unstaking,
     }),
     isLocked: function() {
       return this.$store.getters.wallet.locked
@@ -341,6 +351,14 @@ export default {
     hasStaked: function() {
       return (
         this.isDrawerActive && !this.isDialog && this.staked && this.staked > 0
+      )
+    },
+    hasUnstaking: function() {
+      return (
+        this.isDrawerActive &&
+        !this.isDialog &&
+        this.unstaking &&
+        this.unstaking > 0
       )
     },
     hasTitle: function() {
@@ -522,18 +540,18 @@ export default {
   padding-top: 0;
 
   text-align: center;
-  font-family: sans-serif;
-  font-size: 34px;
-  line-height: 34px;
-  font-weight: 600;
+  font-family: 'OpenSans', sans-serif;
 
-  p {
-    font-weight: 400;
+  p:first-child {
+    font-size: 18px;
+    line-height: 18px;
+    font-weight: 600;
   }
 
-  .staked {
+  .staked,
+  .unstaking {
     margin: $status-bar-padding / 2 0;
-    color: rgba(10, 206, 235, 0.59);
+    opacity: 0.7;
   }
 }
 
@@ -707,7 +725,8 @@ export default {
         $status-navigation-height;
     }
 
-    &.hasBalance.hasStaked {
+    &.hasBalance.hasStaked,
+    &.hasBalance.hasUnstaking {
       height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
         $status-balance-height + $status-staked-height + $status-bar-padding;
     }
@@ -717,7 +736,8 @@ export default {
         $status-balance-height + $status-bar-padding + $status-navigation-height;
     }
 
-    &.hasBalance.hasStaked.hasNavigation {
+    &.hasBalance.hasStaked.hasNavigation,
+    &.hasBalance.hasUnstaking.hasNavigation {
       height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
         $status-balance-height + $status-staked-height + $status-bar-padding +
         $status-navigation-height;

@@ -42,7 +42,8 @@ export default {
       $status-balance-height + $status-bar-padding;
   }
 
-  .hasBalance.hasStaked & {
+  .hasBalance.hasStaked &,
+  .hasBalance.hasUnstaking & {
     top: $widget-opened-top + $widget-size-opened + $status-bar-padding +
       $status-balance-height + $status-staked-height + $status-bar-padding;
   }
