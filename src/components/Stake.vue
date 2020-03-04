@@ -1,39 +1,71 @@
 <template>
   <div class="stake scroll-wrapper">
     <div class="wrapper">
-      <h2>Stake some EBK to proceed with voting</h2>
+      <section>
+        <h2>Total Balance</h2>
+        <div class="balance">
+          <p class="amount f-number">
+            {{ totalBalance.toFixed(4) }}
+          </p>
+          <p><span v-if="network.isTestnet">t</span>{{ tokenSymbol }}</p>
+        </div>
 
-      <div
-        class="slider-container"
-        :data-staked="getNewStakedAmount"
-        :data-liquid="newLiquidAmount"
-      >
+        <div class="progressBar">
+          <div
+            class="progress liquidBg"
+            :style="{ width: liquidProgressWidthPercent }"
+          />
+          <div
+            class="progress stakedBg"
+            :style="{ width: stakedProgressWidthPercent }"
+          />
+          <div
+            class="progress unstakingBg"
+            :style="{ width: unstakingProgressWidthPercent }"
+          />
+        </div>
+
+        <dl class="teardown">
+          <dt class="liquid">Liquid</dt>
+          <dd>{{ (balance || '0') | toEtherFixed }} EBK</dd>
+          <dt class="staked">Staked</dt>
+          <dd>{{ staked.toFixed(4) }} EBK</dd>
+          <dt class="unstaking">Unstaking</dt>
+          <dd>{{ unstaking.toFixed(4) }} EBK</dd>
+        </dl>
+      </section>
+
+      <section class="stakingSection">
+        <h2>Change Stake</h2>
+        <p class="info">
+          Adjust stake for high liquidity OR performance and voting power.
+        </p>
+
+        <label for="amount">Amount (EBK)</label>
         <input
-          type="range"
-          class="slider"
-          min="0"
-          :max="maxStakeAmount"
-          step="0.0001"
-          :value="newStakedAmount"
-          @input="setNewStakedAmount($event)"
+          id="amount"
+          v-model.number="amount"
+          type="number"
+          :min="0"
+          :max="totalBalance"
+          :placeholder="0"
         />
-      </div>
 
-      <label for="stake">Staked amount</label>
-      <input
-        id="stake"
-        v-model.number="newStakedAmountInput"
-        type="number"
-        :min="0"
-        :max="maxStakeAmount"
-        @input="setNewStakedAmount($event)"
-      />
+        <p v-if="error != ''" class="text-error">{{ error }}</p>
 
-      <hr />
+        <button class="cta" :disabled="onFlightTx" @click="stakeAmount">
+          Stake <span v-if="isVotingCall"> and Vote</span>
+        </button>
 
-      <section v-if="claimableEntries.length > 0" class="unstaking">
+        <button :disabled="onFlightTx" @click="unstakeAmount">
+          Unstake
+        </button>
+      </section>
+
+      <section v-if="claimableEntries.length > 0" class="unstakingSection">
+        <h2>Unstaking slots</h2>
         <header class="header">
-          <h4>Unstaking</h4>
+          <h4>Claimable in…</h4>
           <span
             >{{ claimableEntries.length }} out of {{ MaxUnstakedEntries }}</span
           >
@@ -65,61 +97,39 @@
           </li>
         </ul>
 
+        <p class="note">
+          Staked tokens take 3 Days to unstake and become liquid again. There
+          are 5 concurent unstaking slots.
+        </p>
+
         <button
           v-if="hasClaimable"
           class="full cta"
           @click="claimUnstakedAmount"
         >
-          Claim Unstaked
+          Claim
         </button>
-        <hr v-if="hasClaimable" />
       </section>
-
-      <span v-if="error != ''" class="text-error">{{ error }}</span>
-
-      <button
-        v-if="hasStakeChanged"
-        class="full cta"
-        :disabled="onFlightTx"
-        @click="setStake"
-      >
-        Set Stake <span v-if="isVotingCall"> and Vote</span>
-      </button>
-      <button
-        v-if="hasStakeChanged"
-        class="full"
-        :disabled="onFlightTx"
-        @click="discardChanges"
-      >
-        Cancel
-      </button>
-
-      <h3>
-        To vote for block producers and to improve performance while using the
-        ebakus network you can temporarily reserve some of your ebakus tokens.
-        Adjust your balance utilization above. Staked tokens take 3 Days to
-        unstake and become liquid again. There are 5 concurent unstaking slots.
-      </h3>
     </div>
   </div>
 </template>
 
 <script>
-import Vue from 'vue'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 import {
-  EBK_PRECISION_FACTOR,
   stake,
   unstake,
   getClaimableEntries,
   claimUnstaked,
   isVotingCall,
   hasStakeForVotingCall,
+  getUnstakingAmount,
 } from '@/actions/systemContract'
 import Transaction, { TransactionUIError } from '@/actions/Transaction'
 import { performWhitelistedAction } from '@/actions/whitelist'
 import { exitDialog } from '@/actions/wallet'
+import { web3 } from '@/actions/web3ebakus'
 
 import MutationTypes from '@/store/mutation-types'
 import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger'
@@ -170,11 +180,7 @@ const timeLeft = UNIX_timestamp => {
 export default {
   data() {
     return {
-      newStakedAmount: this.$store.state.wallet.staked,
-      newStakedAmountInput: this.$store.state.wallet.staked.toFixed(4),
-      newLiquidAmount: Vue.options.filters.toEtherFixed(
-        this.$store.state.wallet.balance
-      ),
+      amount: null,
       claimableEntriesStorage: [],
       hasClaimable: false,
       onFlightTx: false,
@@ -183,9 +189,13 @@ export default {
   },
   computed: {
     MaxUnstakedEntries: () => MAX_UNSTAKED_ENTRIES,
+    ...mapGetters(['network']),
     ...mapState({
-      balance: state => Vue.options.filters.toEtherFixed(state.wallet.balance),
+      balance: state => state.wallet.balance,
+      tokenSymbol: state => state.wallet.tokenSymbol,
       staked: state => state.wallet.staked,
+      unstaking: state => state.wallet.unstaking,
+      claimable: state => state.wallet.claimable,
       tx: state => state.tx,
     }),
     claimableEntries: function() {
@@ -206,22 +216,43 @@ export default {
 
       return entries
     },
-    getNewStakedAmount: function() {
-      return parseFloat(this.newStakedAmount).toFixed(4)
+    totalBalance: function() {
+      let total = 0
+
+      if (this.balance !== null) {
+        total += parseFloat(web3.utils.fromWei(this.balance))
+      }
+
+      if (this.staked) {
+        total += parseFloat(this.staked)
+      }
+
+      if (this.unstaking) {
+        total += parseFloat(this.unstaking)
+      }
+
+      return total
     },
-    maxStakeAmount: function() {
-      const claimable = this.claimableEntriesStorage.reduce(
-        (acc, entry) => acc + entry.amount,
-        0
-      )
-      return (
-        parseFloat(this.staked) +
-        parseFloat(this.balance) +
-        parseFloat(claimable)
-      )
+    liquidProgressWidthPercent: function() {
+      let width = 0
+      if (this.balance !== null) {
+        width = parseFloat(web3.utils.fromWei(this.balance)) / this.totalBalance
+      }
+      return `${width * 100}%`
     },
-    hasStakeChanged: function() {
-      return this.staked != this.newStakedAmount
+    stakedProgressWidthPercent: function() {
+      let width = 0
+      if (this.staked) {
+        width = parseFloat(this.staked) / this.totalBalance
+      }
+      return `${width * 100}%`
+    },
+    unstakingProgressWidthPercent: function() {
+      let width = 0
+      if (this.unstaking) {
+        width = parseFloat(this.unstaking) / this.totalBalance
+      }
+      return `${width * 100}%`
     },
     isVotingCall: () => isVotingCall(),
   },
@@ -232,38 +263,12 @@ export default {
         // timeout is here for UX, allowing user to read the error message
         setTimeout(() => {
           self.error = ''
-        }, 1000)
+        }, 4000)
       }
     },
     balance: async function(val, oldVal) {
       if (val !== oldVal) {
-        this.$set(this, 'newLiquidAmount', val) // computed balance has converted the val to ether already
-
         await this.getClaimable()
-      }
-    },
-    staked: function(val, oldVal) {
-      if (val !== oldVal) {
-        this.$set(this, 'newStakedAmount', val)
-        setTimeout(() => {
-          this.$set(
-            this,
-            'newLiquidAmount',
-            (
-              (this.maxStakeAmount * EBK_PRECISION_FACTOR -
-                val * EBK_PRECISION_FACTOR) /
-              EBK_PRECISION_FACTOR
-            ).toFixed(4)
-          )
-        }, 0)
-      }
-    },
-    newStakedAmount: function(val) {
-      this.newStakedAmountInput = val.toFixed(4)
-    },
-    newStakedAmountInput: function(val, oldVal) {
-      if (isNaN(val) || val < 0 || val > this.maxStakeAmount) {
-        this.newStakedAmountInput = oldVal.toFixed(4)
       }
     },
   },
@@ -290,112 +295,109 @@ export default {
 
       return (Math.floor(diff / 1000) / UNSTAKE_PERIOD) * 100
     },
-    setStake: async function() {
-      this.onFlightTx = true
-
-      if (this.newStakedAmount > this.staked) {
-        const amountToStake =
-          (this.newStakedAmount * EBK_PRECISION_FACTOR -
-            this.staked * EBK_PRECISION_FACTOR) /
-          EBK_PRECISION_FACTOR
-
-        try {
-          if (loadedInIframe() && isVotingCall() && !hasStakeForVotingCall()) {
-            const upstreamTx = this.$store.state.tx
-            const upstreamTxId = upstreamTx.id
-            const upstreamTxObject = { ...upstreamTx.object }
-            // remove nonce, gas, workNonce so as we recalculate
-            delete upstreamTxObject.nonce
-            delete upstreamTxObject.gas
-            delete upstreamTxObject.workNonce
-
-            this.$store.dispatch(MutationTypes.CLEAR_TX)
-
-            this.$store.dispatch(MutationTypes.UNSET_OVERLAY_COLOR)
-
-            await stake(amountToStake)
-
-            exitDialog()
-            this.$router.push({ name: RouteNames.HOME }, () => {})
-
-            try {
-              await new Transaction(upstreamTxObject, {
-                id: upstreamTxId,
-                extraGas: 5000,
-              })
-
-              performWhitelistedAction()
-            } catch (err) {
-              console.warn('Failed to handle vote: ', err)
-              if (err instanceof TransactionUIError) {
-                this.error = err.message
-              } else {
-                this.error = 'Failed to send vote transaction.'
-              }
-            }
-          } else {
-            await stake(amountToStake)
-          }
-        } catch (err) {
-          console.warn('Failed to set new stake amount: ', err)
-          if (err instanceof TransactionUIError) {
-            this.error = err.message
-          } else {
-            this.error = 'Failed to set new stake amount.'
-          }
-        }
-      } else {
-        if (this.claimableEntries.length >= MAX_UNSTAKED_ENTRIES) {
-          this.error =
-            'Your are not allowed to have more than 5 unstaking entries.'
-          this.onFlightTx = false
-          return
-        }
-
-        const amountToUnstake =
-          (this.staked * EBK_PRECISION_FACTOR -
-            this.newStakedAmount * EBK_PRECISION_FACTOR) /
-          EBK_PRECISION_FACTOR
-
-        try {
-          await unstake(amountToUnstake)
-        } catch (err) {
-          console.warn('Failed to set unstake amount: ', err)
-          if (err instanceof TransactionUIError) {
-            this.error = err.message
-          } else {
-            this.error = 'Failed to set unstake amount.'
-          }
-        }
-      }
-
-      this.onFlightTx = false
-
-      this.getClaimable()
-    },
-    discardChanges: function() {
-      this.newLiquidAmount = this.balance
-      this.newStakedAmount = this.staked
-
-      this.error = ''
-    },
-    claimUnstakedAmount: async function() {
-      await claimUnstaked()
-
-      this.error = ''
-    },
-    setNewStakedAmount: function({ target: { valueAsNumber } }) {
-      if (isNaN(valueAsNumber) || valueAsNumber > this.maxStakeAmount) {
+    stakeAmount: async function() {
+      const amount = this.amount
+      if (
+        isNaN(amount) ||
+        amount < 0 ||
+        amount > this.totalBalance - this.staked
+      ) {
+        this.error = 'Please set a valid amount to be staked.'
         return
       }
 
-      this.newLiquidAmount = (
-        (this.maxStakeAmount * EBK_PRECISION_FACTOR -
-          valueAsNumber * EBK_PRECISION_FACTOR) /
-        EBK_PRECISION_FACTOR
-      ).toFixed(4)
+      this.onFlightTx = true
+      this.error = ''
 
-      this.newStakedAmount = valueAsNumber
+      try {
+        if (loadedInIframe() && isVotingCall() && !hasStakeForVotingCall()) {
+          const upstreamTx = this.$store.state.tx
+          const upstreamTxId = upstreamTx.id
+          const upstreamTxObject = { ...upstreamTx.object }
+          // remove nonce, gas, workNonce so as we recalculate
+          delete upstreamTxObject.nonce
+          delete upstreamTxObject.gas
+          delete upstreamTxObject.workNonce
+
+          this.$store.dispatch(MutationTypes.CLEAR_TX)
+
+          this.$store.dispatch(MutationTypes.UNSET_OVERLAY_COLOR)
+
+          await stake(amount)
+
+          exitDialog()
+          this.$router.push({ name: RouteNames.HOME }, () => {})
+
+          try {
+            await new Transaction(upstreamTxObject, {
+              id: upstreamTxId,
+              extraGas: 5000,
+            })
+
+            performWhitelistedAction()
+          } catch (err) {
+            console.warn('Failed to handle vote: ', err)
+            if (err instanceof TransactionUIError) {
+              this.error = err.message
+            } else {
+              this.error = 'Failed to send vote transaction.'
+            }
+          }
+        } else {
+          await stake(amount)
+        }
+      } catch (err) {
+        console.warn('Failed to set new stake amount: ', err)
+        if (err instanceof TransactionUIError) {
+          this.error = err.message
+        } else {
+          this.error = 'Failed to set new stake amount.'
+        }
+      }
+
+      this.amount = null
+      this.onFlightTx = false
+
+      this.getClaimable()
+      getUnstakingAmount()
+    },
+    unstakeAmount: async function() {
+      const amount = this.amount
+      if (isNaN(amount) || amount < 0 || amount > this.staked) {
+        this.error = 'Please set a valid amount to be unstaked.'
+        return
+      }
+
+      this.onFlightTx = true
+      this.error = ''
+
+      if (this.claimableEntries.length >= MAX_UNSTAKED_ENTRIES) {
+        this.error =
+          'Your are not allowed to have more than 5 unstaking entries.'
+        this.onFlightTx = false
+        return
+      }
+
+      try {
+        await unstake(amount)
+      } catch (err) {
+        console.warn('Failed to set unstake amount: ', err)
+        if (err instanceof TransactionUIError) {
+          this.error = err.message
+        } else {
+          this.error = 'Failed to set unstake amount.'
+        }
+      }
+
+      this.amount = null
+      this.onFlightTx = false
+
+      this.getClaimable()
+      getUnstakingAmount()
+    },
+    claimUnstakedAmount: async function() {
+      await claimUnstaked()
+      getUnstakingAmount()
 
       this.error = ''
     },
@@ -421,39 +423,150 @@ export default {
 
 $button-width: 10px;
 
+$liquid-color: #1da1f2;
+$staked-color: #fe4184;
+$unstaking-color: #fec841;
+
+.liquidBg {
+  background-color: $liquid-color;
+}
+.stakedBg {
+  background-color: $staked-color;
+}
+.unstakingBg {
+  background-color: $unstaking-color;
+}
+
 h2 {
-  margin-bottom: 12px;
+  margin: 0 auto;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: #112f42;
 }
 
-hr {
-  width: 110%;
-  margin: 10px 0 10px -5%;
-  border: 0;
-  border-top: 1px solid #d8d8d8;
+.balance {
+  text-align: center;
+  white-space: nowrap;
+
+  .amount {
+    font-size: 26px;
+    font-weight: 600;
+  }
+
+  span,
+  p {
+    margin: 0;
+    font-size: 11px;
+  }
 }
 
-.unstaking {
+.progressBar {
+  width: 100%;
+  height: 9px;
+  margin: 18px auto;
+  border-radius: 5px;
+  overflow: hidden;
+
+  .progress {
+    float: left;
+    height: 100%;
+  }
+}
+
+.teardown {
+  dt,
+  dd {
+    display: inline-block;
+    width: 50%;
+    margin: 8px 0;
+    vertical-align: middle;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  dt {
+    font-size: 14px;
+
+    &::before {
+      content: '';
+      display: inline-block;
+      height: 9px;
+      width: 9px;
+      margin-right: 10px;
+      border-radius: 50%;
+    }
+
+    &.liquid::before {
+      background-color: $liquid-color;
+    }
+
+    &.staked::before {
+      background-color: $staked-color;
+    }
+
+    &.unstaking::before {
+      background-color: $unstaking-color;
+    }
+  }
+
+  dd {
+    text-align: right;
+  }
+}
+
+.stakingSection {
+  margin-left: -39px;
+  margin-right: -39px;
+  padding: 20px 39px;
+  background-color: #eaf3f9;
+
+  p.info {
+    font-size: 14px;
+    font-weight: 300;
+    color: #576b76;
+  }
+
+  label {
+    font-weight: 600;
+  }
+
+  button {
+    width: 48%;
+    margin-top: 4px;
+    margin-bottom: 4px;
+
+    &.cta {
+      margin-right: 4%;
+    }
+  }
+}
+
+.unstakingSection {
+  padding: 20px 0;
+
   .header {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
 
+    font-size: 12px;
+    font-weight: 600;
+
     h4 {
       margin: 0 auto 0 0;
-      font-size: 10px;
-      font-weight: 500;
       color: #677a86;
+      font-size: inherit;
     }
 
     span {
-      font-size: 10px;
       color: #dbdbdb;
     }
   }
 
   ul {
-    margin-bottom: 24px;
+    margin: 8px auto;
     padding: 0;
     list-style: none;
   }
@@ -483,7 +596,7 @@ hr {
 .unstaking-amount {
   margin-right: auto;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   color: #112f42;
 }
 
@@ -524,79 +637,8 @@ hr {
   filter: brightness(0.7);
 }
 
-.slider-container {
-  position: relative;
-  width: 100%; /* Full-width */
-  margin: 60px 0px 45px 0px;
-
-  &::before {
-    // display: block;
-    position: absolute;
-    font-size: 12px;
-    content: attr(data-staked) ' EBK staked  \A'attr(data-liquid) ' EBK liquid  ';
-    white-space: pre; /* or pre-wrap */
-    width: 100%;
-    text-align: center;
-    top: -45px;
-    background-image: url(../assets/img/ic_fast.png),
-      url(../assets/img/ic_slow.png);
-    background-repeat: no-repeat;
-    background-size: 32px, 32px;
-    background-position: top right, top left;
-    height: 30px;
-    color: #000;
-  }
-
-  &::after {
-    position: absolute;
-    top: 32px;
-    left: 0;
-    content: 'Liquidity                                                      Performance';
-    font-size: 10px;
-    font-weight: 600;
-    white-space: pre;
-    opacity: 0.7;
-  }
-}
-
-.slider {
-  position: relative;
-  width: 100%; /* Full-width */
-  height: 11px; /* Specified height */
-  background: rgb(212, 212, 212); /* Grey background */
-  outline: none; /* Remove outline */
-  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-  transition: opacity 0.2s;
-  border-radius: 20px;
-  --range: calc(var(--max) - var(--min));
-  --ratio: calc((var(--val) - var(--min)) / var(--range));
-  --sx: calc(0.5 * 1.5em + var(--ratio) * (100% - 1.5em));
-
-  -webkit-appearance: none;
-  appearance: none;
-
-  /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-  &::-webkit-slider-thumb {
-    appearance: none;
-    width: 27px; /* Set a specific slider handle width */
-    height: 27px; /* Slider handle height */
-    cursor: pointer; /* Cursor on hover */
-    background: #fcfcfc;
-    box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.28),
-      inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
-    border-radius: 100%;
-    border: 1px solid transparent;
-  }
-
-  &::-moz-range-thumb {
-    width: 27px; /* Set a specific slider handle width */
-    height: 27px; /* Slider handle height */
-    cursor: pointer; /* Cursor on hover */
-    background: #fcfcfc;
-    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.28),
-      inset 0 1px 3px 0 rgba(255, 255, 255, 0.5);
-    border-radius: 100%;
-    border: 1px solid transparent;
-  }
+.note {
+  font-size: 14px;
+  font-weight: 300;
 }
 </style>
