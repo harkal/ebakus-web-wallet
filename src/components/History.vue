@@ -1,5 +1,12 @@
 <template>
   <div class="history scroll-wrapper">
+    <div v-if="claimable > 0" class="claimNotification">
+      <span
+        >{{ claimable.toFixed(4) }} EBK have been unstaked and are ready to
+        claim</span
+      >
+      <button @click="claim">Claim</button>
+    </div>
     <ul class="items">
       <li
         v-for="(transaction, index) in getSortedLogs"
@@ -34,11 +41,13 @@ import {
   loadedInIframe,
   openInNewTabInParentWindow,
 } from '@/parentFrameMessenger/parentFrameMessenger'
+import { claimUnstaked } from '../actions/systemContract'
 
 export default {
   computed: {
     ...mapState({
       isDrawerActive: state => state.ui.isDrawerActive,
+      claimable: state => state.wallet.claimable,
     }),
     ...mapGetters(['getSortedLogs', 'network']),
   },
@@ -53,6 +62,7 @@ export default {
     loadTxsInfoFromExplorer()
   },
   methods: {
+    claim: () => claimUnstaked(),
     openInNewTab: function(address) {
       const isTestnet = this.network.isTestnet
       const explorerEndpoint = isTestnet
@@ -151,6 +161,31 @@ export default {
       opacity: 0.7;
       font-weight: 600;
     }
+  }
+}
+
+.claimNotification {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+
+  margin-top: -15px;
+  padding: 10px 20px;
+  box-shadow: 0 2px 11px 0 rgba(10, 17, 31, 0.1);
+
+  & > * {
+    flex: 1 1 auto;
+  }
+
+  span {
+    font-size: 14px;
+  }
+
+  button {
+    margin-left: 12px;
+    padding: 5px 6px;
   }
 }
 </style>

@@ -191,12 +191,21 @@ const getClaimableEntries = async () => {
 
 const getUnstakingAmount = async () => {
   try {
-    let unstakingAmount = 0
+    let unstakingAmount = 0,
+      claimableAmount = 0
 
     const claimableEntries = await getClaimableEntries()
     if (claimableEntries && claimableEntries.length > 0) {
-      for (let { amount } of claimableEntries) {
+      const now = new Date()
+
+      for (let { amount, timestamp } of claimableEntries) {
         unstakingAmount += amount
+
+        const ttime = new Date(timestamp * 1000)
+        const diff = ttime - now
+        if (diff <= 0) {
+          claimableAmount += amount
+        }
       }
     }
 
@@ -204,6 +213,12 @@ const getUnstakingAmount = async () => {
       parseFloat(unstakingAmount) != parseFloat(store.state.wallet.unstaking)
     ) {
       store.dispatch(MutationTypes.SET_WALLET_UNSTAKING, unstakingAmount)
+    }
+
+    if (
+      parseFloat(claimableAmount) != parseFloat(store.state.wallet.claimable)
+    ) {
+      store.dispatch(MutationTypes.SET_WALLET_CLAIMABLE, claimableAmount)
     }
 
     return Promise.resolve(unstakingAmount)

@@ -118,6 +118,9 @@ export default {
   [MutationTypes.SET_WALLET_UNSTAKING](state, unstaking) {
     state.wallet.unstaking = unstaking
   },
+  [MutationTypes.SET_WALLET_CLAIMABLE](state, claimable) {
+    state.wallet.claimable = claimable
+  },
   [MutationTypes.SET_ACTIVE_TOKEN](state, tokenSymbol = DefaultToken) {
     state.wallet.tokenSymbol = tokenSymbol
   },

@@ -54,6 +54,7 @@ const initialState = {
     balance: null,
     staked: 0,
     unstaking: 0,
+    claimable: 0,
     tokenSymbol: DefaultToken,
 
     hardwareWallet: {
