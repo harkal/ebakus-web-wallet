@@ -297,12 +297,9 @@ export default {
     },
     stakeAmount: async function() {
       const amount = this.amount
-      if (
-        isNaN(amount) ||
-        amount < 0 ||
-        amount > this.totalBalance - this.staked
-      ) {
-        this.error = 'Please set a valid amount to be staked.'
+      const maxStakeAmount = this.totalBalance - this.staked
+      if (isNaN(amount) || amount < 0 || amount > maxStakeAmount) {
+        this.error = `Please set a valid amount to be staked. (Max amount = ${maxStakeAmount} EBK)`
         return
       }
 
@@ -364,7 +361,7 @@ export default {
     unstakeAmount: async function() {
       const amount = this.amount
       if (isNaN(amount) || amount < 0 || amount > this.staked) {
-        this.error = 'Please set a valid amount to be unstaked.'
+        this.error = `Please set a valid amount to be unstaked. (Max amount = ${this.staked} EBK)`
         return
       }
 
