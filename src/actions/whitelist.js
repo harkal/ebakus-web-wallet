@@ -152,15 +152,19 @@ const showAddContractToWhitelistedDappView = () => {
 
 const whitelistNewDapp = () => {
   const origin = getTargetOrigin()
+
   if (origin) {
+    let contractAddress
     const tx = store.state.tx
-    if (!(tx instanceof Transaction)) {
-      return
+    if (tx && tx instanceof Transaction) {
+      const { to } = tx.object
+      if (to) {
+        contractAddress = to
+      }
     }
-    const { to } = tx.object
     store.commit(MutationTypes.SET_DAPP_WHITELIST, {
       origin,
-      contractAddress: to,
+      contractAddress,
       timer: DefaultDappWhitelistTimer,
     })
   }

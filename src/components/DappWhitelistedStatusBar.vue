@@ -305,6 +305,7 @@ h2 .caution {
 }
 
 h3 {
+  font-family: sans-serif;
   font-size: 0.7em;
   letter-spacing: 0.3px;
   color: #b6b8bc;

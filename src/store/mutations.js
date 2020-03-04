@@ -304,6 +304,7 @@ export default {
         contracts: [
           ...(curOrigin.contracts ? curOrigin.contracts : []),
           ...(curOrigin.contracts &&
+          contractAddress &&
           !curOrigin.contracts.includes(contractAddress)
             ? [web3.utils.toChecksumAddress(contractAddress)]
             : []),
