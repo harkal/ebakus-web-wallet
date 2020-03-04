@@ -100,7 +100,12 @@
     </div>
 
     <div
-      v-else-if="!isLocked && !isDrawerActive && !showWhitelistingTimer"
+      v-else-if="
+        !isLocked &&
+          !isDrawerActive &&
+          !showWhitelistingTimer &&
+          balance !== null
+      "
       key="balanceClosed"
       class="balance balanceClosed"
     >
