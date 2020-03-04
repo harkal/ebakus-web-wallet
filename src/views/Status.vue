@@ -104,8 +104,9 @@
       key="balanceClosed"
       class="balance balanceClosed"
     >
-      {{ balance | toEtherFixed }}
-
+      <span class="f-number">
+        {{ balance | toEtherFixed }}
+      </span>
       <img
         v-if="!network.isTestnet && tokenSymbol == 'EBK'"
         src="@/assets/img/ebakus_logo_small.svg"
@@ -123,20 +124,20 @@
       key="balanceOpened"
       class="balance balanceOpened"
     >
-      <p v-if="balance !== null && !isNaN(balance)">
-        {{ balance | toEtherFixed }}
+      <p v-if="balance !== null && !isNaN(balance)" class="liquid">
+        <span class="f-number">{{ balance | toEtherFixed }} </span>
         <span v-if="network.isTestnet">t</span>{{ tokenSymbol }}
       </p>
       <p v-else class="balanceLoading" />
 
       <p v-if="hasStaked" class="staked">
-        + {{ staked.toFixed(4) }} <span v-if="network.isTestnet">t</span>EBK
-        staked
+        + <span class="f-number">{{ staked.toFixed(4) }} </span>
+        <span v-if="network.isTestnet">t</span>EBK staked
       </p>
 
       <p v-if="hasUnstaking" class="unstaking">
-        + {{ unstaking.toFixed(4) }} <span v-if="network.isTestnet">t</span>EBK
-        unstaking
+        + <span class="f-number">{{ unstaking.toFixed(4) }} </span>
+        <span v-if="network.isTestnet">t</span>EBK unstaking
       </p>
     </div>
 
@@ -497,17 +498,11 @@ export default {
 .balance {
   color: white;
   text-align: right;
-
-  font-family: 'Arial';
-  font-size: 17px;
-  font-weight: 400;
   white-space: nowrap;
 
   span,
   p {
     margin: 0;
-    font-size: 13px;
-    line-height: 13px;
   }
 
   img {
@@ -521,13 +516,20 @@ export default {
   transform: translateY(-50%);
 
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: flex-end;
 
   margin: 0 8px;
 
-  span {
+  .f-number {
+    font-size: 17px;
+    font-weight: 500;
+  }
+
+  span:not(.f-number) {
     margin-left: 2px;
+    font-size: 13px;
+    font-weight: 600;
   }
 }
 
@@ -541,8 +543,10 @@ export default {
 
   padding-top: 0;
 
+  font-size: 13px;
+  line-height: 13px;
+  font-weight: 600;
   text-align: center;
-  font-family: 'OpenSans', sans-serif;
 
   .hasStaked &,
   .hasUnstaking & {
@@ -553,14 +557,15 @@ export default {
     top: $widget-opened-top + $widget-size-opened + $status-bar-padding - 2px;
   }
 
-  p:first-child {
+  .liquid {
+    margin-bottom: 10px;
     font-size: 18px;
     font-weight: 600;
   }
 
   .staked,
   .unstaking {
-    margin: 6px 0;
+    margin: 4px 0;
     opacity: 0.7;
   }
 
@@ -597,7 +602,7 @@ export default {
   border-radius: 6px;
   text-align: center;
   font-size: 0.9em;
-  font-weight: 500;
+  font-weight: 600;
   color: #bec2c9;
 
   .hasNavigation & {

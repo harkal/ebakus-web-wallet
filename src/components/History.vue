@@ -19,8 +19,8 @@
         class="bubble"
         @click="openInNewTab(transaction.txhash || transaction.address)"
       >
-        <span class="title">{{ transaction.title }}</span>
-        <span class="address">{{ transaction.address }}</span>
+        <span class="title ">{{ transaction.title }}</span>
+        <span class="address f-number">{{ transaction.address }}</span>
         <img
           v-if="transaction.failed"
           src="@/assets/img/ic_failed.svg"
@@ -136,6 +136,10 @@ export default {
       left: -30px;
       right: auto;
     }
+
+    .address {
+      color: inherit;
+    }
   }
 
   &.pending {
@@ -145,11 +149,14 @@ export default {
   &.failed {
     background-color: #525252;
     color: #fff;
+
+    .address {
+      color: inherit;
+    }
   }
 
   span {
     display: block;
-    font-family: sans-serif;
     line-height: 20px;
 
     &.title {
@@ -158,8 +165,7 @@ export default {
     }
     &.address {
       font-size: 10px;
-      opacity: 0.7;
-      font-weight: 600;
+      color: #969696;
     }
   }
 }

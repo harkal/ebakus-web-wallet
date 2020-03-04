@@ -56,10 +56,10 @@ export default {
     padding: 6px 0px;
     margin: 13px;
     border-radius: 20px;
-    font-size: 14px;
-    cursor: pointer;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
     user-select: none;
+    cursor: pointer;
 
     &:hover,
     &.active {
