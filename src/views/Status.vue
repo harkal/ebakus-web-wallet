@@ -262,6 +262,8 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 
+import { isVotingCall } from '@/actions/systemContract'
+
 import { SpinnerState, DialogComponents } from '@/constants'
 
 import MutationTypes from '@/store/mutation-types'
@@ -280,7 +282,6 @@ import {
 import { animationQueue } from '@/utils'
 
 import styleAnimationVariables from '@/assets/css/_animations.scss'
-import { isVotingCall } from '../actions/systemContract'
 
 const ButtonStates = {
   NONE: 'NONE',
