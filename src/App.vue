@@ -99,6 +99,8 @@ export default {
       import(/* webpackChunkName: "no-funds" */ './components/dialogs/NoFunds'),
     Ledger: () =>
       import(/* webpackChunkName: "ledger" */ './components/dialogs/Ledger'),
+    Trezor: () =>
+      import(/* webpackChunkName: "trezor" */ './components/dialogs/Trezor'),
   },
   data() {
     return {

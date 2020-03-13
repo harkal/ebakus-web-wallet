@@ -81,13 +81,24 @@
         Connect with Ledger
       </button>
 
+      <button
+        v-if="isSignedInWithTrezor"
+        class="full cta trezor"
+        @click="disconnectTrezor"
+      >
+        Sign out Trezor account
+      </button>
+      <button v-else class="full trezor" @click="connectWithTrezor">
+        Connect with Trezor
+      </button>
+
       <div class="danger-zone">
         <h2>Danger Zone</h2>
         <button class="full cta" @click="importKey">
           Import another Account
         </button>
         <button
-          v-if="!isSignedInWithLedger && hasWallet()"
+          v-if="!isSignedInWithLedger && !isSignedInWithTrezor && hasWallet()"
           class="full cta"
           @click="deleteWallet"
         >
@@ -238,6 +249,17 @@ export default {
       )
     },
 
+    isSignedInWithTrezor: function() {
+      const {
+        isUsingHardwareWallet,
+        locked,
+        hardwareWallet: { type },
+      } = this.$store.getters.wallet
+      return (
+        isUsingHardwareWallet && !locked && type === HardwareWalletTypes.TREZOR
+      )
+    },
+
     maxWhitelistDelay: () => MAX_WHITELIST_DELAY,
     SpinnerState: () => SpinnerState,
 
@@ -292,14 +314,23 @@ export default {
     exportPrivateKey: function() {
       this.activePane = Panes.BACKUP
     },
+    hasWallet: () => hasWalletFunc(),
     connectWithLedger: function() {
       this.$store.commit(MutationTypes.SHOW_DIALOG, {
         component: DialogComponents.LEDGER,
         title: 'Connect with Ledger',
       })
     },
-    hasWallet: () => hasWalletFunc(),
     disconnectLedger: function() {
+      signOutWallet()
+    },
+    connectWithTrezor: function() {
+      this.$store.commit(MutationTypes.SHOW_DIALOG, {
+        component: DialogComponents.TREZOR,
+        title: 'Connect with Trezor',
+      })
+    },
+    disconnectTrezor: function() {
       signOutWallet()
     },
     setWhitelistDelay({ target: { valueAsNumber } }) {

@@ -1,4 +1,8 @@
-import { SpinnerState, DialogComponents } from '@/constants'
+import {
+  SpinnerState,
+  DialogComponents,
+  HardwareWalletTypes,
+} from '@/constants'
 import {
   loadedInIframe,
   replyToParentWindow,
@@ -293,13 +297,25 @@ Transaction.prototype.sendTx = async function(handleErrorUI = true) {
       await self.calcWork()
     }
 
-    const isUsingHardwareWallet = store.getters.wallet.isUsingHardwareWallet
+    const {
+      isUsingHardwareWallet,
+      hardwareWallet: { type: hardwareWalletType },
+    } = store.getters.wallet
 
     if (isUsingHardwareWallet) {
-      store.dispatch(
-        MutationTypes.SET_SPINNER_STATE,
-        SpinnerState.LEDGER_CONFIRM
-      )
+      if (hardwareWalletType === HardwareWalletTypes.LEDGER) {
+        store.dispatch(
+          MutationTypes.SET_SPINNER_STATE,
+          SpinnerState.LEDGER_CONFIRM
+        )
+      } else if (hardwareWalletType === HardwareWalletTypes.TREZOR) {
+        store.dispatch(
+          MutationTypes.SET_SPINNER_STATE,
+          SpinnerState.TREZOR_CONFIRM
+        )
+        // hack for trezor lib that requires chainId to be a number
+        self.object.chainId = web3.utils.hexToNumber(self.object.chainId)
+      }
     } else {
       store.dispatch(
         MutationTypes.SET_SPINNER_STATE,

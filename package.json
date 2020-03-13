@@ -29,6 +29,7 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@0x/subproviders": "^6.0.8",
     "@ledgerhq/hw-app-eth": "^5.7.0",
     "@ledgerhq/hw-transport-u2f": "^5.7.0",
     "@ledgerhq/hw-transport-web-ble": "^5.7.0",
@@ -44,6 +45,7 @@
     "jazzicon": "^2.0.0",
     "lodash": "^4.17.15",
     "strip-hex-prefix": "^1.0.0",
+    "trezor-connect": "^8.0.13",
     "vue": "^2.6.10",
     "vue-clipboard2": "^0.3.1",
     "vue-qrcode-component": "^2.1.1",

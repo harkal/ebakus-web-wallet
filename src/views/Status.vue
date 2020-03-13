@@ -28,6 +28,7 @@
             SpinnerState.TRANSACTION_SENT_SUCCESS,
             SpinnerState.TRANSACTION_SENT_CANCELLED,
             SpinnerState.LEDGER_CONFIRM,
+            SpinnerState.TREZOR_CONFIRM,
             SpinnerState.NODE_CONNECT,
             SpinnerState.NODE_CONNECTED,
             SpinnerState.NODE_DISCONNECTED,
@@ -70,6 +71,14 @@
         class="confirm-on-ledger"
       >
         Confirm on Ledger
+      </span>
+
+      <span
+        v-else-if="spinnerState === SpinnerState.TREZOR_CONFIRM"
+        key="confirm-trezor"
+        class="confirm-on-trezor"
+      >
+        Confirm on Trezor
       </span>
 
       <img
@@ -168,6 +177,7 @@
             SpinnerState.TRANSACTION_SENT_SUCCESS,
             SpinnerState.LEDGER_FETCH_ACCOUNTS,
             SpinnerState.LEDGER_CONFIRM,
+            SpinnerState.TREZOR_CONFIRM,
           ].includes(spinnerState)
       "
       key="openedState"
@@ -214,6 +224,13 @@
         key="confirm-ledger"
       >
         Confirm on Ledger
+      </span>
+
+      <span
+        v-else-if="spinnerState === SpinnerState.TREZOR_CONFIRM"
+        key="confirm-trezor"
+      >
+        Confirm on Trezor
       </span>
     </div>
 
@@ -329,7 +346,11 @@ export default {
           this.$route.name
         )
       ) {
-        if ([DialogComponents.LEDGER].includes(this.dialog.component)) {
+        if (
+          [DialogComponents.LEDGER, DialogComponents.TREZOR].includes(
+            this.dialog.component
+          )
+        ) {
           return ButtonStates.EXIT
         }
 
@@ -409,7 +430,9 @@ export default {
       if (this.$route.name == RouteNames.NEW) {
         if (
           this.isDialog &&
-          [DialogComponents.LEDGER].includes(this.dialog.component)
+          [DialogComponents.LEDGER, DialogComponents.TREZOR].includes(
+            this.dialog.component
+          )
         ) {
           this.$store.commit(MutationTypes.CLEAR_DIALOG)
         } else {
@@ -420,7 +443,11 @@ export default {
         this.$router.push({ name: redirectFrom }, () => {})
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
       } else if (this.$route.name == RouteNames.SETTINGS) {
-        if (![DialogComponents.LEDGER].includes(this.dialog.component)) {
+        if (
+          ![DialogComponents.LEDGER, DialogComponents.TREZOR].includes(
+            this.dialog.component
+          )
+        ) {
           this.$router.push({ name: RouteNames.HOME }, () => {})
         }
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
@@ -655,7 +682,8 @@ export default {
   }
 }
 
-.confirm-on-ledger {
+.confirm-on-ledger,
+.confirm-on-trezor {
   white-space: nowrap;
 }
 

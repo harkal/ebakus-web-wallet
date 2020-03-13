@@ -13,6 +13,7 @@ import {
 import { web3 } from './web3ebakus'
 import { HardwareWalletTypes } from '../constants'
 import { getLedgerProvider } from './providers/ledger'
+import { getTrezorProvider } from './providers/trezor'
 
 /**
  * Get web3 provider endpoint from the predefined network list.
@@ -76,12 +77,14 @@ const getHardwareWalletProvider = async () => {
       hardwareWallets: { ledger: { connectionType } = {} } = {},
     } = store.getters.network
 
-    if (hardwareWalletType === HardwareWalletTypes.LEDGER) {
-      try {
+    try {
+      if (hardwareWalletType === HardwareWalletTypes.LEDGER) {
         return await getLedgerProvider(connectionType)
-      } catch (err) {
-        throw new Error("Can't load Ledger provider")
+      } else if (hardwareWalletType === HardwareWalletTypes.TREZOR) {
+        return await getTrezorProvider()
       }
+    } catch (err) {
+      throw new Error("Can't load Ledger provider")
     }
   }
 }
