@@ -26,7 +26,7 @@ import {
 import { getTokenInfoForSymbol, getBalanceOfAddressForToken } from './tokens'
 import { loadTxsInfoFromExplorer } from './transactions'
 import { web3 } from './web3ebakus'
-import { getStaked } from './systemContract'
+import { getStaked, getUnstakingAmount } from './systemContract'
 import { setLedgerSupportedTypes } from './providers/ledger'
 
 const BACKOFF_SETTINGS = {
@@ -80,6 +80,7 @@ const getBalance = async () => {
       store.dispatch(MutationTypes.SET_WALLET_BALANCE, String(wei))
 
       getStaked()
+      getUnstakingAmount()
 
       if (loadedInIframe()) {
         frameEventBalanceUpdated(wei)

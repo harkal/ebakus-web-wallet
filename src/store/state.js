@@ -51,8 +51,10 @@ const initialState = {
   wallet: {
     locked: true,
     address: null,
-    balance: '0',
+    balance: null,
     staked: 0,
+    unstaking: 0,
+    claimable: 0,
     tokenSymbol: DefaultToken,
 
     hardwareWallet: {

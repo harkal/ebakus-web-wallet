@@ -42,11 +42,6 @@ export default {
       $status-balance-height + $status-bar-padding;
   }
 
-  .hasBalance.hasStaked & {
-    top: $widget-opened-top + $widget-size-opened + $status-bar-padding +
-      $status-balance-height + $status-staked-height + $status-bar-padding;
-  }
-
   .hasTitle & {
     top: $widget-opened-top + $widget-size-opened + $status-bar-padding +
       $status-title-height + $status-bar-padding;
@@ -61,10 +56,10 @@ export default {
     padding: 6px 0px;
     margin: 13px;
     border-radius: 20px;
-    font-size: 14px;
-    cursor: pointer;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
     user-select: none;
+    cursor: pointer;
 
     &:hover,
     &.active {

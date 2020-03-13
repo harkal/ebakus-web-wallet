@@ -115,6 +115,12 @@ export default {
   [MutationTypes.SET_WALLET_STAKED](state, staked) {
     state.wallet.staked = staked
   },
+  [MutationTypes.SET_WALLET_UNSTAKING](state, unstaking) {
+    state.wallet.unstaking = unstaking
+  },
+  [MutationTypes.SET_WALLET_CLAIMABLE](state, claimable) {
+    state.wallet.claimable = claimable
+  },
   [MutationTypes.SET_ACTIVE_TOKEN](state, tokenSymbol = DefaultToken) {
     state.wallet.tokenSymbol = tokenSymbol
   },
@@ -298,6 +304,7 @@ export default {
         contracts: [
           ...(curOrigin.contracts ? curOrigin.contracts : []),
           ...(curOrigin.contracts &&
+          contractAddress &&
           !curOrigin.contracts.includes(contractAddress)
             ? [web3.utils.toChecksumAddress(contractAddress)]
             : []),

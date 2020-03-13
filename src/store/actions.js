@@ -84,6 +84,12 @@ export default {
   [MutationTypes.SET_WALLET_STAKED](context, staked) {
     context.commit(MutationTypes.SET_WALLET_STAKED, staked)
   },
+  [MutationTypes.SET_WALLET_UNSTAKING](context, unstaking) {
+    context.commit(MutationTypes.SET_WALLET_UNSTAKING, unstaking)
+  },
+  [MutationTypes.SET_WALLET_CLAIMABLE](context, claimable) {
+    context.commit(MutationTypes.SET_WALLET_CLAIMABLE, claimable)
+  },
 
   [MutationTypes.DELETE_WALLET](context) {
     context.commit(MutationTypes.DELETE_WALLET)

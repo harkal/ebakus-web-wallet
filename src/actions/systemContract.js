@@ -189,6 +189,45 @@ const getClaimableEntries = async () => {
   }
 }
 
+const getUnstakingAmount = async () => {
+  try {
+    let unstakingAmount = 0,
+      claimableAmount = 0
+
+    const claimableEntries = await getClaimableEntries()
+    if (claimableEntries && claimableEntries.length > 0) {
+      const now = new Date()
+
+      for (let { amount, timestamp } of claimableEntries) {
+        unstakingAmount += amount
+
+        const ttime = new Date(timestamp * 1000)
+        const diff = ttime - now
+        if (diff <= 0) {
+          claimableAmount += amount
+        }
+      }
+    }
+
+    if (
+      parseFloat(unstakingAmount) != parseFloat(store.state.wallet.unstaking)
+    ) {
+      store.dispatch(MutationTypes.SET_WALLET_UNSTAKING, unstakingAmount)
+    }
+
+    if (
+      parseFloat(claimableAmount) != parseFloat(store.state.wallet.claimable)
+    ) {
+      store.dispatch(MutationTypes.SET_WALLET_CLAIMABLE, claimableAmount)
+    }
+
+    return Promise.resolve(unstakingAmount)
+  } catch (err) {
+    console.error('Failed to fetch unstaking amount.', err)
+    return Promise.reject(err)
+  }
+}
+
 const claimUnstaked = async () => {
   try {
     const systemContract = getContractInstance()
@@ -237,6 +276,7 @@ export {
   getStaked,
   unstake,
   getClaimableEntries,
+  getUnstakingAmount,
   claimUnstaked,
   isVotingCall,
   hasStakeForVotingCall,

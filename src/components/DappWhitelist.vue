@@ -41,6 +41,7 @@ export default {
   computed: {
     ...mapState({
       isDrawerActiveByUser: state => state.ui.isDrawerActiveByUser,
+      tx: state => state.tx,
     }),
     getDappOrigin: function() {
       return getTargetOrigin()
@@ -66,7 +67,7 @@ export default {
       this.redirectBack()
       exitDialog()
 
-      if (checkIfEnoughBalance()) {
+      if (this.tx && checkIfEnoughBalance()) {
         if (!this.isDrawerActiveByUser) {
           this.$store.commit(MutationTypes.DEACTIVATE_DRAWER)
         }

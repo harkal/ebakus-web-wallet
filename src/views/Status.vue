@@ -5,6 +5,7 @@
     :class="{
       hasBalance: hasBalance,
       hasStaked: hasStaked,
+      hasUnstaking: hasUnstaking,
       hasTitle: hasTitle,
       hasNavigation: hasNavigation,
     }"
@@ -99,12 +100,18 @@
     </div>
 
     <div
-      v-else-if="!isDrawerActive && !showWhitelistingTimer"
+      v-else-if="
+        !isLocked &&
+          !isDrawerActive &&
+          !showWhitelistingTimer &&
+          balance !== null
+      "
       key="balanceClosed"
       class="balance balanceClosed"
     >
-      {{ balance | toEtherFixed }}
-
+      <span class="f-number">
+        {{ balance | toEtherFixed }}
+      </span>
       <img
         v-if="!network.isTestnet && tokenSymbol == 'EBK'"
         src="@/assets/img/ebakus_logo_small.svg"
@@ -122,11 +129,20 @@
       key="balanceOpened"
       class="balance balanceOpened"
     >
-      {{ balance | toEtherFixed }}
-      <p><span v-if="network.isTestnet">t</span>{{ tokenSymbol }}</p>
+      <p v-if="balance !== null && !isNaN(balance)" class="liquid">
+        <span class="f-number">{{ balance | toEtherFixed }} </span>
+        <span v-if="network.isTestnet">t</span>{{ tokenSymbol }}
+      </p>
+      <p v-else class="balanceLoading" />
 
       <p v-if="hasStaked" class="staked">
-        + {{ staked }} <span v-if="network.isTestnet">t</span>EBK staked
+        + <span class="f-number">{{ staked.toFixed(4) }} </span>
+        <span v-if="network.isTestnet">t</span>EBK staked
+      </p>
+
+      <p v-if="hasUnstaking" class="unstaking">
+        + <span class="f-number">{{ unstaking.toFixed(4) }} </span>
+        <span v-if="network.isTestnet">t</span>EBK unstaking
       </p>
     </div>
 
@@ -233,7 +249,8 @@
             SpinnerState.NODE_CONNECT,
             SpinnerState.NODE_CONNECTED,
             SpinnerState.NODE_DISCONNECTED,
-          ].includes(spinnerState)
+          ].includes(spinnerState) &&
+          !(!isDrawerActive && isLocked)
       "
       class="testnet"
     >
@@ -244,6 +261,8 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
+
+import { isVotingCall } from '@/actions/systemContract'
 
 import { SpinnerState, DialogComponents } from '@/constants'
 
@@ -263,7 +282,6 @@ import {
 import { animationQueue } from '@/utils'
 
 import styleAnimationVariables from '@/assets/css/_animations.scss'
-import { isVotingCall } from '../actions/systemContract'
 
 const ButtonStates = {
   NONE: 'NONE',
@@ -296,6 +314,7 @@ export default {
       balance: state => state.wallet.balance,
       tokenSymbol: state => state.wallet.tokenSymbol,
       staked: state => state.wallet.staked,
+      unstaking: state => state.wallet.unstaking,
     }),
     isLocked: function() {
       return this.$store.getters.wallet.locked
@@ -341,6 +360,14 @@ export default {
     hasStaked: function() {
       return (
         this.isDrawerActive && !this.isDialog && this.staked && this.staked > 0
+      )
+    },
+    hasUnstaking: function() {
+      return (
+        this.isDrawerActive &&
+        !this.isDialog &&
+        this.unstaking &&
+        this.unstaking > 0
       )
     },
     hasTitle: function() {
@@ -477,17 +504,11 @@ export default {
 .balance {
   color: white;
   text-align: right;
-
-  font-family: 'Arial';
-  font-size: 17px;
-  font-weight: 400;
   white-space: nowrap;
 
   span,
   p {
     margin: 0;
-    font-size: 13px;
-    line-height: 13px;
   }
 
   img {
@@ -501,39 +522,65 @@ export default {
   transform: translateY(-50%);
 
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: flex-end;
 
   margin: 0 8px;
 
-  span {
+  .f-number {
+    font-size: 17px;
+    font-weight: 500;
+  }
+
+  span:not(.f-number) {
     margin-left: 2px;
+    font-size: 13px;
+    font-weight: 600;
   }
 }
 
 .balanceOpened {
   display: block;
   position: absolute;
-  top: $widget-opened-top + $widget-size-opened + $status-bar-padding;
+  top: $widget-opened-top + $widget-size-opened + $status-bar-padding + 16px;
 
   right: ($wallet-opened-width / 2);
   transform: translateX(50%);
 
   padding-top: 0;
 
-  text-align: center;
-  font-family: sans-serif;
-  font-size: 34px;
-  line-height: 34px;
+  font-size: 13px;
+  line-height: 13px;
   font-weight: 600;
+  text-align: center;
 
-  p {
-    font-weight: 400;
+  .hasStaked &,
+  .hasUnstaking & {
+    top: $widget-opened-top + $widget-size-opened + $status-bar-padding + 10px;
   }
 
-  .staked {
-    margin: $status-bar-padding / 2 0;
-    color: rgba(10, 206, 235, 0.59);
+  .hasStaked.hasUnstaking & {
+    top: $widget-opened-top + $widget-size-opened + $status-bar-padding - 2px;
+  }
+
+  .liquid {
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .staked,
+  .unstaking {
+    margin: 4px 0;
+    opacity: 0.7;
+  }
+
+  .balanceLoading {
+    width: 80px;
+    min-height: 15px;
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.3);
+    animation: fadeInOutAnimation 1s infinite;
   }
 }
 
@@ -561,7 +608,7 @@ export default {
   border-radius: 6px;
   text-align: center;
   font-size: 0.9em;
-  font-weight: 500;
+  font-weight: 600;
   color: #bec2c9;
 
   .hasNavigation & {
@@ -653,6 +700,7 @@ export default {
 
   #wallet:not(.opened) & {
     width: fit-content;
+    min-width: 40px;
 
     border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-width: 0;
@@ -707,20 +755,9 @@ export default {
         $status-navigation-height;
     }
 
-    &.hasBalance.hasStaked {
-      height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
-        $status-balance-height + $status-staked-height + $status-bar-padding;
-    }
-
     &.hasBalance.hasNavigation {
       height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
         $status-balance-height + $status-bar-padding + $status-navigation-height;
-    }
-
-    &.hasBalance.hasStaked.hasNavigation {
-      height: $widget-opened-top + $widget-size-opened + $status-bar-padding +
-        $status-balance-height + $status-staked-height + $status-bar-padding +
-        $status-navigation-height;
     }
 
     .testnet {
