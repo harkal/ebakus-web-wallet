@@ -3,7 +3,10 @@
     <div class="wrapper">
       <img src="@/assets/img/trezor-logo.svg" width="97" alt="Trezor" />
 
-      <span v-if="error != ''" class="text-error">{{ error }}</span>
+      <p v-if="error != ''" class="text-error">{{ error }}</p>
+      <h3 v-else-if="accounts.length == 0">
+        Fetching accounts...
+      </h3>
 
       <div v-if="accounts.length > 0" class="select-account">
         <h3>

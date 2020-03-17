@@ -70,27 +70,39 @@
         Export Private Key
       </button>
 
-      <button
-        v-if="isSignedInWithLedger"
-        class="full cta ledger"
-        @click="disconnectLedger"
-      >
-        Sign out Ledger account
-      </button>
-      <button v-else class="full ledger" @click="connectWithLedger">
-        Connect with Ledger
-      </button>
+      <div v-if="!isSignedInWithTrezor">
+        <button
+          v-if="isSignedInWithLedger"
+          class="full cta in-button-icon ledger"
+          @click="disconnectLedger"
+        >
+          Sign out Ledger account
+        </button>
+        <button
+          v-else
+          class="full in-button-icon ledger"
+          @click="connectWithLedger"
+        >
+          Connect with Ledger
+        </button>
+      </div>
 
-      <button
-        v-if="isSignedInWithTrezor"
-        class="full cta trezor"
-        @click="disconnectTrezor"
-      >
-        Sign out Trezor account
-      </button>
-      <button v-else class="full trezor" @click="connectWithTrezor">
-        Connect with Trezor
-      </button>
+      <div v-if="!isSignedInWithLedger">
+        <button
+          v-if="isSignedInWithTrezor"
+          class="full cta in-button-icon trezor"
+          @click="disconnectTrezor"
+        >
+          Sign out Trezor account
+        </button>
+        <button
+          v-else
+          class="full in-button-icon trezor"
+          @click="connectWithTrezor"
+        >
+          Connect with Trezor
+        </button>
+      </div>
 
       <div class="danger-zone">
         <h2>Danger Zone</h2>

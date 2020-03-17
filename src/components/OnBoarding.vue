@@ -29,10 +29,16 @@
             >
               Import wallet backup
             </router-link>
-            <button class="full outline ledger" @click="connectWithLedger">
+            <button
+              class="full outline in-button-icon ledger"
+              @click="connectWithLedger"
+            >
               Connect with Ledger
             </button>
-            <button class="full outline trezor" @click="connectWithTrezor">
+            <button
+              class="full outline in-button-icon trezor"
+              @click="connectWithTrezor"
+            >
               Connect with Trezor
             </button>
           </div>
