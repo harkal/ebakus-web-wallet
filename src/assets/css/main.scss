@@ -366,6 +366,15 @@ label {
   transform: scale(1);
 }
 
+/* --- Trezor blocked popup --- */
+#TrezorConnectInteractionLayer {
+  display: flex !important;
+
+  @media only screen and (max-width: $status-bar-whitelist-mobile-breakpoint) {
+    display: none !important;
+  }
+}
+
 /* --- animations --- */
 .fade-transition-enter-active,
 .fade-transition-leave-active,

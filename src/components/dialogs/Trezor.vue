@@ -1,33 +1,42 @@
 <template>
   <div class="trezor dialog scroll-wrapper">
     <div class="wrapper">
-      <img src="@/assets/img/trezor-logo.svg" width="97" alt="Trezor" />
+      <div>
+        <img src="@/assets/img/trezor-logo.svg" width="97" alt="Trezor" />
 
-      <p v-if="error != ''" class="text-error">{{ error }}</p>
-      <h3 v-else-if="accounts.length == 0">
-        Fetching accounts...
-      </h3>
-
-      <div v-if="accounts.length > 0" class="select-account">
-        <h3>
-          Choose the account you want to import from below:
+        <p v-if="error != ''" class="text-error">{{ error }}</p>
+        <h3 v-else-if="accounts.length == 0">
+          Fetching accounts...
         </h3>
 
-        <ul class="accounts">
-          <li v-for="(account, idx) in accounts" :key="account">
-            <input
-              :id="idx"
-              v-model="selectedAccount"
-              type="radio"
-              :value="account"
-            />
-            <label :for="idx">{{ account }}</label>
-          </li>
-        </ul>
+        <div v-if="accounts.length > 0" class="select-account">
+          <h3>
+            Choose the account you want to import from below:
+          </h3>
 
-        <button class="full" @click="setAccount">
-          Next
-        </button>
+          <ul class="accounts">
+            <li v-for="(account, idx) in accounts" :key="account">
+              <input
+                :id="idx"
+                v-model="selectedAccount"
+                type="radio"
+                :value="account"
+              />
+              <label :for="idx">{{ account }}</label>
+            </li>
+          </ul>
+
+          <button class="full" @click="setAccount">
+            Next
+          </button>
+        </div>
+      </div>
+      <div>
+        <hr />
+        <h3>
+          Trezor might ask you to open a popup once or twice, for handling your
+          account and signing a transaction.
+        </h3>
       </div>
     </div>
   </div>
@@ -170,7 +179,21 @@ export default {
 
 <style scoped lang="scss">
 .wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-content: stretch;
+
+  height: calc(
+    (var(--vh, 1vh) * 100) - (var(--status-bar-vh, 1vh) * 100)
+  ); /* --vh is set at App.vue and --status-bar-vh at Status.vue */
+
   padding-top: 30px;
+
+  > div {
+    flex: 0 1 auto;
+  }
 }
 
 h3 {

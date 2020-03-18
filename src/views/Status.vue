@@ -66,19 +66,21 @@
       </span>
 
       <span
-        v-else-if="spinnerState === SpinnerState.LEDGER_CONFIRM"
-        key="confirm-ledger"
-        class="confirm-on-ledger"
+        v-else-if="
+          [SpinnerState.LEDGER_CONFIRM, SpinnerState.TREZOR_CONFIRM].includes(
+            spinnerState
+          )
+        "
+        key="confirm-hdwallet"
+        :class="{
+          'confirm-on-ledger': spinnerState === SpinnerState.LEDGER_CONFIRM,
+          'confirm-on-trezor': spinnerState === SpinnerState.TREZOR_CONFIRM,
+        }"
       >
-        Confirm on Ledger
-      </span>
-
-      <span
-        v-else-if="spinnerState === SpinnerState.TREZOR_CONFIRM"
-        key="confirm-trezor"
-        class="confirm-on-trezor"
-      >
-        Confirm on Trezor
+        Confirm on
+        {{
+          spinnerState === SpinnerState.LEDGER_CONFIRM ? ' Ledger' : ' Trezor'
+        }}
       </span>
 
       <img
@@ -177,6 +179,7 @@
             SpinnerState.TRANSACTION_SENT_SUCCESS,
             SpinnerState.LEDGER_FETCH_ACCOUNTS,
             SpinnerState.LEDGER_CONFIRM,
+            SpinnerState.TREZOR_FETCH_ACCOUNTS,
             SpinnerState.TREZOR_CONFIRM,
           ].includes(spinnerState)
       "
@@ -212,25 +215,30 @@
       </span>
 
       <span
-        v-if="spinnerState === SpinnerState.LEDGER_FETCH_ACCOUNTS"
-        key="fetching-accounts"
+        v-if="
+          [
+            SpinnerState.LEDGER_FETCH_ACCOUNTS,
+            SpinnerState.TREZOR_FETCH_ACCOUNTS,
+          ].includes(spinnerState)
+        "
+        key="fetching-accounts-hdwallet"
         class="animate-fade-in-out-slow"
       >
         Fetching accounts
       </span>
 
       <span
-        v-else-if="spinnerState === SpinnerState.LEDGER_CONFIRM"
-        key="confirm-ledger"
+        v-else-if="
+          [SpinnerState.LEDGER_CONFIRM, SpinnerState.TREZOR_CONFIRM].includes(
+            spinnerState
+          )
+        "
+        key="confirm-hdwallet"
       >
-        Confirm on Ledger
-      </span>
-
-      <span
-        v-else-if="spinnerState === SpinnerState.TREZOR_CONFIRM"
-        key="confirm-trezor"
-      >
-        Confirm on Trezor
+        Confirm on
+        {{
+          spinnerState === SpinnerState.LEDGER_CONFIRM ? ' Ledger' : ' Trezor'
+        }}
       </span>
     </div>
 

@@ -7,104 +7,17 @@ import { HardwareWalletTypes } from '@/constants'
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
 
-import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger'
-
 import { web3 } from '../web3ebakus'
 import { getProviderEndpoint } from '../providers'
 
 import createTrezorSubprovider from './createTrezorSubprovider'
 import createCleanRpcReqIdMiddleware from './subproviders/cleanRpcReqId'
 
-// const ConnectionTypes = {
-//   // USB: 'USB',
-//   U2F: 'USB (using U2F)',
-//   BLE: 'Bluetooth',
-// }
-
 let _providerEngine = null
-// let _activeTransport = {
-//   /* type, transport */
-// }
 
-// const isTypeSupported = async type => {
-//   if (type === ConnectionTypes.USB) {
-//     return false
-//     // disable USB for now for UX reasons
-//     // user can use U2F as alternative
-//     // return await TransportWebUSB.isSupported()
-//   } else if (type === ConnectionTypes.BLE) {
-//     // TODO: https://chromium-review.googlesource.com/c/chromium/src/+/657572
-//     return !loadedInIframe() && (await TransportWebBLE.isSupported())
-//   } else if (type === ConnectionTypes.U2F) {
-//     return await TransportU2F.isSupported()
-//   }
-// }
-
-// const setSupportedTypes = async () => {
-//   const supportedTypes = []
-//   for (let key of Object.keys(ConnectionTypes)) {
-//     const type = ConnectionTypes[key]
-//     const isSupported = await isTypeSupported(type)
-//     if (isSupported) {
-//       supportedTypes.push(key)
-//     }
-//   }
-
-//   store.dispatch(
-//     MutationTypes.SET_LEDGER_SUPPORTED_CONNECTION_TYPES,
-//     supportedTypes
-//   )
-// }
-
-// const getTransportWrapper = type => {
-//   const activeTransport = _activeTransport.transport
-//   if (activeTransport) {
-//     activeTransport.close()
-//   }
-
-//   _activeTransport = {}
-
-//   return async () => {
-//     const activeTransport = _activeTransport.transport
-//     if (activeTransport) {
-//       return activeTransport
-//     }
-
-//     let transport
-
-//     if (ConnectionTypes[type] === ConnectionTypes.USB) {
-//       // transport = await TransportWebUSB.create()
-//       return Promise.reject(
-//         new Error('Ledger USB connection type is not supported at the moment')
-//       )
-//     } else if (ConnectionTypes[type] === ConnectionTypes.BLE) {
-//       transport = await TransportWebBLE.create()
-//     } else if (ConnectionTypes[type] === ConnectionTypes.U2F) {
-//       transport = await TransportU2F.create()
-//     }
-
-//     transport.on('disconnect', () => {
-//       _activeTransport = {}
-//     })
-
-//     _activeTransport.type = type
-//     _activeTransport.transport = transport
-
-//     return transport
-//   }
-// }
-
-const getProvider = async type => {
-  // if (!Object.keys(ConnectionTypes).includes(type)) {
-  //   return Promise.reject(
-  //     new Error('This is not a valid transport connection type for Ledger')
-  //   )
-  // }
-
+const getProvider = async () => {
   // reset the old one before changing, if still connected
   if (_providerEngine !== null) _providerEngine.stop()
-
-  // const getTransport = getTransportWrapper(type)
 
   const engine = new ProviderEngine()
 
@@ -162,11 +75,4 @@ const setProvider = async type => {
   web3.setProvider(engine)
 }
 
-export {
-  // ConnectionTypes as LedgerConnectionTypes,
-  // isTypeSupported as isLedgerTypeSupported,
-  // setSupportedTypes as setLedgerSupportedTypes,
-  // getTransportWrapper as getLedgerTransport,
-  getProvider as getTrezorProvider,
-  setProvider as setTrezorProvider,
-}
+export { getProvider as getTrezorProvider, setProvider as setTrezorProvider }

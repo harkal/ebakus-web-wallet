@@ -153,6 +153,7 @@ export default {
           SpinnerState.CALC_POW,
           SpinnerState.TRANSACTION_SENDING,
           SpinnerState.LEDGER_CONFIRM,
+          SpinnerState.TREZOR_CONFIRM,
         ].includes(this.spinnerState) &&
         isContractCall() &&
         isContractCallWhitelisted() &&
