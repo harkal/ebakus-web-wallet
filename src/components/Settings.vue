@@ -66,7 +66,11 @@
         </div>
       </div>
 
-      <button class="full" @click="exportPrivateKey">
+      <button
+        v-if="!isSignedInWithLedger && !isSignedInWithTrezor"
+        class="full"
+        @click="exportPrivateKey"
+      >
         Export Private Key
       </button>
 
