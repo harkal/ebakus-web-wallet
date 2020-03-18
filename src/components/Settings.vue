@@ -291,7 +291,7 @@ export default {
       return timer / 1000
     },
     isMainnetDeployment: function() {
-      return process.env.MAINNET_DEPLOYED_URL !== window.location.origin
+      return process.env.WALLET_MAINNET_DEPLOYED_URL !== window.location.origin
     },
   },
   watch: {

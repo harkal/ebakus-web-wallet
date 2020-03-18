@@ -13,7 +13,7 @@ export default function createTrezorSubprovider(options) {
 
   TrezorConnect.manifest({
     email: 'harry@ebakus.com',
-    appUrl: 'https://wallet.ebakus.test',
+    appUrl: process.env.WALLET_DEPLOYED_URL,
   })
 
   return new TrezorSubprovider({
