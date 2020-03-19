@@ -1,6 +1,3 @@
-import Transaction from './Transaction'
-import { web3 } from './web3ebakus'
-
 import {
   loadedInIframe,
   frameEventStakedUpdated,
@@ -9,66 +6,25 @@ import {
 import store from '@/store'
 import MutationTypes from '@/store/mutation-types'
 
+import Transaction from './Transaction'
+import { web3 } from './web3ebakus'
+
 const EBK_PRECISION_FACTOR = 10000
 
 const SystemContractAddress = '0x0000000000000000000000000000000000000101'
-const SystemContractVoteABI = [
-  {
-    type: 'function',
-    name: 'stake',
-    inputs: [
-      {
-        name: 'amount',
-        type: 'uint64',
-      },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'getStaked',
-    inputs: [],
-    outputs: [
-      {
-        name: 'staked',
-        type: 'uint64',
-      },
-    ],
-    constant: true,
-    payable: false,
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'unstake',
-    inputs: [
-      {
-        name: 'amount',
-        type: 'uint64',
-      },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'claim',
-    inputs: [],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-]
 
 let _systemContract
 
-const getContractInstance = () => {
+const getContractInstance = async () => {
   if (_systemContract) {
     return _systemContract
   }
 
+  let systemContractABI = await web3.eth.getAbiForAddress(SystemContractAddress)
+  systemContractABI = JSON.parse(systemContractABI)
+
   _systemContract = new web3.eth.Contract(
-    SystemContractVoteABI,
+    systemContractABI,
     SystemContractAddress,
     { from: store.state.wallet.address }
   )
@@ -78,11 +34,10 @@ const getContractInstance = () => {
 
 const getStaked = async () => {
   try {
-    const systemContract = getContractInstance()
-    const staked = await systemContract.methods
-      .getStaked()
-      .call({ from: store.state.wallet.address })
-
+    const staked = await web3.eth.getStaked(
+      store.state.wallet.address,
+      'latest'
+    )
     const stakedAmountInEbk = staked / EBK_PRECISION_FACTOR
 
     if (
@@ -105,7 +60,7 @@ const getStaked = async () => {
 
 const stake = async amount => {
   try {
-    const systemContract = getContractInstance()
+    const systemContract = await getContractInstance()
     const amountInEbk = Math.floor(amount * EBK_PRECISION_FACTOR)
 
     const stakeMethod = systemContract.methods.stake(amountInEbk)
@@ -132,7 +87,7 @@ const stake = async amount => {
 
 const unstake = async amount => {
   try {
-    const systemContract = getContractInstance()
+    const systemContract = await getContractInstance()
     const amountInEbk = Math.floor(amount * EBK_PRECISION_FACTOR)
 
     const unstakeMethod = systemContract.methods.unstake(amountInEbk)
@@ -230,7 +185,7 @@ const getUnstakingAmount = async () => {
 
 const claimUnstaked = async () => {
   try {
-    const systemContract = getContractInstance()
+    const systemContract = await getContractInstance()
 
     const claimMethod = systemContract.methods.claim()
 

@@ -1,30 +1,25 @@
 import abiDecoder from 'abi-decoder'
-import axios from 'axios'
 import debounce from 'lodash/debounce'
 import memoize from 'lodash/memoize'
 
-import store from '@/store'
+import { web3 } from './web3ebakus'
 
-const requestAbiWithCaching = memoize(async req => await axios.get(req))
+const getAbiWithCaching = memoize(async contractAddress => {
+  const abi = await web3.eth.getAbiForAddress(contractAddress)
+  return JSON.parse(abi)
+})
 
-const cleanAbiCacheForUrl = debounce(function(url) {
-  requestAbiWithCaching.cache.delete(url)
+const cleanAbiCacheForUrl = debounce(function(contractAddress) {
+  getAbiWithCaching.cache.delete(contractAddress)
 }, 2000)
 
 const getAbi = async contractAddress => {
-  const isTestnet = store.getters.network.isTestnet
-  const apiEndpoint = isTestnet
-    ? process.env.TESTNET_API_ENDPOINT
-    : process.env.MAINNET_API_ENDPOINT
-
   let abi
-  const abiUrl = `${apiEndpoint}/abi/${contractAddress}`
 
   try {
-    const req = await requestAbiWithCaching(abiUrl)
-    abi = req.data
+    abi = await getAbiWithCaching(contractAddress)
   } catch (err) {
-    cleanAbiCacheForUrl(abiUrl)
+    cleanAbiCacheForUrl(contractAddress)
     return false
   }
 
