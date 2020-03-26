@@ -4,34 +4,42 @@
       <div>
         <img src="@/assets/img/trezor-logo.svg" width="97" alt="Trezor" />
 
-        <p v-if="error != ''" class="text-error">{{ error }}</p>
-        <h3 v-else-if="accounts.length == 0">
-          Fetching accounts...
-        </h3>
-
-        <div v-if="accounts.length > 0" class="select-account">
-          <h3>
-            Choose the account you want to import from below:
+        <div v-if="isSupportedBrowser">
+          <p v-if="error != ''" class="text-error">{{ error }}</p>
+          <h3 v-else-if="accounts.length == 0">
+            Fetching accounts...
           </h3>
 
-          <ul class="accounts">
-            <li v-for="(account, idx) in accounts" :key="account">
-              <input
-                :id="idx"
-                v-model="selectedAccount"
-                type="radio"
-                :value="account"
-              />
-              <label :for="idx">{{ account }}</label>
-            </li>
-          </ul>
+          <div v-if="accounts.length > 0" class="select-account">
+            <h3>
+              Choose the account you want to import from below:
+            </h3>
 
-          <button class="full" @click="setAccount">
-            Next
-          </button>
+            <ul class="accounts">
+              <li v-for="(account, idx) in accounts" :key="account">
+                <input
+                  :id="idx"
+                  v-model="selectedAccount"
+                  type="radio"
+                  :value="account"
+                />
+                <label :for="idx">{{ account }}</label>
+              </li>
+            </ul>
+
+            <button class="full" @click="setAccount">
+              Next
+            </button>
+          </div>
+        </div>
+        <div v-else>
+          <h3>
+            Unfortunately the Trezor hardware wallet is not being supported in
+            this browser at this time. Please try again using Chrome browser.
+          </h3>
         </div>
       </div>
-      <div>
+      <div v-if="isSupportedBrowser">
         <hr />
         <h3>
           Trezor might ask you to open a popup once or twice, for handling your
@@ -57,6 +65,7 @@ import { RouteNames } from '@/router'
 import MutationTypes from '@/store/mutation-types'
 
 import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger'
+import { isSafari } from '../../utils'
 
 export default {
   data() {
@@ -72,6 +81,7 @@ export default {
       isDrawerActiveByUser: state => state.ui.isDrawerActiveByUser,
       publicAddress: state => state.wallet.address,
     }),
+    isSupportedBrowser: () => !isSafari,
   },
   watch: {
     error: function(val, oldVal) {
@@ -81,6 +91,10 @@ export default {
     },
   },
   mounted() {
+    if (!this.isSupportedBrowser) {
+      return
+    }
+
     this.$store.commit(
       MutationTypes.SET_SPINNER_STATE,
       SpinnerState.TREZOR_CONNECT
@@ -89,7 +103,10 @@ export default {
     this.connectTrezor()
   },
   beforeDestroy() {
-    if (this.selectedAccount !== this.publicAddress) {
+    if (
+      this.isSupportedBrowser &&
+      this.selectedAccount !== this.publicAddress
+    ) {
       signOutWallet()
     }
   },

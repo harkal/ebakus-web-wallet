@@ -372,6 +372,14 @@ export default {
           !this.isLoadedFromDapp &&
           this.$route.name == RouteNames.NEW
         ) {
+          if (
+            [DialogComponents.LEDGER, DialogComponents.TREZOR].includes(
+              this.dialog.component
+            )
+          ) {
+            return ButtonStates.EXIT
+          }
+
           return ButtonStates.NONE
         } else {
           return ButtonStates.EXIT

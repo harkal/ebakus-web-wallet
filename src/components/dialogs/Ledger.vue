@@ -111,7 +111,10 @@ export default {
     )
   },
   beforeDestroy() {
-    if (this.selectedAccount !== this.publicAddress) {
+    if (
+      this.supportedConnectionTypes.length > 0 &&
+      this.selectedAccount !== this.publicAddress
+    ) {
       signOutWallet()
     }
   },
