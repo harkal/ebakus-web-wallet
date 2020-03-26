@@ -29,8 +29,17 @@
             >
               Import wallet backup
             </router-link>
-            <button class="full outline ledger" @click="connectWithLedger">
+            <button
+              class="full outline in-button-icon ledger"
+              @click="connectWithLedger"
+            >
               Connect with Ledger
+            </button>
+            <button
+              class="full outline in-button-icon trezor"
+              @click="connectWithTrezor"
+            >
+              Connect with Trezor
             </button>
           </div>
         </div>
@@ -207,6 +216,12 @@ export default {
       this.$store.commit(MutationTypes.SHOW_DIALOG, {
         component: DialogComponents.LEDGER,
         title: 'Connect with Ledger',
+      })
+    },
+    connectWithTrezor: function() {
+      this.$store.commit(MutationTypes.SHOW_DIALOG, {
+        component: DialogComponents.TREZOR,
+        title: 'Connect with Trezor',
       })
     },
   },

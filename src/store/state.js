@@ -26,6 +26,7 @@ const initialState = {
         supportedConnectionTypes: [],
         connectionType: null,
       },
+      trezor: {},
     },
   },
 

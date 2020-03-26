@@ -3,6 +3,9 @@ const prodEnv = require('./mainnet.env')
 
 module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
+
+  WALLET_DEPLOYED_URL: '"https://wallet.ebakus.test"',
+
   LOCAL_NODE_URL: '"ws://127.0.0.1:8546"',
 
   // TESTNET_EXPLORER_URL: '"https://explorer.ebakus.test"',

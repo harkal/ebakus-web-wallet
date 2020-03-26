@@ -66,20 +66,47 @@
         </div>
       </div>
 
-      <button class="full" @click="exportPrivateKey">
+      <button
+        v-if="!isSignedInWithLedger && !isSignedInWithTrezor"
+        class="full"
+        @click="exportPrivateKey"
+      >
         Export Private Key
       </button>
 
-      <button
-        v-if="isSignedInWithLedger"
-        class="full cta ledger"
-        @click="disconnectLedger"
-      >
-        Sign out Ledger account
-      </button>
-      <button v-else class="full ledger" @click="connectWithLedger">
-        Connect with Ledger
-      </button>
+      <div v-if="!isSignedInWithTrezor">
+        <button
+          v-if="isSignedInWithLedger"
+          class="full cta in-button-icon ledger"
+          @click="disconnectLedger"
+        >
+          Sign out Ledger account
+        </button>
+        <button
+          v-else
+          class="full in-button-icon ledger"
+          @click="connectWithLedger"
+        >
+          Connect with Ledger
+        </button>
+      </div>
+
+      <div v-if="!isSignedInWithLedger">
+        <button
+          v-if="isSignedInWithTrezor"
+          class="full cta in-button-icon trezor"
+          @click="disconnectTrezor"
+        >
+          Sign out Trezor account
+        </button>
+        <button
+          v-else
+          class="full in-button-icon trezor"
+          @click="connectWithTrezor"
+        >
+          Connect with Trezor
+        </button>
+      </div>
 
       <div class="danger-zone">
         <h2>Danger Zone</h2>
@@ -87,7 +114,7 @@
           Import another Account
         </button>
         <button
-          v-if="!isSignedInWithLedger && hasWallet()"
+          v-if="!isSignedInWithLedger && !isSignedInWithTrezor && hasWallet()"
           class="full cta"
           @click="deleteWallet"
         >
@@ -238,6 +265,17 @@ export default {
       )
     },
 
+    isSignedInWithTrezor: function() {
+      const {
+        isUsingHardwareWallet,
+        locked,
+        hardwareWallet: { type },
+      } = this.$store.getters.wallet
+      return (
+        isUsingHardwareWallet && !locked && type === HardwareWalletTypes.TREZOR
+      )
+    },
+
     maxWhitelistDelay: () => MAX_WHITELIST_DELAY,
     SpinnerState: () => SpinnerState,
 
@@ -253,7 +291,7 @@ export default {
       return timer / 1000
     },
     isMainnetDeployment: function() {
-      return process.env.MAINNET_DEPLOYED_URL !== window.location.origin
+      return process.env.WALLET_MAINNET_DEPLOYED_URL !== window.location.origin
     },
   },
   watch: {
@@ -292,14 +330,23 @@ export default {
     exportPrivateKey: function() {
       this.activePane = Panes.BACKUP
     },
+    hasWallet: () => hasWalletFunc(),
     connectWithLedger: function() {
       this.$store.commit(MutationTypes.SHOW_DIALOG, {
         component: DialogComponents.LEDGER,
         title: 'Connect with Ledger',
       })
     },
-    hasWallet: () => hasWalletFunc(),
     disconnectLedger: function() {
+      signOutWallet()
+    },
+    connectWithTrezor: function() {
+      this.$store.commit(MutationTypes.SHOW_DIALOG, {
+        component: DialogComponents.TREZOR,
+        title: 'Connect with Trezor',
+      })
+    },
+    disconnectTrezor: function() {
       signOutWallet()
     },
     setWhitelistDelay({ target: { valueAsNumber } }) {

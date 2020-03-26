@@ -172,7 +172,7 @@ button {
     }
   }
 
-  &.ledger {
+  &.in-button-icon {
     position: relative;
 
     &:before {
@@ -182,8 +182,15 @@ button {
       left: 10px;
       width: 18px;
       height: 18px;
-      background: url(../img/ic_ledger.svg) no-repeat center center;
+    }
 
+    &.ledger:before {
+      background: url(../img/ic_ledger.svg) no-repeat center center;
+    }
+
+    &.trezor:before {
+      background: url(../img/trezor-small-logo.svg) no-repeat center center;
+      background-size: 12px 18px;
     }
 
     &:not(.outline):before,
@@ -357,6 +364,15 @@ label {
   opacity: 1;
   -webkit-transform: scale(1);
   transform: scale(1);
+}
+
+/* --- Trezor blocked popup --- */
+#TrezorConnectInteractionLayer {
+  display: flex !important;
+
+  @media only screen and (max-width: $status-bar-whitelist-mobile-breakpoint) {
+    display: none !important;
+  }
 }
 
 /* --- animations --- */

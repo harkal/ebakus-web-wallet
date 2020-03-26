@@ -313,6 +313,8 @@ const signOutWallet = async () => {
 
   store.commit(MutationTypes.CLEAR_DIALOG)
 
+  store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.CANCEL)
+
   const routeName = !hasWallet() ? RouteNames.NEW : RouteNames.UNLOCK
   router.push({ name: routeName }, () => {})
 

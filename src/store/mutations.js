@@ -10,6 +10,7 @@ import {
   NetworkStatus,
   SpinnerState,
   StorageNames,
+  HardwareWalletTypes,
 } from '@/constants'
 
 import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger.js'
@@ -134,7 +135,9 @@ export default {
       type,
     }
 
-    state.network.hardwareWallets.ledger.connectionType = connectionType
+    if (type === HardwareWalletTypes.LEDGER) {
+      state.network.hardwareWallets.ledger.connectionType = connectionType
+    }
   },
   [MutationTypes.SET_HARDWARE_WALLET_ACCOUNT_INDEX](state, index) {
     state.wallet.hardwareWallet = {

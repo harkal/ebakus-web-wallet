@@ -53,11 +53,15 @@
 
         <p v-if="error != ''" class="text-error">{{ error }}</p>
 
-        <button class="cta" :disabled="onFlightTx" @click="stakeAmount">
+        <button
+          class="cta"
+          :disabled="onFlightTx || !amount"
+          @click="stakeAmount"
+        >
           Stake <span v-if="isVotingCall"> and Vote</span>
         </button>
 
-        <button :disabled="onFlightTx" @click="unstakeAmount">
+        <button :disabled="onFlightTx || !amount" @click="unstakeAmount">
           Unstake
         </button>
       </section>
@@ -274,7 +278,7 @@ export default {
   },
   mounted() {
     this.$store.commit(MutationTypes.SHOW_DIALOG, {
-      title: 'Attention',
+      title: 'Staking',
     })
     this.$store.commit(MutationTypes.SET_OVERLAY_COLOR, 'black')
 

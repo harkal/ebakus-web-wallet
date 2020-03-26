@@ -28,6 +28,7 @@
             SpinnerState.TRANSACTION_SENT_SUCCESS,
             SpinnerState.TRANSACTION_SENT_CANCELLED,
             SpinnerState.LEDGER_CONFIRM,
+            SpinnerState.TREZOR_CONFIRM,
             SpinnerState.NODE_CONNECT,
             SpinnerState.NODE_CONNECTED,
             SpinnerState.NODE_DISCONNECTED,
@@ -65,11 +66,21 @@
       </span>
 
       <span
-        v-else-if="spinnerState === SpinnerState.LEDGER_CONFIRM"
-        key="confirm-ledger"
-        class="confirm-on-ledger"
+        v-else-if="
+          [SpinnerState.LEDGER_CONFIRM, SpinnerState.TREZOR_CONFIRM].includes(
+            spinnerState
+          )
+        "
+        key="confirm-hdwallet"
+        :class="{
+          'confirm-on-ledger': spinnerState === SpinnerState.LEDGER_CONFIRM,
+          'confirm-on-trezor': spinnerState === SpinnerState.TREZOR_CONFIRM,
+        }"
       >
-        Confirm on Ledger
+        Confirm on
+        {{
+          spinnerState === SpinnerState.LEDGER_CONFIRM ? ' Ledger' : ' Trezor'
+        }}
       </span>
 
       <img
@@ -168,6 +179,8 @@
             SpinnerState.TRANSACTION_SENT_SUCCESS,
             SpinnerState.LEDGER_FETCH_ACCOUNTS,
             SpinnerState.LEDGER_CONFIRM,
+            SpinnerState.TREZOR_FETCH_ACCOUNTS,
+            SpinnerState.TREZOR_CONFIRM,
           ].includes(spinnerState)
       "
       key="openedState"
@@ -202,18 +215,30 @@
       </span>
 
       <span
-        v-if="spinnerState === SpinnerState.LEDGER_FETCH_ACCOUNTS"
-        key="fetching-accounts"
+        v-if="
+          [
+            SpinnerState.LEDGER_FETCH_ACCOUNTS,
+            SpinnerState.TREZOR_FETCH_ACCOUNTS,
+          ].includes(spinnerState)
+        "
+        key="fetching-accounts-hdwallet"
         class="animate-fade-in-out-slow"
       >
         Fetching accounts
       </span>
 
       <span
-        v-else-if="spinnerState === SpinnerState.LEDGER_CONFIRM"
-        key="confirm-ledger"
+        v-else-if="
+          [SpinnerState.LEDGER_CONFIRM, SpinnerState.TREZOR_CONFIRM].includes(
+            spinnerState
+          )
+        "
+        key="confirm-hdwallet"
       >
-        Confirm on Ledger
+        Confirm on
+        {{
+          spinnerState === SpinnerState.LEDGER_CONFIRM ? ' Ledger' : ' Trezor'
+        }}
       </span>
     </div>
 
@@ -329,7 +354,11 @@ export default {
           this.$route.name
         )
       ) {
-        if ([DialogComponents.LEDGER].includes(this.dialog.component)) {
+        if (
+          [DialogComponents.LEDGER, DialogComponents.TREZOR].includes(
+            this.dialog.component
+          )
+        ) {
           return ButtonStates.EXIT
         }
 
@@ -343,6 +372,14 @@ export default {
           !this.isLoadedFromDapp &&
           this.$route.name == RouteNames.NEW
         ) {
+          if (
+            [DialogComponents.LEDGER, DialogComponents.TREZOR].includes(
+              this.dialog.component
+            )
+          ) {
+            return ButtonStates.EXIT
+          }
+
           return ButtonStates.NONE
         } else {
           return ButtonStates.EXIT
@@ -409,7 +446,9 @@ export default {
       if (this.$route.name == RouteNames.NEW) {
         if (
           this.isDialog &&
-          [DialogComponents.LEDGER].includes(this.dialog.component)
+          [DialogComponents.LEDGER, DialogComponents.TREZOR].includes(
+            this.dialog.component
+          )
         ) {
           this.$store.commit(MutationTypes.CLEAR_DIALOG)
         } else {
@@ -420,7 +459,11 @@ export default {
         this.$router.push({ name: redirectFrom }, () => {})
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
       } else if (this.$route.name == RouteNames.SETTINGS) {
-        if (![DialogComponents.LEDGER].includes(this.dialog.component)) {
+        if (
+          ![DialogComponents.LEDGER, DialogComponents.TREZOR].includes(
+            this.dialog.component
+          )
+        ) {
           this.$router.push({ name: RouteNames.HOME }, () => {})
         }
         this.$store.commit(MutationTypes.CLEAR_DIALOG)
@@ -655,7 +698,8 @@ export default {
   }
 }
 
-.confirm-on-ledger {
+.confirm-on-ledger,
+.confirm-on-trezor {
   white-space: nowrap;
 }
 

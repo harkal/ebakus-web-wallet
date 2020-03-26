@@ -31,7 +31,11 @@ const SpinnerState = {
 
   LEDGER_CONNECT: 150 + SKIP_WALLET_ANIMATIONS,
   LEDGER_FETCH_ACCOUNTS: 151 + SPINNER_RUNNING + SKIP_WALLET_ANIMATIONS,
-  LEDGER_CONFIRM: 153 + SPINNER_RUNNING,
+  LEDGER_CONFIRM: 152 + SPINNER_RUNNING,
+
+  TREZOR_CONNECT: 155 + SKIP_WALLET_ANIMATIONS,
+  TREZOR_FETCH_ACCOUNTS: 156 + SPINNER_RUNNING + SKIP_WALLET_ANIMATIONS,
+  TREZOR_CONFIRM: 157 + SPINNER_RUNNING,
 }
 
 const Networks = {
@@ -74,6 +78,7 @@ const DialogComponents = {
   NO_FUNDS: 'NoFunds',
   DELETE_WALLET: 'DeleteWallet',
   LEDGER: 'Ledger',
+  TREZOR: 'Trezor',
 }
 
 const StorageNames = {
@@ -86,6 +91,7 @@ const StorageNames = {
 
 const HardwareWalletTypes = {
   LEDGER: 'ledger',
+  TREZOR: 'trezor',
 }
 
 export {

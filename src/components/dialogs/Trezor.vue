@@ -1,57 +1,49 @@
 <template>
-  <div class="ledger dialog scroll-wrapper">
+  <div class="trezor dialog scroll-wrapper">
     <div class="wrapper">
-      <img src="@/assets/img/ledger-logo.svg" width="97" alt="Ledger" />
+      <div>
+        <img src="@/assets/img/trezor-logo.svg" width="97" alt="Trezor" />
 
-      <div v-if="supportedConnectionTypes.length > 0">
-        <div
-          v-if="supportedConnectionTypes.length > 0"
-          class="dropdown-wrapper"
-        >
-          <select
-            v-model="connectionType"
-            class="dropdown"
-            @change="connectLedger"
-          >
-            <option value="">Select connection method</option>
-            <option
-              v-for="key in supportedConnectionTypes"
-              :key="key"
-              :value="key"
-            >
-              {{ LedgerConnectionTypes[key] }}
-            </option>
-          </select>
-        </div>
-
-        <span v-if="error != ''" class="text-error">{{ error }}</span>
-
-        <div v-if="accounts.length > 0" class="select-account">
-          <h3>
-            Choose the account you want to import from below:
+        <div v-if="isSupportedBrowser">
+          <p v-if="error != ''" class="text-error">{{ error }}</p>
+          <h3 v-else-if="accounts.length == 0">
+            Fetching accounts...
           </h3>
 
-          <ul class="accounts">
-            <li v-for="(account, idx) in accounts" :key="account">
-              <input
-                :id="idx"
-                v-model="selectedAccount"
-                type="radio"
-                :value="account"
-              />
-              <label :for="idx">{{ account }}</label>
-            </li>
-          </ul>
+          <div v-if="accounts.length > 0" class="select-account">
+            <h3>
+              Choose the account you want to import from below:
+            </h3>
 
-          <button class="full" @click="setAccount">
-            Next
-          </button>
+            <ul class="accounts">
+              <li v-for="(account, idx) in accounts" :key="account">
+                <input
+                  :id="idx"
+                  v-model="selectedAccount"
+                  type="radio"
+                  :value="account"
+                />
+                <label :for="idx">{{ account }}</label>
+              </li>
+            </ul>
+
+            <button class="full" @click="setAccount">
+              Next
+            </button>
+          </div>
+        </div>
+        <div v-else>
+          <h3>
+            Unfortunately the Trezor hardware wallet is not being supported in
+            this browser at this time. Please try again using Chrome browser.
+          </h3>
         </div>
       </div>
-      <div v-else>
+      <div v-if="isSupportedBrowser">
+        <hr />
         <h3>
-          Unfortunately the Ledger hardware wallet is not being supported in
-          this browser at this time. Please try again using Chrome browser.
+          Trezor might ask you to open a popup once or twice, for handling your
+          account and signing a transaction.
         </h3>
       </div>
     </div>
@@ -65,10 +57,7 @@ import { mapState, mapGetters } from 'vuex'
 import { SpinnerState } from '@/constants'
 
 import { getBalance, signOutWallet } from '@/actions/wallet'
-import {
-  LedgerConnectionTypes,
-  setLedgerProvider,
-} from '@/actions/providers/ledger'
+import { setTrezorProvider } from '@/actions/providers/trezor'
 import { web3 } from '@/actions/web3ebakus'
 import { performWhitelistedAction } from '@/actions/whitelist'
 
@@ -76,11 +65,11 @@ import { RouteNames } from '@/router'
 import MutationTypes from '@/store/mutation-types'
 
 import { loadedInIframe } from '@/parentFrameMessenger/parentFrameMessenger'
+import { isSafari } from '../../utils'
 
 export default {
   data() {
     return {
-      connectionType: '',
       accounts: [],
       selectedAccount: '',
       error: '',
@@ -91,11 +80,8 @@ export default {
     ...mapState({
       isDrawerActiveByUser: state => state.ui.isDrawerActiveByUser,
       publicAddress: state => state.wallet.address,
-
-      supportedConnectionTypes: state =>
-        state.network.hardwareWallets.ledger.supportedConnectionTypes,
     }),
-    LedgerConnectionTypes: () => LedgerConnectionTypes,
+    isSupportedBrowser: () => !isSafari,
   },
   watch: {
     error: function(val, oldVal) {
@@ -105,63 +91,60 @@ export default {
     },
   },
   mounted() {
+    if (!this.isSupportedBrowser) {
+      return
+    }
+
     this.$store.commit(
       MutationTypes.SET_SPINNER_STATE,
-      SpinnerState.LEDGER_CONNECT
+      SpinnerState.TREZOR_CONNECT
     )
+
+    this.connectTrezor()
   },
   beforeDestroy() {
     if (
-      this.supportedConnectionTypes.length > 0 &&
+      this.isSupportedBrowser &&
       this.selectedAccount !== this.publicAddress
     ) {
       signOutWallet()
     }
   },
   methods: {
-    connectLedger: async function() {
-      if (!this.supportedConnectionTypes.includes(this.connectionType)) {
-        this.error = 'Please select a valid connection type.'
-        this.$store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.NONE)
-        return
-      }
-
+    connectTrezor: async function() {
       this.accounts = []
       this.selectedAccount = ''
       this.error = ''
 
       try {
-        await setLedgerProvider(this.connectionType)
+        await setTrezorProvider()
 
         this.$store.commit(
           MutationTypes.SET_SPINNER_STATE,
-          SpinnerState.LEDGER_FETCH_ACCOUNTS
+          SpinnerState.TREZOR_FETCH_ACCOUNTS
         )
 
         const accounts = await web3.eth.getAccounts()
 
         if (accounts.length === 0) {
-          throw new Error('No accounts found on Ledger')
+          throw new Error('No accounts found on Trezor')
         }
 
         this.accounts = accounts.map(account =>
           Web3.utils.toChecksumAddress(account)
         )
       } catch (err) {
-        console.error(
-          `Connecting to ledger using ${this.connectionType} failed with error`,
-          err
-        )
+        console.error(`Connecting to trezor failed with error`, err)
 
         this.error =
-          'Failed to connect to Ledger device. Please check that it is unlocked and the Ethereum app is opened.'
+          'Failed to connect to Trezor device. Please check that it is unlocked.'
       } finally {
         this.$store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.NONE)
       }
     },
     setAccount: async function() {
       if (!this.selectedAccount || this.selectedAccount === '') {
-        this.error = `The account selected "${this.selectedAccount}" is not available, please check your ledger.`
+        this.error = `The account selected "${this.selectedAccount}" is not available, please check your trezor.`
         return
       }
 
@@ -196,7 +179,7 @@ export default {
         try {
           await getBalance()
         } catch (err) {
-          console.error('Failed to fetch balance for Ledger account', err)
+          console.error('Failed to fetch balance for Trezor account', err)
         }
 
         const { to, value, data } = this.txObject
@@ -213,7 +196,21 @@ export default {
 
 <style scoped lang="scss">
 .wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-content: stretch;
+
+  height: calc(
+    (var(--vh, 1vh) * 100) - (var(--status-bar-vh, 1vh) * 100)
+  ); /* --vh is set at App.vue and --status-bar-vh at Status.vue */
+
   padding-top: 30px;
+
+  > div {
+    flex: 0 1 auto;
+  }
 }
 
 h3 {

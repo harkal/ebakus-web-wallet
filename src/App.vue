@@ -99,6 +99,8 @@ export default {
       import(/* webpackChunkName: "no-funds" */ './components/dialogs/NoFunds'),
     Ledger: () =>
       import(/* webpackChunkName: "ledger" */ './components/dialogs/Ledger'),
+    Trezor: () =>
+      import(/* webpackChunkName: "trezor" */ './components/dialogs/Trezor'),
   },
   data() {
     return {
@@ -151,6 +153,7 @@ export default {
           SpinnerState.CALC_POW,
           SpinnerState.TRANSACTION_SENDING,
           SpinnerState.LEDGER_CONFIRM,
+          SpinnerState.TREZOR_CONFIRM,
         ].includes(this.spinnerState) &&
         isContractCall() &&
         isContractCallWhitelisted() &&
