@@ -172,7 +172,11 @@ export default {
 
   span {
     display: block;
-    line-height: 20px;
+    padding-bottom: 4px;
+
+    &:last-child {
+      padding-bottom: 0;
+    }
 
     &.title {
       font-size: 12px;
