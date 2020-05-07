@@ -11,4 +11,8 @@ module.exports = merge(prodEnv, {
   // TESTNET_EXPLORER_URL: '"https://explorer.ebakus.test"',
   // TESTNET_API_ENDPOINT: '"https://explorer-api.ebakus.test"',
   DEFAULT_NETWORK_ID: 10,
+
+  FAUCET_CONTRACT_ADDRESS: '"0xd7ee36010dc02878a9cddc23bea945dc75caab89"',
+
+  ENS_CONTRACT_ADDRESS: '"0x02C8b1bE10299302D6dD7cCf951D78615fdDC0e6"',
 })
