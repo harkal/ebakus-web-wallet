@@ -18,6 +18,7 @@
       </h2>
       <h3>
         {{ to | lowercase }}
+        <span v-if="toEns && toEns != ''">({{ toEns }})</span>
       </h3>
 
       <div class="progress-bar">
@@ -57,6 +58,7 @@ import MutationTypes from '@/store/mutation-types'
 import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
 import { nextAnimationFrame, cancelAnimationFrame } from '@/utils'
+import { getEnsNameForAddress } from '../actions/ens'
 
 export default {
   filters: {
@@ -73,6 +75,7 @@ export default {
       emTitle: '',
       postTitle: '',
       to: '',
+      toEns: '',
       countdownAnimationFrameStartTime: null,
       countdownAnimationFrame: null,
       countdownStopped: false, // handle edge cases where countdown doesn't stop because of race conditions
@@ -164,6 +167,7 @@ export default {
     async getTxInfo() {
       const txObject = this.txObject
       this.to = txObject.to
+      this.toEns = await getEnsNameForAddress(this.to)
 
       let value = txObject.value || '0'
       value = Vue.options.filters.toEther(value)
@@ -203,14 +207,20 @@ export default {
 
           if (name === 'transfer') {
             this.to = getValueForParam('_to', params)
+            this.toEns = await getEnsNameForAddress(this.to)
+
             const tokenValue = getValueForParam('_value', params) || 0
 
             this.emTitle = `to transfer ${Web3.utils.fromWei(
               String(tokenValue)
             )} ${token.symbol}`
-          } else if (name === 'getWei') {
+          } else if (
+            this.to === process.env.FAUCET_CONTRACT_ADDRESS &&
+            name === 'getWei'
+          ) {
             this.emTitle = `to request 1 ${tokenSymbolPrefix}EBK`
             this.postTitle = 'from faucet'
+            this.toEns = null
           } else {
             this.emTitle = `to call ${name}`
           }
@@ -306,9 +316,10 @@ h2 .caution {
 
 h3 {
   font-family: sans-serif;
-  font-size: 0.7em;
+  font-size: 0.65em;
+  font-weight: 600;
   letter-spacing: 0.3px;
-  color: #b6b8bc;
+  color: rgba(216, 216, 216, 0.65);
 }
 
 .cancel {

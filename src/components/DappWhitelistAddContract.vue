@@ -8,7 +8,9 @@
       <h3>
         DApp would like to use more than 3 contracts addresses. Would you like
         to also whitelist this contract address
-        <strong>{{ contractAddress }}</strong> for this dApp.
+        <strong class="address">{{ contractAddress }}</strong>
+        <strong v-if="contractAddressEns"> ({{ contractAddressEns }})</strong>
+        for this dApp.
       </h3>
 
       <button class="col secondary" @click="cancelWhitelistDapp">
@@ -38,8 +40,14 @@ import { getTargetOrigin } from '@/parentFrameMessenger/parentFrameMessenger'
 import { RouteNames } from '@/router'
 
 import MutationTypes from '@/store/mutation-types'
+import { getEnsNameForAddress } from '../actions/ens'
 
 export default {
+  data() {
+    return {
+      contractAddressEns: null,
+    }
+  },
   computed: {
     ...mapState({
       isDrawerActiveByUser: state => state.ui.isDrawerActiveByUser,
@@ -50,6 +58,12 @@ export default {
     },
     contractAddress: function() {
       return this.$store.getters.txObject.to
+    },
+  },
+  watch: {
+    contractAddress: async function(val) {
+      const ens = await getEnsNameForAddress(val)
+      this.contractAddressEns = ens
     },
   },
   mounted() {
@@ -93,3 +107,9 @@ export default {
   },
 }
 </script>
+
+<style scoped lang="scss">
+strong.address {
+  word-break: break-word;
+}
+</style>

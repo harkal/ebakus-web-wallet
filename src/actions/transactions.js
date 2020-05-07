@@ -10,12 +10,14 @@ import { activateDrawerIfClosed } from '@/parentFrameMessenger/handler'
 
 import MutationTypes from '@/store/mutation-types'
 import store from '@/store'
+import { isZeroHash } from '@/utils'
 
 import { decodeDataUsingAbi, getValueForParam } from './abi'
 import { getTokenInfoForContractAddress, decodeData } from './tokens'
 import { web3 } from './web3ebakus'
 import { exitDialog } from './wallet'
 import { DialogComponents } from '../constants'
+import { getEnsNameForAddress } from './ens'
 import { isVotingCall } from './systemContract'
 import Transaction from './Transaction'
 
@@ -54,8 +56,11 @@ const getTxLogInfo = async receipt => {
 
   const {
     to,
+    toEns,
     from: txFrom,
+    fromEns,
     contractAddress,
+    contractAddressEns,
     data: txData,
     input,
     hash,
@@ -65,10 +70,10 @@ const getTxLogInfo = async receipt => {
 
   let { value = 0 } = receipt
 
-  let logTitle, logAddress, decodedData
+  let logTitle, logAddress, logAddressEns, decodedData
 
   const isLocal = web3.utils.toChecksumAddress(txFrom) == localAddr
-  const isContractCreation = contractAddress && !/^0x0+$/.test(contractAddress)
+  const isContractCreation = contractAddress && !isZeroHash(contractAddress)
 
   const foreignAddress = isLocal ? to : txFrom
 
@@ -87,10 +92,12 @@ const getTxLogInfo = async receipt => {
   if (isLocal) {
     logTitle = `You sent ${value} ${tokenSymbolPrefix}EBK to:`
     logAddress = to
+    logAddressEns = toEns
 
     if (isContractCreation) {
       logTitle = `You created a new contract at:`
       logAddress = contractAddress
+      logAddressEns = contractAddressEns
     } else if (decodedData) {
       const { name, params } = decodedData
 
@@ -100,8 +107,10 @@ const getTxLogInfo = async receipt => {
           String(tokenValue)
         )} ${tokenSymbolPrefix}${token.symbol} to:`
         logAddress = getValueForParam('_to', params)
+        logAddressEns = await getEnsNameForAddress(logAddress)
       } else if (name === 'getWei') {
         logTitle = `You requested 1 ${tokenSymbolPrefix}EBK from faucet:`
+        logAddressEns = ''
       } else {
         logTitle = `You called contract action ${name ? `"${name}"` : ''} at:`
       }
@@ -109,15 +118,18 @@ const getTxLogInfo = async receipt => {
   } else {
     logTitle = `You received ${value} ${tokenSymbolPrefix}EBK from:`
     logAddress = txFrom
+    logAddressEns = fromEns
 
     if (decodedData && decodedData.name === 'getWei') {
       logTitle = `You received 1 ${tokenSymbolPrefix}EBK from faucet:`
+      logAddressEns = ''
     }
   }
 
   return {
     title: logTitle,
     address: logAddress,
+    addressEns: logAddressEns,
     txhash: hash,
     local: isLocal,
     failed: status ? !/(true|yes|1|0x1)/i.test(status) : false,
@@ -160,9 +172,16 @@ const getTransactionMessage = async tx => {
     amountTitle = '',
     emTitle = '',
     postTitle = '',
-    to = ''
+    to = '',
+    toEnsAddress,
+    toEnsText = ''
 
   to = tx.to
+
+  toEnsAddress = await getEnsNameForAddress(to)
+  if (toEnsAddress) {
+    toEnsText = ` (${toEnsAddress})`
+  }
 
   const value = tx.value ? web3.utils.fromWei(tx.value) : '0'
   const tokenSymbolPrefix = getTokenSymbolPrefix(tx.chainId)
@@ -176,7 +195,7 @@ const getTransactionMessage = async tx => {
     amountTitle = `to send ${value} ${tokenSymbolPrefix}EBK`
   }
 
-  const isContractCreation = !tx.to || /^0x0+$/.test(tx.to)
+  const isContractCreation = !tx.to || isZeroHash(tx.to)
   if (isContractCreation) {
     emTitle = 'to deploy'
     postTitle = 'a new contract. Are you sure?'
@@ -196,19 +215,28 @@ const getTransactionMessage = async tx => {
         to = getValueForParam('_to', params)
         const value = getValueForParam('_value', params) || 0
 
+        toEnsAddress = await getEnsNameForAddress(to)
+        toEnsText = ''
+        if (toEnsAddress) {
+          toEnsText = ` (${toEnsAddress})`
+        }
+
         emTitle = `to transfer ${web3.utils.fromWei(
           String(value)
         )} ${tokenSymbolPrefix}${token.symbol}`
-        postTitle = `to "${to}". Are you sure?`
-      } else if (name === 'getWei') {
+        postTitle = `to ${to}${toEnsText}. Are you sure?`
+      } else if (
+        to === process.env.FAUCET_CONTRACT_ADDRESS &&
+        name === 'getWei'
+      ) {
         emTitle = `to request 1 ${tokenSymbolPrefix}EBK`
         postTitle = 'from faucet. Are you sure?'
       } else {
         emTitle = `to call ${name}`
-        postTitle = `at contract address "${to}". Are you sure?`
+        postTitle = `at contract address ${to}${toEnsText}. Are you sure?`
       }
     } else {
-      postTitle = `to "${to}". Are you sure?`
+      postTitle = `to ${to}${toEnsText}. Are you sure?`
     }
   }
 
