@@ -106,13 +106,17 @@ const getProvider = async endpoint => {
 
     // autodetect provider
   } else if (endpoint && typeof endpoint === 'string') {
-    // HTTP
-    if (/^http(s)?:\/\//i.test(endpoint)) {
-      return new Web3.providers.HttpProvider(endpoint)
+    try {
+      // HTTP
+      if (/^http(s)?:\/\//i.test(endpoint)) {
+        return new Web3.providers.HttpProvider(endpoint)
 
-      // WS
-    } else if (/^ws(s)?:\/\//i.test(endpoint)) {
-      return new Web3.providers.WebsocketProvider(endpoint)
+        // WS
+      } else if (/^ws(s)?:\/\//i.test(endpoint)) {
+        return new Web3.providers.WebsocketProvider(endpoint)
+      }
+    } catch (err) {
+      throw new Error('Failed to get web3 provider')
     }
   }
 

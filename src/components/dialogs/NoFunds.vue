@@ -44,6 +44,7 @@ export default {
     ...mapGetters(['network', 'txObject']),
     ...mapState({
       balance: state => state.wallet.balance,
+      tx: state => state.tx,
     }),
   },
   mounted: async function() {
@@ -71,7 +72,8 @@ export default {
   },
   methods: {
     exit: function() {
-      this.$store.commit(MutationTypes.CLEAR_TX)
+      this.tx && this.tx.userCancelTx()
+
       this.$store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.NONE)
 
       exitDialog()

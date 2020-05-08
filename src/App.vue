@@ -91,6 +91,8 @@ export default {
       import(
         /* webpackChunkName: "failed-tx" */ './components/dialogs/FailedTx'
       ),
+    RetryTx: () =>
+      import(/* webpackChunkName: "retry-tx" */ './components/dialogs/RetryTx'),
     DeleteWallet: () =>
       import(
         /* webpackChunkName: "delete-wallet" */ './components/dialogs/DeleteWallet'

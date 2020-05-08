@@ -6,7 +6,7 @@ import namehash from 'eth-ens-namehash'
 import store from '@/store'
 import { isZeroHash } from '@/utils'
 
-import { web3, checkConnectionError } from './web3ebakus'
+import { web3, isConnectionErrorAndResolved } from './web3ebakus'
 
 const ContractAddress = process.env.ENS_CONTRACT_ADDRESS
 
@@ -23,7 +23,7 @@ const getEnsContract = async () => {
     _contract = new web3.eth.Contract(contractABI, ContractAddress)
     return _contract
   } catch (err) {
-    if (await checkConnectionError(err)) {
+    if (await isConnectionErrorAndResolved(err)) {
       return await getEnsContract()
     }
   }
@@ -47,7 +47,7 @@ const getAddressForEns = async name => {
   try {
     return await getAddressWithCaching(hash)
   } catch (err) {
-    if (await checkConnectionError(err)) {
+    if (await isConnectionErrorAndResolved(err)) {
       return getAddressForEns(name)
     }
 
@@ -64,7 +64,6 @@ const getEnsNameForAddressWithCaching = memoize(async address => {
 
   try {
     const res = await axios.get(apiEndpoint + '/ens/' + address)
-    console.log('res', res)
 
     const { data: { name } = {} } = res
     return name

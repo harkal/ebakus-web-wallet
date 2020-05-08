@@ -41,6 +41,7 @@ export default {
   },
   computed: {
     ...mapState({
+      tx: state => state.tx,
       data: state => state.ui.dialog.data,
     }),
   },
@@ -52,7 +53,8 @@ export default {
       this.showMoreInformation = !this.showMoreInformation
     },
     exit: function() {
-      this.$store.commit(MutationTypes.CLEAR_TX)
+      this.tx && this.tx.userCancelTx()
+
       this.$store.commit(MutationTypes.SET_SPINNER_STATE, SpinnerState.NONE)
 
       exitDialog()

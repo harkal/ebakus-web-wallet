@@ -7,7 +7,7 @@ import store from '@/store'
 import MutationTypes from '@/store/mutation-types'
 
 import Transaction from './Transaction'
-import { web3 } from './web3ebakus'
+import { web3, isConnectionErrorAndResolved } from './web3ebakus'
 
 const EBK_PRECISION_FACTOR = 10000
 
@@ -20,16 +20,24 @@ const getContractInstance = async () => {
     return _systemContract
   }
 
-  let systemContractABI = await web3.eth.getAbiForAddress(SystemContractAddress)
-  systemContractABI = JSON.parse(systemContractABI)
+  try {
+    let systemContractABI = await web3.eth.getAbiForAddress(
+      SystemContractAddress
+    )
+    systemContractABI = JSON.parse(systemContractABI)
 
-  _systemContract = new web3.eth.Contract(
-    systemContractABI,
-    SystemContractAddress,
-    { from: store.state.wallet.address }
-  )
+    _systemContract = new web3.eth.Contract(
+      systemContractABI,
+      SystemContractAddress,
+      { from: store.state.wallet.address }
+    )
 
-  return _systemContract
+    return _systemContract
+  } catch (err) {
+    if (await isConnectionErrorAndResolved(err)) {
+      return await getContractInstance()
+    }
+  }
 }
 
 const getStaked = async () => {
@@ -53,6 +61,10 @@ const getStaked = async () => {
     return Promise.resolve(stakedAmountInEbk)
   } catch (err) {
     console.error('Failed to fetch staked amount.', err)
+
+    if (await isConnectionErrorAndResolved(err)) {
+      return await getStaked()
+    }
 
     return Promise.reject(err)
   }
@@ -140,6 +152,11 @@ const getClaimableEntries = async () => {
     return Promise.resolve(entries)
   } catch (err) {
     console.error('Failed to fetch claimable entries.', err)
+
+    if (await isConnectionErrorAndResolved(err)) {
+      return await getClaimableEntries()
+    }
+
     return Promise.reject(err)
   }
 }
@@ -179,6 +196,11 @@ const getUnstakingAmount = async () => {
     return Promise.resolve(unstakingAmount)
   } catch (err) {
     console.error('Failed to fetch unstaking amount.', err)
+
+    if (await isConnectionErrorAndResolved(err)) {
+      return await getUnstakingAmount()
+    }
+
     return Promise.reject(err)
   }
 }
