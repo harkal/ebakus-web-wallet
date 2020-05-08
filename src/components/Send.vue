@@ -17,11 +17,11 @@
           class="dropdown"
           @change="onTokenChange()"
         >
-          <option value="EBK" :selected="inputs.amount == 'EBK'"
-            >{{ network.isTestnet ? 'testnet - ' : '' }}ebakus ({{
+          <option value="EBK" :selected="inputs.amount == 'EBK'">
+            {{ network.isTestnet ? 'testnet - ' : '' }}ebakus ({{
               tokenSymbolPrefix
-            }}EBK)</option
-          >
+            }}EBK)
+          </option>
           <option
             v-for="(tokenObj, index) in tokens"
             :key="index"
@@ -33,7 +33,7 @@
       </div>
 
       <div class="address-wrapper">
-        <label for="address"> To (Address) </label>
+        <label for="address"> To (Address or ENS name) </label>
         <input
           v-model="inputs.address"
           type="text"
@@ -67,6 +67,7 @@ import QR from '@/assets/vendor/qr_lib/qr_packed'
 
 import Transaction from '@/actions/Transaction'
 import { getTokenInfoForSymbol, getTransferTxForToken } from '@/actions/tokens'
+import { getAddressForEns, storeEnsNameForAddress } from '@/actions/ens'
 
 import { DefaultToken, DialogComponents } from '@/constants'
 
@@ -157,17 +158,31 @@ export default {
       }
       reader.readAsDataURL(node.target.files[0])
     },
-    validateSendForm: function() {
+    validateSendForm: async function() {
       const { address, amount } = this.inputs
       if (typeof address === 'undefined' || address == '') {
         this.error = 'Please enter a valid ebakus address.'
         return false
       }
-      try {
-        this.receiver = Web3.utils.toChecksumAddress(address)
-      } catch (err) {
-        this.error = "Receiver's address is not a valid ebakus address."
-        return false
+
+      // check if an ENS name was tried
+      if (!Web3.utils.isHex(address)) {
+        const ensAddress = await getAddressForEns(address)
+        if (ensAddress) {
+          this.receiver = Web3.utils.toChecksumAddress(ensAddress)
+
+          storeEnsNameForAddress(address, ensAddress)
+        } else {
+          this.error = "Receiver's ENS name is not correct."
+          return false
+        }
+      } else {
+        try {
+          this.receiver = Web3.utils.toChecksumAddress(address)
+        } catch (err) {
+          this.error = "Receiver's address is not a valid ebakus address."
+          return false
+        }
       }
 
       if (amount == '') {
@@ -180,7 +195,7 @@ export default {
     },
 
     addPendingTx: async function() {
-      if (this.validateSendForm()) {
+      if (await this.validateSendForm()) {
         const { amount, token } = this.inputs
         const receiver = this.receiver
 

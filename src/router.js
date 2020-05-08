@@ -29,7 +29,7 @@ const RouteNames = {
   RECEIVE: 'receive',
 
   WHITELIST_DAPP: 'whitelist_dapp',
-  WHITELIST_CONTRACT_FOR_DAPP: 'whitelist_CONTRACT_FOR_dapp',
+  WHITELIST_CONTRACT_FOR_DAPP: 'whitelist_contract_for_dapp',
 
   SETTINGS: 'settings',
   STAKE: 'stake',

@@ -19,8 +19,22 @@
         class="bubble"
         @click="openInNewTab(transaction.txhash || transaction.address)"
       >
-        <span class="title ">{{ transaction.title }}</span>
-        <span class="address f-number">{{ transaction.address }}</span>
+        <span class="title">{{ transaction.title }}</span>
+        <span
+          v-if="transaction.addressEns && transaction.local"
+          class="title ens"
+        >
+          ({{ transaction.addressEns }})
+        </span>
+        <span class="address f-number">
+          {{ transaction.address }}
+        </span>
+        <span
+          v-if="transaction.addressEns && !transaction.local"
+          class="title ens"
+        >
+          ({{ transaction.addressEns }})
+        </span>
         <img
           v-if="transaction.failed"
           src="@/assets/img/ic_failed.svg"
@@ -137,6 +151,7 @@ export default {
       right: auto;
     }
 
+    .ens,
     .address {
       color: inherit;
     }
@@ -157,15 +172,28 @@ export default {
 
   span {
     display: block;
-    line-height: 20px;
+    padding-bottom: 4px;
+
+    &:last-child {
+      padding-bottom: 0;
+    }
 
     &.title {
       font-size: 12px;
       font-weight: 600;
     }
+
+    &.ens,
+    &.address {
+      color: #969696;
+    }
+
+    &.ens {
+      font-size: 11px;
+    }
+
     &.address {
       font-size: 10px;
-      color: #969696;
     }
   }
 }

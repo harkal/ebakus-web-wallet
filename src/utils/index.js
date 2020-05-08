@@ -2,6 +2,10 @@ const isSafari = /^((?!chrome|android).)*safari/i.test(
   navigator.userAgent || navigator.vendor || window.opera
 )
 
+const isZeroHash = hash => {
+  return /^(0x)?0*$/.test(hash)
+}
+
 const waitUntil = function(
   checkSuccess = () => false,
   checkError = () => false,
@@ -97,6 +101,7 @@ const animationQueue = new AnimationQueue()
 
 export {
   isSafari,
+  isZeroHash,
   waitUntil,
   nextAnimationFrame,
   cancelAnimationFrame,
