@@ -64,7 +64,6 @@ const getEnsNameForAddressWithCaching = memoize(async address => {
 
   try {
     const res = await axios.get(apiEndpoint + '/ens/' + address)
-    console.log('res', res)
 
     const { data: { name } = {} } = res
     return name

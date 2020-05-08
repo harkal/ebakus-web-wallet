@@ -15,7 +15,7 @@ import {
 
 import router, { RouteNames } from '@/router'
 
-import { isSafari } from '@/utils'
+import { isSafari, waitUntil } from '@/utils'
 
 import {
   setProvider,
@@ -35,7 +35,9 @@ const BACKOFF_SETTINGS = {
   maxDelay: 20 * 1000,
   numOfAttempts: 100,
 }
-let isWeb3Reconnecting = false
+
+let _isFetchingBalance = false
+let _isWeb3Reconnecting = false
 
 const getBalance = async () => {
   const {
@@ -48,9 +50,22 @@ const getBalance = async () => {
     return Promise.reject(new Error('No wallet has been created'))
   }
 
-  if (isWeb3Reconnecting) {
+  if (_isWeb3Reconnecting) {
     return Promise.reject(new Error('Wallet is not connected to node'))
   }
+
+  // block running getBalance logic more than once
+  if (_isFetchingBalance) {
+    await waitUntil(() => !_isFetchingBalance)
+
+    if (_isWeb3Reconnecting) {
+      return Promise.reject(new Error('Wallet is not connected to node'))
+    } else {
+      return Promise.resolve(store.state.wallet.balance)
+    }
+  }
+
+  _isFetchingBalance = true
 
   const tokenInfo = getTokenInfoForSymbol(tokenSymbol)
 
@@ -101,7 +116,7 @@ const getBalance = async () => {
       return
     }
 
-    isWeb3Reconnecting = true
+    _isWeb3Reconnecting = true
 
     await backOff(async () => {
       store.dispatch(MutationTypes.SET_SPINNER_STATE, SpinnerState.NODE_CONNECT)
@@ -112,9 +127,11 @@ const getBalance = async () => {
       return checkNodeConnection()
     }, BACKOFF_SETTINGS)
 
-    isWeb3Reconnecting = false
+    _isWeb3Reconnecting = false
 
     return Promise.reject(err)
+  } finally {
+    _isFetchingBalance = false
   }
 }
 

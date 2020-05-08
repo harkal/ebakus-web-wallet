@@ -2,7 +2,7 @@ import abiDecoder from 'abi-decoder'
 import debounce from 'lodash/debounce'
 import memoize from 'lodash/memoize'
 
-import { web3 } from './web3ebakus'
+import { web3, checkConnectionError } from './web3ebakus'
 
 const getAbiWithCaching = memoize(async contractAddress => {
   const abi = await web3.eth.getAbiForAddress(contractAddress)
@@ -19,6 +19,10 @@ const getAbi = async contractAddress => {
   try {
     abi = await getAbiWithCaching(contractAddress)
   } catch (err) {
+    if (await checkConnectionError()) {
+      return await getAbi(contractAddress)
+    }
+
     cleanAbiCacheForUrl(contractAddress)
     return false
   }
