@@ -21,12 +21,12 @@ const init = async () => {
   return web3
 }
 
-const checkConnectionError = async err => {
+const isConnectionErrorAndResolved = async err => {
   if (err && err.message === 'connection not open') {
     // ensure reconnected before handling any jobs
     // reconnection logic exists in actions/wallet.js -> getBalance()
     await waitUntil(
-      () => store.state.network.status !== NetworkStatus.CONNECTED,
+      () => store.state.network.status === NetworkStatus.CONNECTED,
       () => null,
       200
     )
@@ -34,4 +34,4 @@ const checkConnectionError = async err => {
   }
 }
 
-export { init, web3, checkConnectionError }
+export { init, web3, isConnectionErrorAndResolved }

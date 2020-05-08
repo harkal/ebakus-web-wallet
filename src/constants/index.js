@@ -75,6 +75,7 @@ const NetworkStatus = {
 const DialogComponents = {
   SEND_TX: 'SendTx',
   FAILED_TX: 'FailedTx',
+  RETRY_TX: 'RetryTx',
   NO_FUNDS: 'NoFunds',
   DELETE_WALLET: 'DeleteWallet',
   LEDGER: 'Ledger',

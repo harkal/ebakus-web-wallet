@@ -7,7 +7,7 @@ import store from '@/store'
 import MutationTypes from '@/store/mutation-types'
 
 import Transaction from './Transaction'
-import { web3, checkConnectionError } from './web3ebakus'
+import { web3, isConnectionErrorAndResolved } from './web3ebakus'
 
 const EBK_PRECISION_FACTOR = 10000
 
@@ -34,7 +34,7 @@ const getContractInstance = async () => {
 
     return _systemContract
   } catch (err) {
-    if (await checkConnectionError(err)) {
+    if (await isConnectionErrorAndResolved(err)) {
       return await getContractInstance()
     }
   }
@@ -62,7 +62,7 @@ const getStaked = async () => {
   } catch (err) {
     console.error('Failed to fetch staked amount.', err)
 
-    if (await checkConnectionError(err)) {
+    if (await isConnectionErrorAndResolved(err)) {
       return await getStaked()
     }
 
@@ -153,7 +153,7 @@ const getClaimableEntries = async () => {
   } catch (err) {
     console.error('Failed to fetch claimable entries.', err)
 
-    if (await checkConnectionError(err)) {
+    if (await isConnectionErrorAndResolved(err)) {
       return await getClaimableEntries()
     }
 
@@ -197,7 +197,7 @@ const getUnstakingAmount = async () => {
   } catch (err) {
     console.error('Failed to fetch unstaking amount.', err)
 
-    if (await checkConnectionError(err)) {
+    if (await isConnectionErrorAndResolved(err)) {
       return await getUnstakingAmount()
     }
 

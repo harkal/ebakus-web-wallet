@@ -351,6 +351,8 @@ export default {
         console.warn('Failed to set new stake amount: ', err)
         if (err instanceof TransactionUIError) {
           this.error = err.message
+        } else if (err && err.message === 'connection not open') {
+          this.error = 'There was a connection issue. Please retry staking.'
         } else {
           this.error = 'Failed to set new stake amount.'
         }
@@ -385,6 +387,8 @@ export default {
         console.warn('Failed to set unstake amount: ', err)
         if (err instanceof TransactionUIError) {
           this.error = err.message
+        } else if (err && err.message === 'connection not open') {
+          this.error = 'There was a connection issue. Please retry unstaking.'
         } else {
           this.error = 'Failed to set unstake amount.'
         }

@@ -176,6 +176,13 @@ Transaction.prototype.updateParentOnError = function(
   }
 }
 
+Transaction.prototype.userCancelTx = function(
+  msg = 'Transaction cancelled by user'
+) {
+  this.updateParentOnError(msg, 'send_tx_cancel')
+  store.dispatch(MutationTypes.CLEAR_TX)
+}
+
 // Transaction.prototype.save = async function() {
 //   await store.dispatch(MutationTypes.SET_TX_OBJECT, this)
 // }
@@ -340,7 +347,7 @@ Transaction.prototype.sendTx = async function(handleErrorUI = true) {
 
     loadTxsInfoFromExplorer()
   } catch (err) {
-    console.log('calcWorkAndSendTx err', err)
+    console.error('Send transaction error:', err)
 
     self._hasError = true
 
@@ -360,13 +367,25 @@ Transaction.prototype.sendTx = async function(handleErrorUI = true) {
     } else if (handleErrorUI) {
       activateDrawerIfClosed()
 
-      store.commit(MutationTypes.SHOW_DIALOG, {
-        component: DialogComponents.FAILED_TX,
-        title: 'Transaction Failed',
-        data: {
-          ...self.object,
-        },
-      })
+      if (err && err.message === 'connection not open') {
+        store.commit(MutationTypes.SHOW_DIALOG, {
+          component: DialogComponents.RETRY_TX,
+          title: 'Transaction not send',
+          data: {
+            id: this.id,
+            object: { ...this.object },
+          },
+        })
+        return
+      } else {
+        store.commit(MutationTypes.SHOW_DIALOG, {
+          component: DialogComponents.FAILED_TX,
+          title: 'Transaction Failed',
+          data: {
+            ...self.object,
+          },
+        })
+      }
     }
 
     self.updateParentOnError(err.message, 'send_tx_failure')
