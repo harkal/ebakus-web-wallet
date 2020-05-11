@@ -9,7 +9,6 @@ import Receive from '@/components/Receive.vue'
 import DappWhitelist from '@/components/DappWhitelist.vue'
 import DappWhitelistAddContract from '@/components/DappWhitelistAddContract.vue'
 import Unlock from '@/components/Unlock.vue'
-import Settings from '@/components/Settings.vue'
 
 import store from '@/store'
 
@@ -106,7 +105,8 @@ const router = new Router({
     {
       path: '/settings',
       name: RouteNames.SETTINGS,
-      component: Settings,
+      component: () =>
+        import(/* webpackChunkName: "settings" */ '@/components/Settings'),
     },
 
     {
