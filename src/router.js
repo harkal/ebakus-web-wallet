@@ -13,6 +13,19 @@ import Settings from '@/components/Settings.vue'
 
 import store from '@/store'
 
+// FIXME: import is broken for some reason, try to use it after webpack upgrade
+// import {
+//   loadedInIframe,
+// } from '@/parentFrameMessenger/parentFrameMessenger'
+
+const loadedInIframe = () => {
+  try {
+    return window.self !== window.top
+  } catch (e) {
+    return true
+  }
+}
+
 // import { isSafari } from '@/utils'
 // import styleAnimationVariables from '@/assets/css/_animations.scss'
 
@@ -38,8 +51,11 @@ const RouteNames = {
   SAFARI_WARNING: 'safari_warning',
 }
 
+// when in iframe use 'abstract', otherwise, history.back() on parent will change iframe history too
+const routerMode = loadedInIframe() ? 'abstract' : 'history'
+
 const router = new Router({
-  mode: 'history',
+  mode: routerMode,
   base: process.env.BASE_URL,
   linkActiveClass: 'active',
   routes: [
