@@ -5,7 +5,7 @@
         <h2>Total Balance</h2>
         <div class="balance">
           <p class="amount f-number">
-            {{ totalBalance.toFixed(4) }}
+            {{ totalBalance | numberFormatterFixed }}
           </p>
           <p><span v-if="network.isTestnet">t</span>{{ tokenSymbol }}</p>
         </div>
@@ -29,9 +29,9 @@
           <dt class="liquid">Liquid</dt>
           <dd>{{ (balance || '0') | toEtherFixed }} EBK</dd>
           <dt class="staked">Staked</dt>
-          <dd>{{ staked.toFixed(4) }} EBK</dd>
+          <dd>{{ staked | numberFormatterFixed }} EBK</dd>
           <dt class="unstaking">Unstaking</dt>
-          <dd>{{ unstaking.toFixed(4) }} EBK</dd>
+          <dd>{{ unstaking | numberFormatterFixed }} EBK</dd>
         </dl>
       </section>
 
@@ -83,7 +83,7 @@
           >
             <div class="unstaking-info">
               <span class="unstaking-amount">
-                {{ entry.amount.toFixed(4) }} EBK
+                {{ entry.amount | numberFormatterFixed }} EBK
               </span>
               <span class="unstaking-remaining-time">
                 {{ entry.remainingTime }}

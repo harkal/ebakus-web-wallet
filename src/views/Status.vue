@@ -147,12 +147,12 @@
       <p v-else class="balanceLoading" />
 
       <p v-if="hasStaked" class="staked">
-        + <span class="f-number">{{ staked.toFixed(4) }} </span>
+        + <span class="f-number">{{ staked | numberFormatterFixed }} </span>
         <span v-if="network.isTestnet">t</span>EBK staked
       </p>
 
       <p v-if="hasUnstaking" class="unstaking">
-        + <span class="f-number">{{ unstaking.toFixed(4) }} </span>
+        + <span class="f-number">{{ unstaking | numberFormatterFixed }} </span>
         <span v-if="network.isTestnet">t</span>EBK unstaking
       </p>
     </div>

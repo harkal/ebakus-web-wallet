@@ -2,8 +2,8 @@
   <div class="history scroll-wrapper">
     <div v-if="claimable > 0" class="claimNotification">
       <span
-        >{{ claimable.toFixed(4) }} EBK have been unstaked and are ready to
-        claim</span
+        >{{ claimable | numberFormatterFixed }} EBK have been unstaked and are
+        ready to claim</span
       >
       <button @click="claim">Claim</button>
     </div>
