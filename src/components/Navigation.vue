@@ -72,21 +72,21 @@ export default {
       background: rgb(253, 49, 95);
     }
 
-    &.notification:after {
-      position: absolute;
-      height: 14px;
-      top: -5px;
-      right: -5px;
-      padding: 0px 4px;
-      border-radius: 100%;
+    // &.notification:after {
+    //   position: absolute;
+    //   height: 14px;
+    //   top: -5px;
+    //   right: -5px;
+    //   padding: 0px 4px;
+    //   border-radius: 100%;
 
-      content: '1';
+    //   content: '1';
 
-      font-size: 10px;
-      color: white;
-      background: #fd315f;
-      border: 1px solid #fd315f;
-    }
+    //   font-size: 10px;
+    //   color: white;
+    //   background: #fd315f;
+    //   border: 1px solid #fd315f;
+    // }
   }
 }
 </style>
