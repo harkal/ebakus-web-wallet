@@ -12,7 +12,7 @@
         </h3>
       </div>
 
-      <h5>{{ publicAddress }}</h5>
+      <h5 class="address">{{ publicAddress }}</h5>
       <button class="full" :class="{ active: justCopied }" @click="doCopy">
         {{ btnLabel }}
       </button>
@@ -81,6 +81,11 @@ export default {
       font-weight: 600;
     }
   }
+}
+
+.address {
+  font-size: 16px;
+  word-break: break-all;
 }
 
 .qrcode {

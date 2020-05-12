@@ -99,6 +99,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import '../assets/css/_variables.scss';
+
 .history {
   padding: 15px 0;
 }
@@ -110,14 +112,15 @@ export default {
 
 .bubble {
   position: relative;
-  background: #e6e6e6;
-  color: #112f42;
-  width: 82%;
-  border-radius: 14px;
+  width: $wallet-opened-width - 18px;
   padding: 10px 10px;
   margin: 15px 0px;
-  margin-left: 18px;
+  margin-left: 0;
   margin-right: auto;
+
+  background: #e6e6e6;
+  color: #112f42;
+  border-radius: 0 14px 14px 0;
   cursor: pointer;
 
   &:hover {
@@ -136,11 +139,14 @@ export default {
   }
 
   &.local {
-    background: #fd315f;
+    margin-left: auto;
+    margin-right: 0;
+
+    background: #333;
     color: #fff;
     text-align: right;
-    margin-left: auto;
-    margin-right: 18px;
+
+    border-radius: 14px 0 0 14px;
 
     &:hover {
       background-color: darken(#fd315f, 5%);
@@ -179,21 +185,22 @@ export default {
     }
 
     &.title {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
+      font-family: Arial, sans-serif;
     }
 
     &.ens,
     &.address {
-      color: #969696;
+      color: #666;
     }
 
     &.ens {
-      font-size: 11px;
+      font-size: 13px;
     }
 
     &.address {
-      font-size: 10px;
+      font-size: 12px;
     }
   }
 }
