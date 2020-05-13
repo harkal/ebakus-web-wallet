@@ -112,7 +112,7 @@ export default {
 
 .bubble {
   position: relative;
-  width: $wallet-opened-width - 18px;
+  width: 294px;
   padding: 10px 10px;
   margin: 15px 0px;
   margin-left: 0;
@@ -149,7 +149,7 @@ export default {
     border-radius: 14px 0 0 14px;
 
     &:hover {
-      background-color: darken(#fd315f, 5%);
+      background-color: #222;
     }
 
     img {
@@ -187,7 +187,7 @@ export default {
     &.title {
       font-size: 13px;
       font-weight: 600;
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
     }
 
     &.ens,
