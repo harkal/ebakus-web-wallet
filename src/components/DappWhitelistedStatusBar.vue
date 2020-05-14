@@ -167,7 +167,7 @@ export default {
     async getTxInfo() {
       const txObject = this.txObject
       this.to = txObject.to
-      this.toEns = await getEnsNameForAddress(this.to)
+      if (this.to) this.toEns = await getEnsNameForAddress(this.to)
 
       let value = txObject.value || '0'
       value = Vue.options.filters.toEther(value)
@@ -207,7 +207,7 @@ export default {
 
           if (name === 'transfer') {
             this.to = getValueForParam('_to', params)
-            this.toEns = await getEnsNameForAddress(this.to)
+            if (this.to) this.toEns = await getEnsNameForAddress(this.to)
 
             const tokenValue = getValueForParam('_value', params) || 0
 

@@ -107,7 +107,9 @@ const getTxLogInfo = async receipt => {
           String(tokenValue)
         )} ${tokenSymbolPrefix}${token.symbol} to:`
         logAddress = getValueForParam('_to', params)
-        logAddressEns = await getEnsNameForAddress(logAddress)
+        if (logAddress) {
+          logAddressEns = await getEnsNameForAddress(logAddress)
+        }
       } else if (name === 'getWei') {
         logTitle = `You requested 1 ${tokenSymbolPrefix}EBK from faucet:`
         logAddressEns = ''
@@ -178,10 +180,8 @@ const getTransactionMessage = async tx => {
 
   to = tx.to
 
-  toEnsAddress = await getEnsNameForAddress(to)
-  if (toEnsAddress) {
-    toEnsText = ` (${toEnsAddress})`
-  }
+  if (to) toEnsAddress = await getEnsNameForAddress(to)
+  if (toEnsAddress) toEnsText = ` (${toEnsAddress})`
 
   const value = tx.value ? web3.utils.fromWei(tx.value) : '0'
   const tokenSymbolPrefix = getTokenSymbolPrefix(tx.chainId)
@@ -215,11 +215,9 @@ const getTransactionMessage = async tx => {
         to = getValueForParam('_to', params)
         const value = getValueForParam('_value', params) || 0
 
-        toEnsAddress = await getEnsNameForAddress(to)
         toEnsText = ''
-        if (toEnsAddress) {
-          toEnsText = ` (${toEnsAddress})`
-        }
+        if (to) toEnsAddress = await getEnsNameForAddress(to)
+        if (toEnsAddress) toEnsText = ` (${toEnsAddress})`
 
         emTitle = `to transfer ${web3.utils.fromWei(
           String(value)

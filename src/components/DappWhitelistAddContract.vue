@@ -62,8 +62,10 @@ export default {
   },
   watch: {
     contractAddress: async function(val) {
-      const ens = await getEnsNameForAddress(val)
-      this.contractAddressEns = ens
+      if (val) {
+        const ens = await getEnsNameForAddress(val)
+        this.contractAddressEns = ens
+      }
     },
   },
   mounted() {
